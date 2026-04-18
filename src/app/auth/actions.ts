@@ -7,24 +7,24 @@ import { eq } from 'drizzle-orm'
 import { AuthError } from 'next-auth'
 import bcrypt from 'bcryptjs'
 import { redirect } from 'next/navigation'
+import crypto from 'crypto'
 
 export async function loginAction(data: { email: string; password: string }) {
   try {
-    await signIn('credentials', {
+    const result = await signIn('credentials', {
       email: data.email,
       password: data.password,
       redirect: false,
     })
-    redirect('/dashboard')
-  } catch (error) {
-    if (error instanceof AuthError) {
-      if (error.type === 'CredentialsSignin') {
-        return { error: 'Credenciales inválidas.' }
-      }
-      return { error: 'Ocurrió un error inesperado al iniciar sesión.' }
+
+    if (result?.error) {
+      return { error: 'Credenciales inválidas.' }
     }
-    throw error // Re-throw to allow Next.js redirect to work if needed
+  } catch (error: any) {
+    if (error.message === 'NEXT_REDIRECT') throw error
+    return { error: 'Ocurrió un error inesperado al iniciar sesión.' }
   }
+  redirect('/dashboard')
 }
 
 export async function signupAction(data: { email: string; password: string; username: string }) {
@@ -48,17 +48,21 @@ export async function signupAction(data: { email: string; password: string; user
     })
 
     // Auto login
-    await signIn('credentials', {
+    const result = await signIn('credentials', {
       email: data.email,
       password: data.password,
       redirect: false,
     })
-    
-    redirect('/dashboard')
-  } catch (error) {
+
+    if (result?.error) {
+       return { error: 'Usuario registrado, pero hubo un problema al entrar. Por favor, inicia sesión.' }
+    }
+  } catch (error: any) {
+    if (error.message === 'NEXT_REDIRECT') throw error
     console.error(error)
     return { error: 'Ocurrió un error al registrarse. Inténtalo de nuevo.' }
   }
+  redirect('/dashboard')
 }
 
 export async function logoutAction() {
