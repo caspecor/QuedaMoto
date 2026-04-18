@@ -41,8 +41,9 @@ export function RegisterForm() {
         toast.error(response.error)
       } else {
         toast.success('Cuenta creada exitosamente')
-        router.push('/dashboard')
-        router.refresh()
+        setTimeout(() => {
+          window.location.href = '/dashboard'
+        }, 300)
       }
     } catch (error: any) {
       console.error(error)
