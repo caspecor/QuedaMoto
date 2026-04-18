@@ -39,10 +39,13 @@ export function LoginForm() {
       const response = await loginAction(data)
       if (response?.error) {
         toast.error(response.error)
-      } else {
+      } else if (response?.success) {
         toast.success('¡Bienvenido de nuevo!')
-        router.push('/dashboard')
-        router.refresh()
+        // Small delay to let the toast be seen and session to settle
+        setTimeout(() => {
+          router.push('/dashboard')
+          router.refresh()
+        }, 500)
       }
     } catch (error) {
       toast.error('Ocurrió un error al iniciar sesión')
