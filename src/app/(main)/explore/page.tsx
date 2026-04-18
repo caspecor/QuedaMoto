@@ -1,5 +1,7 @@
 import { MapboxView } from "@/components/map/MapboxView";
-import { createClient } from "@/lib/supabase/server";
+import { db } from "@/db"
+import { meetups as meetupsTable } from "@/db/schema"
+import { eq } from "drizzle-orm"
 import { Button } from "@/components/ui/button";
 import { Filter } from "lucide-react";
 import Link from 'next/link';
@@ -9,12 +11,16 @@ export const metadata = {
 };
 
 export default async function ExplorePage() {
-  const supabase = await createClient()
-  let meetups = null;
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://dummy.supabase.co') {
-    const { data } = await supabase.from('meetups').select('id, title, lat, lng, date, time').eq('visibility', 'public');
-    meetups = data;
-  }
+  const meetupsArr = await db.select({
+    id: meetupsTable.id,
+    title: meetupsTable.title,
+    lat: meetupsTable.lat,
+    lng: meetupsTable.lng,
+    date: meetupsTable.date,
+    time: meetupsTable.time
+  }).from(meetupsTable).where(eq(meetupsTable.visibility, 'public'))
+  
+  const meetups = (meetupsArr || []).filter(m => m.lat !== null && m.lng !== null) as any[]
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] md:flex-row overflow-hidden bg-background">

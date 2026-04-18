@@ -1,12 +1,12 @@
-import { createClient } from '@/lib/supabase/server'
+import { auth } from '@/auth'
 import Link from 'next/link'
 import { Zap, User, Plus } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 
 export default async function Navbar() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const session = await auth()
+  const user = session?.user
 
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">

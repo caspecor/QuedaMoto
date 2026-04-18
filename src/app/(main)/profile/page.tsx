@@ -1,4 +1,7 @@
-import { createClient } from "@/lib/supabase/server"
+import { auth } from "@/auth"
+import { db } from "@/db"
+import { users as usersTable } from "@/db/schema"
+import { eq } from "drizzle-orm"
 import { redirect } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
@@ -10,14 +13,15 @@ export const metadata = {
 }
 
 export default async function ProfilePage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const session = await auth()
+  const userSession = session?.user
 
-  if (!user) {
+  if (!userSession) {
     redirect("/auth/login")
   }
 
-  const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single()
+  const userArr = await db.select().from(usersTable).where(eq(usersTable.id, userSession.id!)).limit(1)
+  const profile = userArr[0]
 
   return (
     <div className="container px-4 py-8 max-w-3xl mx-auto space-y-8">

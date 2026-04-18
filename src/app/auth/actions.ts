@@ -1,65 +1,66 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
+import { signIn, signOut } from '@/auth'
+import { db } from '@/db'
+import { users } from '@/db/schema'
+import { eq } from 'drizzle-orm'
+import { AuthError } from 'next-auth'
+import bcrypt from 'bcryptjs'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 
 export async function loginAction(data: { email: string; password: string }) {
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://dummy.supabase.co') {
-    return { error: 'Añade tus credenciales reales de Supabase en .env.local para iniciar sesión.' }
+  try {
+    await signIn('credentials', {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    })
+    redirect('/dashboard')
+  } catch (error) {
+    if (error instanceof AuthError) {
+      if (error.type === 'CredentialsSignin') {
+        return { error: 'Credenciales inválidas.' }
+      }
+      return { error: 'Ocurrió un error inesperado al iniciar sesión.' }
+    }
+    throw error // Re-throw to allow Next.js redirect to work if needed
   }
-
-  const supabase = await createClient()
-  const { error } = await supabase.auth.signInWithPassword({
-    email: data.email,
-    password: data.password,
-  })
-
-  if (error) {
-    return { error: error.message }
-  }
-
-  revalidatePath('/', 'layout')
-  redirect('/dashboard')
 }
 
 export async function signupAction(data: { email: string; password: string; username: string }) {
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL === 'https://dummy.supabase.co') {
-    return { error: 'Añade tus credenciales reales de Supabase en .env.local para poder crear una cuenta.' }
-  }
-
-  const supabase = await createClient()
-
-  let authData, error;
   try {
-    const res = await supabase.auth.signUp({
-      email: data.email,
-      password: data.password,
-    })
-    authData = res.data;
-    error = res.error;
-  } catch (err: any) {
-    return { error: 'Error de conexión: No se pudo contactar a la base de datos de Supabase. (Es posible que estés usando url/keys falsos).' }
-  }
+    // Check if user exists
+    const existing = await db.select().from(users).where(eq(users.email, data.email))
+    if (existing.length > 0) {
+      return { error: 'El email ya está registrado.' }
+    }
 
-  if (error) {
-    return { error: error.message }
-  }
-
-  if (authData.user) {
-    // Insert into public.users
-    const { error: dbError } = await supabase.from('users').insert({
-      id: authData.user.id,
+    // Hash password
+    const hashedPassword = await bcrypt.hash(data.password, 10)
+    
+    // Insert into DB
+    const id = crypto.randomUUID()
+    await db.insert(users).values({
+      id,
       email: data.email,
       username: data.username,
+      password: hashedPassword,
+    })
+
+    // Auto login
+    await signIn('credentials', {
+      email: data.email,
+      password: data.password,
+      redirect: false,
     })
     
-    if (dbError) {
-      // In a real app we might clean up Auth if DB fails, but for now we ignore or return err
-      console.error(dbError)
-    }
+    redirect('/dashboard')
+  } catch (error) {
+    console.error(error)
+    return { error: 'Ocurrió un error al registrarse. Inténtalo de nuevo.' }
   }
+}
 
-  revalidatePath('/', 'layout')
-  redirect('/dashboard')
+export async function logoutAction() {
+  await signOut({ redirectTo: '/auth/login' })
 }

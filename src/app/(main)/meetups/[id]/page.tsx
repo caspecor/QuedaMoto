@@ -1,37 +1,52 @@
-import { createClient } from "@/lib/supabase/server"
+import { db } from "@/db"
+import { meetups as meetupsTable, attendees, users } from "@/db/schema"
+import { eq } from "drizzle-orm"
 import { notFound } from "next/navigation"
 import { MapboxView } from "@/components/map/MapboxView"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Calendar, Clock, MapPin, Users, Shield, MessagesSquare } from "lucide-react"
 
+import { auth } from "@/auth"
+
 export default async function MeetupDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const supabase = await createClient()
   
-  let meetup = null;
-  if (process.env.NEXT_PUBLIC_SUPABASE_URL !== 'https://dummy.supabase.co') {
-    const { data } = await supabase
-      .from('meetups')
-      .select('*, creator:creator_id(username, avatar), attendees(user_id, users(username, avatar))')
-      .eq('id', id)
-      .single()
-    meetup = data;
-  }
-
-  if (!meetup) {
+  const meetupObj = await db.select().from(meetupsTable).where(eq(meetupsTable.id, id)).limit(1).then(res => res[0]);
+  
+  if (!meetupObj) {
     notFound()
   }
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const creatorObj = await db.select().from(users).where(eq(users.id, meetupObj.creator_id)).limit(1).then(res => res[0]);
+  
+  const attendeesList = await db.select({
+    user_id: attendees.user_id,
+    users: {
+      username: users.username,
+      avatar: users.avatar
+    }
+  }).from(attendees).innerJoin(users, eq(attendees.user_id, users.id)).where(eq(attendees.meetup_id, id));
+
+  const meetup = {
+    ...meetupObj,
+    creator: creatorObj,
+    attendees: attendeesList
+  }
+
+  const session = await auth()
+  const user = session?.user
   const isAttending = user ? meetup.attendees.some((a: any) => a.user_id === user.id) : false
   const isCreator = user?.id === meetup.creator_id
+
+  // Fix null latitude for MapboxView
+  const validMeetup = { ...meetup, lat: meetup.lat || 0, lng: meetup.lng || 0 }
 
   return (
     <div className="flex flex-col md:flex-row min-h-[calc(100vh-4rem)]">
       {/* Map Section */}
       <div className="w-full h-64 md:h-full md:flex-1 relative order-2 md:order-1 z-0">
-        <MapboxView meetups={[meetup]} />
+        <MapboxView meetups={[validMeetup as any]} />
       </div>
 
       {/* Details Section */}

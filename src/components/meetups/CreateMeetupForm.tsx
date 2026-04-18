@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useRouter } from 'next/navigation'
-import { createClient } from '@/lib/supabase/client'
+import { createMeetupAction } from '@/app/(main)/meetups/actions'
 import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 
@@ -32,10 +32,8 @@ type CreateFormValues = z.infer<typeof createSchema>
 export function CreateMeetupForm() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const supabase = createClient()
-  
   const { register, handleSubmit, setValue, formState: { errors } } = useForm<CreateFormValues>({
-    resolver: zodResolver(createSchema),
+    resolver: zodResolver(createSchema) as any,
     defaultValues: {
       visibility: 'public',
       level_required: 'Principiante',
@@ -46,40 +44,15 @@ export function CreateMeetupForm() {
   async function onSubmit(data: CreateFormValues) {
     setIsLoading(true)
     try {
-      const { data: userResponse } = await supabase.auth.getUser()
-      if (!userResponse.user) {
-        toast.error("Debes iniciar sesión para crear eventos")
+      const response = await createMeetupAction(data)
+      
+      if (response.error) {
+        toast.error(response.error)
         return
       }
 
-      const payload = {
-        ...data,
-        max_attendees: parseInt(data.max_attendees, 10),
-        creator_id: userResponse.user.id,
-        // Optional default lat/lng handling since we aren't using a complex place picker right now
-        lat: 28.12, 
-        lng: -15.43
-      }
-
-      const { data: newMeetup, error } = await supabase
-        .from('meetups')
-        .insert(payload)
-        .select('id')
-        .single()
-        
-      if (error) throw error
-
-      // Auto-join the creator to the meetup
-      if (newMeetup) {
-        await supabase.from('attendees').insert({
-          meetup_id: newMeetup.id,
-          user_id: userResponse.user.id,
-          status: 'attending'
-        })
-      }
-
       toast.success('Ruta creada con éxito')
-      router.push(`/meetups/${newMeetup.id}`)
+      router.push(`/meetups/${response.meetupId}`)
       router.refresh()
     } catch (error: any) {
       toast.error(error.message || 'Error al crear la quedada')

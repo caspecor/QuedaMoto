@@ -1,11 +1,11 @@
 import { ReactNode } from "react"
 import Navbar from "@/components/layout/Navbar"
 import BottomNav from "@/components/layout/BottomNav"
-import { createClient } from "@/lib/supabase/server"
+import { auth } from "@/auth"
 
 export default async function MainLayout({ children }: { children: ReactNode }) {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const session = await auth()
+  const user = session?.user
 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-16 md:pb-0">

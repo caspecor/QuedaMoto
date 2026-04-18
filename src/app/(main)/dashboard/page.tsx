@@ -1,4 +1,7 @@
-import { createClient } from "@/lib/supabase/server"
+import { auth } from "@/auth"
+import { db } from "@/db"
+import { attendees as attendeesTable, meetups as meetupsTable } from "@/db/schema"
+import { eq } from "drizzle-orm"
 import { redirect } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card"
 import { Button, buttonVariants } from "@/components/ui/button"
@@ -10,20 +13,21 @@ export const metadata = {
 }
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const session = await auth()
+  const user = session?.user
 
   if (!user) {
     redirect("/auth/login")
   }
 
-  // Fetch upcoming meetups user is attending (Array of objects including inner meetups object)
-  const { data: attendees } = await supabase
-    .from('attendees')
-    .select('meetup_id, meetups(*)')
-    .eq('user_id', user.id)
+  // Fetch upcoming meetups user is attending
+  const attendeeRecords = await db.select({
+    meetup: meetupsTable
+  }).from(attendeesTable)
+    .innerJoin(meetupsTable, eq(attendeesTable.meetup_id, meetupsTable.id))
+    .where(eq(attendeesTable.user_id, user.id!))
 
-  const upcomingMeetups = attendees?.map(a => a.meetups).filter(Boolean) || []
+  const upcomingMeetups = attendeeRecords.map(a => a.meetup) || []
 
   return (
     <div className="container px-4 py-8 max-w-4xl mx-auto space-y-8">
