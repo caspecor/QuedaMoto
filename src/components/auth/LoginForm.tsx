@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { loginAction } from '@/app/auth/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -22,6 +23,7 @@ type LoginFormValues = z.infer<typeof loginSchema>
 
 export function LoginForm() {
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   })
@@ -37,6 +39,10 @@ export function LoginForm() {
       const response = await loginAction(data)
       if (response?.error) {
         toast.error(response.error)
+      } else {
+        toast.success('¡Bienvenido de nuevo!')
+        router.push('/dashboard')
+        router.refresh()
       }
     } catch (error) {
       toast.error('Ocurrió un error al iniciar sesión')

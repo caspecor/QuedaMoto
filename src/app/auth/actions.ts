@@ -20,11 +20,12 @@ export async function loginAction(data: { email: string; password: string }) {
     if (result?.error) {
       return { error: 'Credenciales inválidas.' }
     }
+    
+    return { success: true }
   } catch (error: any) {
-    if (error.message === 'NEXT_REDIRECT') throw error
+    console.error(error)
     return { error: 'Ocurrió un error inesperado al iniciar sesión.' }
   }
-  redirect('/dashboard')
 }
 
 export async function signupAction(data: { email: string; password: string; username: string }) {
@@ -57,12 +58,12 @@ export async function signupAction(data: { email: string; password: string; user
     if (result?.error) {
        return { error: 'Usuario registrado, pero hubo un problema al entrar. Por favor, inicia sesión.' }
     }
+
+    return { success: true }
   } catch (error: any) {
-    if (error.message === 'NEXT_REDIRECT') throw error
     console.error(error)
     return { error: 'Ocurrió un error al registrarse. Inténtalo de nuevo.' }
   }
-  redirect('/dashboard')
 }
 
 export async function logoutAction() {

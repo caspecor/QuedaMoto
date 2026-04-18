@@ -5,6 +5,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 import { signupAction } from '@/app/auth/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -27,6 +28,7 @@ type RegisterFormValues = z.infer<typeof registerSchema>
 
 export function RegisterForm() {
   const [isLoading, setIsLoading] = useState(false)
+  const router = useRouter()
   const { register, handleSubmit, formState: { errors } } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
   })
@@ -39,6 +41,8 @@ export function RegisterForm() {
         toast.error(response.error)
       } else {
         toast.success('Cuenta creada exitosamente')
+        router.push('/dashboard')
+        router.refresh()
       }
     } catch (error: any) {
       console.error(error)
