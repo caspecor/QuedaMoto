@@ -1,36 +1,32 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# QuedaMoto
 
-## Getting Started
+Biker social platform MVP for discovering and organizing spontaneous motorcycle meetups across Spain. Built with Next.js (App Router), Tailwind CSS, Shadcn UI, Supabase, and Mapbox.
 
-First, run the development server:
+## Features Delivered
+- **Authentication**: Email/Password powered by Supabase with Zod validation. Protected server routes using Middleware.
+- **Premium Biker UI**: Dark theme customized using Shadcn and Tailwind v4. Glassmorphism layered cards, high contrast orange highlights, and responsive Mobile-First views.
+- **Core Views**: 
+  - Visual Landing Page with bold calls to action.
+  - Interactive Explore map utilizing Mapbox GL JS Native.
+  - Comprehensive user dashboard displaying scheduled rides.
+  - Dynamic meetup forms and detailed views for organizing rides.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Setup Instructions
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+1. **Supabase Database**:
+   - Open your Supabase project dashboard.
+   - Run the commands specified in `database/schema.sql` in the Supabase SQL editor to create the Tables and Row Level Security Rules.
+   - Run `database/seed.sql` to populate sample bikers and Canary Island meetup locations.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+2. **Environment Variables**:
+   - Rename `.env.local.example` to `.env.local`.
+   - Update `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from your Supabase API settings.
+   - Insert your `NEXT_PUBLIC_MAPBOX_TOKEN` from Mapbox.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. **Install & Run**:
+   ```bash
+   npm install
+   npm run dev
+   ```
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Go to `http://localhost:3000` to start exploring QuedaMoto!
