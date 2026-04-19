@@ -1,48 +1,38 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
-import 'leaflet/dist/leaflet.css';
 
-const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
-const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
-const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
-const useMapEvents = dynamic(() => import('react-leaflet').then(mod => mod.useMapEvents), { ssr: false });
-
-interface MapPickerProps {
+export interface MapPickerProps {
   onLocationSelect: (lat: number, lng: number) => void;
   defaultLat?: number;
   defaultLng?: number;
 }
 
-function LocationMarker({ onLocationSelect, position }: { onLocationSelect: (lat: number, lng: number) => void, position: [number, number] | null }) {
-  const map = (require('react-leaflet') as any).useMapEvents({
-    click(e: any) {
-      onLocationSelect(e.latlng.lat, e.latlng.lng);
-    },
-  });
-
-  return position === null ? null : (
-    <Marker position={position} />
-  );
-}
-
-// Since useMapEvents needs to be a result of a hook call within MapContainer, 
-// and we are using dynamic imports, let's restructure slightly for reliability.
-
-export function MapPicker({ onLocationSelect, defaultLat = 28.272336, defaultLng = -16.642513 }: MapPickerProps) {
-  const [isMounted, setIsMounted] = useState(false);
-  const [L, setL] = useState<any>(null);
+// Inner map component, only rendered client-side
+function LeafletMapPicker({ onLocationSelect, defaultLat, defaultLng }: MapPickerProps) {
   const [position, setPosition] = useState<[number, number] | null>(null);
+  const [L, setL] = useState<any>(null);
+  const [MapContainer, setMapContainer] = useState<any>(null);
+  const [TileLayer, setTileLayer] = useState<any>(null);
+  const [Marker, setMarker] = useState<any>(null);
+  const [useMapEvents, setUseMapEvents] = useState<any>(null);
 
   useEffect(() => {
-    setIsMounted(true);
-    import('leaflet').then(leaflet => {
+    Promise.all([
+      import('leaflet'),
+      import('react-leaflet'),
+    ]).then(([leaflet, reactLeaflet]) => {
       setL(leaflet);
+      setMapContainer(() => reactLeaflet.MapContainer);
+      setTileLayer(() => reactLeaflet.TileLayer);
+      setMarker(() => reactLeaflet.Marker);
+      setUseMapEvents(() => reactLeaflet.useMapEvents);
     });
   }, []);
 
-  if (!isMounted || !L) return <div className="h-64 bg-muted animate-pulse rounded-xl" />;
+  if (!L || !MapContainer) {
+    return <div className="h-64 bg-muted animate-pulse rounded-xl flex items-center justify-center text-muted-foreground text-sm">Cargando mapa...</div>;
+  }
 
   const customIcon = new L.Icon({
     iconUrl: 'https://cdn.rawgit.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-orange.png',
@@ -53,36 +43,40 @@ export function MapPicker({ onLocationSelect, defaultLat = 28.272336, defaultLng
     shadowSize: [41, 41]
   });
 
-  // Helper component to handle clicks
-  const MapEvents = () => {
-    const { useMapEvents: useMapEventsHook } = require('react-leaflet');
-    useMapEventsHook({
+  function MapEvents() {
+    useMapEvents({
       click(e: any) {
         setPosition([e.latlng.lat, e.latlng.lng]);
         onLocationSelect(e.latlng.lat, e.latlng.lng);
       },
     });
     return null;
-  };
+  }
 
   return (
-    <div className="h-64 w-full rounded-xl overflow-hidden border border-border shadow-inner relative z-0">
-      {/* @ts-ignore */}
-      <MapContainer 
-        center={[defaultLat, defaultLng]} 
-        zoom={10} 
+    <div className="h-64 w-full rounded-xl overflow-hidden border border-border shadow-inner relative">
+      <MapContainer
+        center={[defaultLat ?? 28.272336, defaultLng ?? -16.642513]}
+        zoom={10}
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+          attribution='&copy; OpenStreetMap contributors &copy; CARTO'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
         <MapEvents />
         {position && <Marker position={position} icon={customIcon} />}
       </MapContainer>
-      <div className="absolute bottom-2 left-2 z-[1000] bg-background/80 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold uppercase border border-border/50">
+      <div className="absolute bottom-2 left-2 z-[1000] bg-background/80 backdrop-blur-sm px-2 py-1 rounded text-[10px] font-bold uppercase border border-border/50 pointer-events-none">
         Haz click para marcar el punto
       </div>
     </div>
   );
+}
+
+export function MapPicker(props: MapPickerProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(true); }, []);
+  if (!mounted) return <div className="h-64 bg-muted animate-pulse rounded-xl" />;
+  return <LeafletMapPicker {...props} />;
 }
