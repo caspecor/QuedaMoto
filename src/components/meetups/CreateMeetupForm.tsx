@@ -7,7 +7,8 @@ import * as z from 'zod'
 import { useRouter } from 'next/navigation'
 import { createMeetupAction } from '@/app/(main)/meetups/actions'
 import { toast } from 'sonner'
-import { Loader2 } from 'lucide-react'
+import { Loader2, MapPin } from 'lucide-react'
+import { MapPicker } from '@/components/map/MapPicker'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,6 +24,9 @@ const createSchema = z.object({
   time: z.string().min(1, 'La hora es obligatoria'),
   max_attendees: z.string().min(1, 'Requerido'),
   address: z.string().min(5, 'Requerido'),
+  address_notes: z.string().optional(),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
   visibility: z.enum(['public', 'private']),
   level_required: z.enum(['Principiante', 'Intermedio', 'Avanzado']),
 })
@@ -32,7 +36,7 @@ type CreateFormValues = z.infer<typeof createSchema>
 export function CreateMeetupForm() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm<CreateFormValues>({
+  const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<CreateFormValues>({
     resolver: zodResolver(createSchema) as any,
     defaultValues: {
       visibility: 'public',
@@ -52,8 +56,11 @@ export function CreateMeetupForm() {
       }
 
       toast.success('Ruta creada con éxito')
-      router.push(`/meetups/${response.meetupId}`)
-      router.refresh()
+      
+      // Delay to ensure the toast is seen and server actions have fully settled
+      setTimeout(() => {
+        window.location.href = `/meetups/${response.meetupId}`
+      }, 500)
     } catch (error: any) {
       toast.error(error.message || 'Error al crear la quedada')
     } finally {
@@ -123,10 +130,28 @@ export function CreateMeetupForm() {
             {errors.max_attendees && <p className="text-xs text-destructive">{errors.max_attendees.message}</p>}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="address">Punto de Encuentro (Dirección)</Label>
-            <Input id="address" placeholder="Gasolinera X, Calle Y..." {...register('address')} />
-            {errors.address && <p className="text-xs text-destructive">{errors.address.message}</p>}
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="address">Punto de Encuentro (Dirección)</Label>
+              <Input id="address" placeholder="Gasolinera X, Calle Y..." {...register('address')} />
+              {errors.address && <p className="text-xs text-destructive">{errors.address.message}</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label>Ubicación exacta en mapa</Label>
+              <MapPicker 
+                onLocationSelect={(lat, lng) => {
+                  setValue('lat', lat);
+                  setValue('lng', lng);
+                }} 
+              />
+              {(errors.lat || errors.lng) && <p className="text-xs text-destructive">Debes marcar un punto en el mapa</p>}
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="address_notes">Anotaciones del punto de encuentro</Label>
+              <Input id="address_notes" placeholder="Ej: Quedamos al lado del surtidor 4..." {...register('address_notes')} />
+            </div>
           </div>
 
           <Button type="submit" className="w-full mt-4" disabled={isLoading}>

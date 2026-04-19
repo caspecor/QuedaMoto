@@ -5,6 +5,8 @@ import { meetups, attendees } from '@/db/schema'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import crypto from 'crypto'
+import { revalidatePath } from 'next/cache'
+import { eq, and } from 'drizzle-orm'
 
 export async function createMeetupAction(data: any) {
   try {
@@ -20,8 +22,9 @@ export async function createMeetupAction(data: any) {
       ...data,
       id: meetupId,
       creator_id: session.user.id,
-      lat: 28.12,
-      lng: -15.43,
+      lat: data.lat || 28.12,
+      lng: data.lng || -15.43,
+      address_notes: data.address_notes || null,
       createdAt: new Date()
     }
 
@@ -38,5 +41,93 @@ export async function createMeetupAction(data: any) {
   } catch (error: any) {
     console.error(error)
     return { error: 'Ocurrió un error al crear la ruta.' }
+  }
+}
+
+export async function sendChatMessage(meetupId: string, content: string) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) {
+      return { error: 'No estás autenticado.' }
+    }
+
+    const { messages } = await import('@/db/schema')
+    
+    await db.insert(messages).values({
+      meetup_id: meetupId,
+      user_id: session.user.id,
+      content,
+    })
+
+    return { success: true }
+  } catch (error) {
+    console.error(error)
+    return { error: 'Error al enviar mensaje' }
+  }
+}
+
+export async function getChatMessages(meetupId: string) {
+  try {
+    const { messages, users } = await import('@/db/schema')
+    const { eq, desc } = await import('drizzle-orm')
+
+    const result = await db.select({
+      id: messages.id,
+      content: messages.content,
+      createdAt: messages.createdAt,
+      user: {
+        id: users.id,
+        username: users.username,
+        avatar: users.avatar
+      }
+    }).from(messages)
+      .innerJoin(users, eq(messages.user_id, users.id))
+      .where(eq(messages.meetup_id, meetupId))
+      .orderBy(desc(messages.createdAt))
+      .limit(50)
+
+    return { messages: result.reverse() }
+  } catch (error) {
+    console.error(error)
+    return { error: 'Error al cargar mensajes' }
+  }
+}
+
+export async function joinMeetupAction(meetupId: string) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) return { error: 'Inicia sesión primero' }
+
+    await db.insert(attendees).values({
+      meetup_id: meetupId,
+      user_id: session.user.id,
+      status: 'attending',
+    })
+
+    revalidatePath(`/meetups/${meetupId}`)
+    return { success: true }
+  } catch (error) {
+    console.error(error)
+    return { error: 'Error al unirse a la quedada' }
+  }
+}
+
+export async function leaveMeetupAction(meetupId: string) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) return { error: 'Inicia sesión primero' }
+
+    await db.delete(attendees).where(
+      and(
+        eq(attendees.meetup_id, meetupId),
+        eq(attendees.user_id, session.user.id)
+      )
+    )
+
+    revalidatePath(`/meetups/${meetupId}`)
+    return { success: true }
+  } catch (error) {
+    console.error(error)
+    return { error: 'Error al abandonar la quedada' }
   }
 }

@@ -24,6 +24,7 @@ export const meetups = pgTable('meetups', {
   time: varchar('time', { length: 50 }).notNull(),
   max_attendees: integer('max_attendees').notNull(),
   address: text('address').notNull(),
+  address_notes: text('address_notes'),
   lat: doublePrecision('lat'),
   lng: doublePrecision('lng'),
   visibility: varchar('visibility', { length: 50 }).default('public'),
@@ -38,4 +39,12 @@ export const attendees = pgTable('attendees', {
   user_id: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   status: varchar('status', { length: 50 }).default('attending'),
   joinedAt: timestamp('joined_at').defaultNow(),
+});
+
+export const messages = pgTable('messages', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  meetup_id: uuid('meetup_id').references(() => meetups.id, { onDelete: 'cascade' }).notNull(),
+  user_id: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  content: text('content').notNull(),
+  createdAt: timestamp('created_at').defaultNow(),
 });

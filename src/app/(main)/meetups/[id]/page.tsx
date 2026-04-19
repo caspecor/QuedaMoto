@@ -3,6 +3,8 @@ import { meetups as meetupsTable, attendees, users } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { notFound } from "next/navigation"
 import { MapboxView } from "@/components/map/MapboxView"
+import { ChatModule } from "@/components/meetups/ChatModule"
+import { JoinButton } from "@/components/meetups/JoinButton"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Calendar, Clock, MapPin, Users, Shield, MessagesSquare } from "lucide-react"
@@ -104,9 +106,18 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
             </div>
           </div>
 
-          <div className="space-y-2 bg-background p-4 rounded-2xl border border-border/40">
-            <h3 className="font-bold flex items-center gap-2 text-foreground"><MapPin className="h-5 w-5 text-primary"/> Punto de encuentro</h3>
-            <p className="text-muted-foreground text-sm pl-7">{meetup.address}</p>
+          <div className="space-y-4 bg-background p-5 rounded-3xl border border-border/40 shadow-sm">
+            <h3 className="font-bold flex items-center gap-2 text-primary font-sans">
+              <MapPin className="h-5 w-5" /> Punto de encuentro
+            </h3>
+            <div className="pl-7 space-y-2">
+              <p className="text-foreground font-semibold text-sm">{meetup.address}</p>
+              {meetup.address_notes && (
+                <div className="mt-2 p-3 bg-muted/30 rounded-xl border-l-4 border-primary/50 text-sm italic text-muted-foreground">
+                  "{meetup.address_notes}"
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -120,24 +131,14 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
                 Inicia sesión para unirte
               </a>
             ) : isCreator ? (
-               <Button className="w-full h-12 rounded-full" variant="outline">Eres el organizador</Button>
-            ) : isAttending ? (
-               <Button className="w-full h-12 rounded-full border-2 border-destructive/50 text-destructive bg-destructive/10 hover:bg-destructive hover:text-white transition-colors" variant="outline">Abandonar Quedada</Button>
+               <Button className="w-full h-12 rounded-full font-bold" variant="outline" disabled>Eres el organizador</Button>
             ) : (
-               <Button className="w-full text-lg h-14 rounded-full font-bold shadow-primary/25 shadow-2xl">¡Apunta mi nombre!</Button>
+               <JoinButton meetupId={id} isAttending={isAttending} />
             )}
           </div>
           
           {user && isAttending && (
-             <div className="mt-4 p-4 border border-primary/20 bg-primary/5 rounded-2xl flex items-center gap-4 cursor-pointer hover:bg-primary/10 transition-colors shadow-sm">
-               <div className="p-3 bg-background rounded-full shadow-sm">
-                 <MessagesSquare className="h-6 w-6 text-primary" />
-               </div>
-               <div>
-                  <h4 className="font-bold text-foreground">Chat del grupo</h4>
-                  <p className="text-xs text-muted-foreground mt-0.5">Habla con los {meetup.attendees?.length} moteros apuntados</p>
-               </div>
-             </div>
+             <ChatModule meetupId={id} userId={user.id} />
           )}
         </div>
       </div>
