@@ -135,41 +135,47 @@ export async function sendChatMessage(meetupId: string, content: string) {
       return { error: 'No estás autenticado.' }
     }
 
-    const { messages } = await import('@/db/schema')
-    
-    await db.insert(messages).values({
+    // 1. Insert message (Core operation)
+    await db.insert(messagesTable).values({
       meetup_id: meetupId,
       user_id: session.user.id,
       content,
     })
 
-    // Fetch meetup title and creator
-    const meetup = await db.select().from(meetups).where(eq(meetups.id, meetupId)).limit(1).then(r => r[0])
-    
-    // Fetch all attendees to notify them
-    const attendeesList = await db.select().from(attendees).where(eq(attendees.meetup_id, meetupId))
-    console.log(`[Chat] Found ${attendeesList.length} attendees to notify for meetup ${meetupId}`)
-    
-    // Create notifications for all other attendees
-    for (const attendee of attendeesList) {
-      if (attendee.user_id !== session.user.id) {
-        console.log(`[Chat] Notifying user ${attendee.user_id}`)
-        await db.insert(notifications).values({
-          user_id: attendee.user_id,
-          type: 'chat',
-          title: `Nuevo mensaje en ${meetup?.title || 'Ruta'}`,
-          message: `${session.user.name || 'Alguien'} ha escrito en el chat.`,
-          link: `/meetups/${meetupId}`,
-          isRead: false
-        })
-      }
+    // 2. Notification logic (Isolated task)
+    // We wrap this in a separate try-catch so message sending doesn't fail if notifications do
+    try {
+      const currentUser = session.user
+      // Fetch meetup title and creator
+      const meetup = await db.select().from(meetups).where(eq(meetups.id, meetupId)).limit(1).then(r => r[0])
+      
+      // Fetch all attendees to notify them
+      const attendeesList = await db.select().from(attendees).where(eq(attendees.meetup_id, meetupId))
+      
+      const notificationPromises = attendeesList
+        .filter(a => a.user_id !== currentUser!.id)
+        .map(a => 
+          db.insert(notifications).values({
+            user_id: a.user_id,
+            type: 'chat',
+            title: `Nuevo mensaje en ${meetup?.title || 'Ruta'}`,
+            message: `${currentUser!.name || 'Alguien'} ha escrito en el chat.`,
+            link: `/meetups/${meetupId}`,
+            isRead: false
+          })
+        )
+      
+      await Promise.allSettled(notificationPromises)
+    } catch (notifyError) {
+      console.error("[Chat Notification Error]", notifyError)
+      // We don't return error here, as the message was already sent
     }
 
-    revalidatePath('/dashboard', 'page')
-    revalidatePath(`/meetups/${meetupId}`, 'page')
+    revalidatePath('/dashboard')
+    revalidatePath(`/meetups/${meetupId}`)
     return { success: true }
   } catch (error) {
-    console.error(error)
+    console.error("[Chat Send Error]", error)
     return { error: 'Error al enviar mensaje' }
   }
 }

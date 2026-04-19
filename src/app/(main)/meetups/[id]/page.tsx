@@ -148,26 +148,25 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
             </p>
           </div>
 
-        </div>
-
-        {/* Action Bar - Improved to prevent overlap */}
-        <div className="md:sticky bottom-0 left-0 w-full p-8 z-50 animate-reveal [animation-delay:0.5s] bg-gradient-to-t from-background via-background/80 to-transparent">
-          <div className="glass shadow-2xl rounded-[40px] p-6 flex flex-col gap-6 border border-white/10 ring-1 ring-white/5 max-h-[85vh] overflow-hidden">
-             {!user ? (
-              <Link href="/auth/login" className={buttonVariants({ className: "w-full text-lg h-16 rounded-[28px] font-black bg-primary shadow-xl shadow-primary/20 transition-all hover:scale-[1.02]" })}>
-                ÚNETE A LA RUTA
-              </Link>
-            ) : isCreator ? (
-               <OrganizerControls meetup={meetup as any} />
-            ) : (
-               <JoinButton meetupId={id} isAttending={isAttending} />
-            )}
-            
-            {user && isAttending && (
-               <div className="flex-1 w-full">
-                 <ChatModule meetupId={id} userId={user.id!} inline={true} />
-               </div>
-            )}
+          {/* Action Bar - Now part of the flow to prevent any overlap */}
+          <div className="pt-12 pb-20 animate-reveal [animation-delay:0.5s]">
+            <div className="glass shadow-2xl rounded-[40px] p-8 flex flex-col gap-8 border border-white/10 ring-1 ring-white/5 bg-white/[0.02]">
+               {!user ? (
+                <Link href="/auth/login" className={buttonVariants({ className: "w-full text-lg h-16 rounded-[28px] font-black bg-primary shadow-xl shadow-primary/20 transition-all hover:scale-[1.02]" })}>
+                  ÚNETE A LA RUTA
+                </Link>
+              ) : isCreator ? (
+                 <OrganizerControls meetup={meetup as any} />
+              ) : (
+                 <JoinButton meetupId={id} isAttending={isAttending} />
+              )}
+              
+              {user && isAttending && (
+                 <div className="w-full">
+                   <ChatModule meetupId={id} userId={user.id!} inline={true} />
+                 </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
