@@ -42,14 +42,16 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
   const isAttending = user ? meetup.attendees.some((a: any) => a.user_id === user.id) : false
   const isCreator = user?.id === meetup.creator_id
 
-  // Fix null latitude for MapboxView
-  const validMeetup = { ...meetup, lat: meetup.lat || 0, lng: meetup.lng || 0 }
-
   return (
-    <div className="flex flex-col md:flex-row min-h-[calc(100vh-4rem)]">
+    <div className="flex flex-col md:flex-row min-h-[calc(100vh-4rem)] h-fit md:h-[calc(100vh-4rem)]">
       {/* Map Section */}
-      <div className="w-full h-64 md:h-full md:flex-1 relative order-2 md:order-1 z-0">
-        <MapboxView meetups={[validMeetup as any]} />
+      <div className="w-full h-80 md:h-full md:flex-1 relative order-2 md:order-1 z-0 bg-[#0a0a0a]">
+        <MapboxView meetups={[{
+          id: meetup.id,
+          lat: meetup.lat,
+          lng: meetup.lng,
+          title: meetup.title
+        }]} />
       </div>
 
       {/* Details Section */}
