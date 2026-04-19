@@ -154,8 +154,9 @@ export async function sendChatMessage(meetupId: string, content: string) {
       
       const notificationPromises = attendeesList
         .filter(a => a.user_id !== currentUser!.id)
-        .map(a => 
-          db.insert(notifications).values({
+        .map(a => {
+          console.log(`[NOTIFY] Creating notification for user ${a.user_id} in meetup ${meetupId}`)
+          return db.insert(notifications).values({
             user_id: a.user_id,
             type: 'chat',
             title: `Nuevo mensaje en ${meetup?.title || 'Ruta'}`,
@@ -163,7 +164,7 @@ export async function sendChatMessage(meetupId: string, content: string) {
             link: `/meetups/${meetupId}`,
             isRead: false
           })
-        )
+        })
       
       await Promise.allSettled(notificationPromises)
     } catch (notifyError) {
