@@ -5,8 +5,10 @@ import { getChatMessages, sendChatMessage } from '@/app/(main)/meetups/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Send, Loader2, MessagesSquare, X } from 'lucide-react'
+import { Send, Loader2, MessagesSquare, X, Zap } from 'lucide-react'
 import { toast } from 'sonner'
+import { formatDistanceToNow } from 'date-fns'
+import { es } from 'date-fns/locale'
 
 interface Message {
   id: string
@@ -19,12 +21,12 @@ interface Message {
   }
 }
 
-export function ChatModule({ meetupId, userId }: { meetupId: string; userId: string }) {
+export function ChatModule({ meetupId, userId, inline = false }: { meetupId: string; userId: string; inline?: boolean }) {
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
-  const [isOpen, setIsOpen] = useState(false)
+  const [isOpen, setIsOpen] = useState(inline) // Start open if inline
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -69,89 +71,101 @@ export function ChatModule({ meetupId, userId }: { meetupId: string; userId: str
     }
   }
 
+  const ChatContent = (
+    <div className={`flex flex-col bg-black/20 border border-white/5 rounded-[32px] overflow-hidden ${inline ? 'h-[500px] w-full shadow-2xl' : 'h-full'}`}>
+      {/* Header */}
+      <div className="p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+        <div className="flex items-center gap-3">
+          <div className="h-8 w-8 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+             <MessagesSquare className="h-5 w-5" />
+          </div>
+          <h3 className="font-black text-white uppercase tracking-widest text-xs">
+            Canal de Ruta
+          </h3>
+        </div>
+        {!inline && (
+          <button onClick={() => setIsOpen(false)} className="text-white/20 hover:text-white transition-colors">
+            <X className="h-5 w-5" />
+          </button>
+        )}
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar" ref={scrollRef}>
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <Loader2 className="h-8 w-8 animate-spin text-primary/40" />
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="text-center text-white/20 mt-20 italic px-10 text-xs font-medium">
+            No hay actividad aún. <br />Sé el primero en calentar motores. 🏍️
+          </div>
+        ) : (
+          messages.map((msg) => (
+            <div key={msg.id} className={`flex gap-4 ${msg.user.id === userId ? 'flex-row-reverse' : ''}`}>
+              <Avatar className="h-9 w-9 border border-white/5 flex-shrink-0 shadow-lg">
+                <AvatarFallback className="text-[10px] bg-white/5 text-white/40 uppercase font-black">
+                  {msg.user.username?.[0] || 'U'}
+                </AvatarFallback>
+              </Avatar>
+              <div className={`flex flex-col max-w-[75%] ${msg.user.id === userId ? 'items-end' : ''}`}>
+                <span className="text-[9px] font-black text-white/20 mb-1 uppercase tracking-[0.2em]">
+                  {msg.user.username}
+                </span>
+                <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
+                  msg.user.id === userId
+                    ? 'bg-primary text-white font-bold rounded-tr-none shadow-xl shadow-primary/10'
+                    : 'bg-white/5 text-white/80 rounded-tl-none border border-white/5'
+                }`}>
+                  {msg.content}
+                </div>
+              </div>
+            </div>
+          ))
+        )}
+      </div>
+
+      {/* Input */}
+      <div className="p-6 border-t border-white/5 bg-white/[0.02]">
+        <form onSubmit={handleSendMessage} className="flex gap-3">
+          <Input
+            placeholder="Enviar mensaje al grupo..."
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            className="bg-white/5 border-white/5 h-12 rounded-2xl text-white placeholder:text-white/20 focus-visible:ring-primary/50"
+          />
+          <Button type="submit" size="icon" disabled={isSending} className="h-12 w-12 rounded-2xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 shrink-0">
+            {isSending ? <Loader2 className="h-5 w-5 animate-spin" /> : <Send className="h-5 w-5" />}
+          </Button>
+        </form>
+      </div>
+    </div>
+  )
+
+  if (inline) return ChatContent
+
   return (
     <>
       {/* Trigger button */}
       <div
         onClick={() => setIsOpen(true)}
-        className="mt-4 p-4 border border-primary/20 bg-primary/5 rounded-2xl flex items-center gap-4 cursor-pointer hover:bg-primary/10 transition-colors shadow-sm"
+        className="mt-4 p-5 border border-white/5 bg-white/[0.02] rounded-3xl flex items-center gap-4 cursor-pointer hover:bg-white/5 transition-all group shadow-sm"
       >
-        <div className="p-3 bg-background rounded-full shadow-sm">
+        <div className="p-3 bg-primary/10 rounded-2xl group-hover:scale-110 transition-transform">
           <MessagesSquare className="h-6 w-6 text-primary" />
         </div>
         <div>
-          <h4 className="font-bold text-foreground font-sans">Chat del grupo</h4>
-          <p className="text-xs text-muted-foreground mt-0.5">Habla con los moteros apuntados</p>
+          <h4 className="font-black text-white uppercase tracking-widest text-xs">Chat del grupo</h4>
+          <p className="text-[10px] text-white/30 font-medium mt-0.5">Habla con los moteros apuntados</p>
         </div>
       </div>
 
       {/* Slide-over panel */}
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-          {/* Overlay */}
-          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setIsOpen(false)} />
-
-          {/* Panel */}
-          <div className="relative w-full max-w-md bg-card border-l border-border flex flex-col shadow-2xl h-full animate-in slide-in-from-right duration-300">
-            {/* Header */}
-            <div className="p-5 border-b border-border flex items-center justify-between bg-primary/5">
-              <h3 className="font-bold text-primary flex items-center gap-2">
-                <Send className="h-5 w-5" /> Chat de la Ruta
-              </h3>
-              <button onClick={() => setIsOpen(false)} className="text-muted-foreground hover:text-foreground transition-colors">
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4" ref={scrollRef}>
-              {isLoading ? (
-                <div className="flex items-center justify-center h-full">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary/40" />
-                </div>
-              ) : messages.length === 0 ? (
-                <div className="text-center text-muted-foreground mt-20 italic px-10 text-sm">
-                  Todavía no hay mensajes. ¡Sé el primero en saludar! 🏍️
-                </div>
-              ) : (
-                messages.map((msg) => (
-                  <div key={msg.id} className={`flex gap-3 ${msg.user.id === userId ? 'flex-row-reverse' : ''}`}>
-                    <Avatar className="h-8 w-8 border border-border flex-shrink-0">
-                      <AvatarFallback className="text-[10px] bg-primary/10 text-primary uppercase font-bold">
-                        {msg.user.username?.[0] || 'U'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className={`flex flex-col max-w-[80%] ${msg.user.id === userId ? 'items-end' : ''}`}>
-                      <span className="text-[10px] font-bold text-muted-foreground mb-1 uppercase tracking-wider">
-                        {msg.user.username}
-                      </span>
-                      <div className={`p-3 rounded-2xl text-sm shadow-sm ${
-                        msg.user.id === userId
-                          ? 'bg-primary text-primary-foreground rounded-tr-none'
-                          : 'bg-muted/50 text-foreground rounded-tl-none border border-border/40'
-                      }`}>
-                        {msg.content}
-                      </div>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-
-            {/* Input */}
-            <div className="p-4 border-t border-border bg-background/80 backdrop-blur-md">
-              <form onSubmit={handleSendMessage} className="flex gap-2">
-                <Input
-                  placeholder="Escribe algo..."
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  className="bg-muted/30 border-border h-11 rounded-xl"
-                />
-                <Button type="submit" size="icon" disabled={isSending} className="h-11 w-11 rounded-xl">
-                  {isSending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
-                </Button>
-              </form>
-            </div>
+        <div className="fixed inset-0 z-[1000] flex justify-end">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setIsOpen(false)} />
+          <div className="relative w-full max-w-md animate-in slide-in-from-right duration-500 h-full">
+            {ChatContent}
           </div>
         </div>
       )}
