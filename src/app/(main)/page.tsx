@@ -31,16 +31,16 @@ export default function HomePage() {
     <div className="flex flex-col min-h-screen bg-mesh overflow-hidden">
       {/* Hero Section */}
       <section className="relative w-full h-[95vh] flex items-center justify-center pt-16">
-        <div className="absolute inset-0 z-0">
+        <div className="absolute inset-0 z-0 overflow-hidden">
           <Image 
-            src="/_next/image?url=file%3A%2F%2FC%3A%2FUsers%2FAncor%2F.gemini%2Fantigravity%2Fbrain%2F2294b512-ccce-4f73-8b26-2dc0939ad82a%2Fquedamoto_premium_hero_1776600221880.png&w=3840&q=80" 
-            alt="Biker Overlook" 
+            src="/images/rider-bg.png" 
+            alt="Biker Sunset Group" 
             fill 
-            className="object-cover scale-105"
+            className="object-cover scale-110 blur-[2px] opacity-70"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
-          <div className="absolute inset-0 bg-black/20" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+          <div className="absolute inset-0 bg-black/40" />
         </div>
 
         <motion.div 
@@ -177,14 +177,14 @@ export default function HomePage() {
 
       {/* Community Section */}
       <section className="relative py-40 overflow-hidden">
-        <div className="absolute inset-0 z-0 opacity-40">
+        <div className="absolute inset-0 z-0">
            <Image 
-             src="/_next/image?url=file%3A%2F%2FC%3A%2FUsers%2FAncor%2F.gemini%2Fantigravity%2Fbrain%2F2294b512-ccce-4f73-8b26-2dc0939ad82a%2Fquedamoto_community_footer_1776601046137.png&w=3840&q=80" 
-             alt="Community footer" 
+             src="/images/community-bg.png" 
+             alt="Comunidad QuedaMoto" 
              fill 
-             className="object-cover"
+             className="object-cover scale-105 opacity-30 blur-[2px]"
            />
-           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/20 to-background" />
+           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/60 to-background" />
         </div>
         
         <div className="container relative z-10 mx-auto px-4 text-center space-y-8">
