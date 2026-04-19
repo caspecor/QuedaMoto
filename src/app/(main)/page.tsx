@@ -36,11 +36,11 @@ export default function HomePage() {
             src="/images/rider-bg.png" 
             alt="Biker Sunset Group" 
             fill 
-            className="object-cover scale-110 blur-[2px] opacity-70"
+            className="object-cover scale-110 blur-[1px] opacity-90"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          <div className="absolute inset-0 bg-black/40" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          <div className="absolute inset-0 bg-black/25" />
         </div>
 
         <motion.div 
@@ -182,9 +182,9 @@ export default function HomePage() {
              src="/images/community-bg.png" 
              alt="Comunidad QuedaMoto" 
              fill 
-             className="object-cover scale-105 opacity-30 blur-[2px]"
+             className="object-cover scale-105 opacity-50 blur-[1px]"
            />
-           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/60 to-background" />
+           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/40 to-background" />
         </div>
         
         <div className="container relative z-10 mx-auto px-4 text-center space-y-8">
