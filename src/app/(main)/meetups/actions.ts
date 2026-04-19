@@ -148,10 +148,12 @@ export async function sendChatMessage(meetupId: string, content: string) {
     
     // Fetch all attendees to notify them
     const attendeesList = await db.select().from(attendees).where(eq(attendees.meetup_id, meetupId))
+    console.log(`[Chat] Found ${attendeesList.length} attendees to notify for meetup ${meetupId}`)
     
     // Create notifications for all other attendees
     for (const attendee of attendeesList) {
       if (attendee.user_id !== session.user.id) {
+        console.log(`[Chat] Notifying user ${attendee.user_id}`)
         await db.insert(notifications).values({
           user_id: attendee.user_id,
           type: 'chat',
@@ -163,7 +165,8 @@ export async function sendChatMessage(meetupId: string, content: string) {
       }
     }
 
-    revalidatePath('/dashboard')
+    revalidatePath('/dashboard', 'page')
+    revalidatePath(`/meetups/${meetupId}`, 'page')
     return { success: true }
   } catch (error) {
     console.error(error)

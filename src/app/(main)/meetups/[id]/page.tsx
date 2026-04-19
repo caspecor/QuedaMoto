@@ -65,7 +65,7 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
 
       {/* Details Section */}
       <div className="w-full md:w-[500px] lg:w-[600px] flex flex-col bg-card order-2 md:order-1 overflow-y-auto custom-scrollbar shadow-2xl relative z-10 border-r border-white/5">
-        <div className="p-8 md:p-12 space-y-12 pb-32">
+        <div className="p-8 md:p-12 space-y-12 pb-96">
           
           {/* Header Info */}
           <div className="space-y-6 animate-reveal">
@@ -150,9 +150,9 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
 
         </div>
 
-        {/* Floating Action Bar */}
-        <div className="fixed bottom-0 left-0 md:left-0 md:w-[500px] lg:w-[600px] p-8 z-50 animate-reveal [animation-delay:0.5s]">
-          <div className="glass shadow-2xl rounded-[40px] p-6 flex flex-col gap-6 border border-white/10 ring-1 ring-white/5 max-h-[80vh] overflow-hidden">
+        {/* Action Bar - Improved to prevent overlap */}
+        <div className="md:sticky bottom-0 left-0 w-full p-8 z-50 animate-reveal [animation-delay:0.5s] bg-gradient-to-t from-background via-background/80 to-transparent">
+          <div className="glass shadow-2xl rounded-[40px] p-6 flex flex-col gap-6 border border-white/10 ring-1 ring-white/5 max-h-[85vh] overflow-hidden">
              {!user ? (
               <Link href="/auth/login" className={buttonVariants({ className: "w-full text-lg h-16 rounded-[28px] font-black bg-primary shadow-xl shadow-primary/20 transition-all hover:scale-[1.02]" })}>
                 ÚNETE A LA RUTA
