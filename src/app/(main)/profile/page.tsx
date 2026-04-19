@@ -24,7 +24,7 @@ export default async function ProfilePage() {
   const profile = userArr[0]
 
   return (
-    <div className="container px-4 py-8 max-w-3xl mx-auto space-y-8">
+    <div className="container px-4 pt-32 pb-8 max-w-3xl mx-auto space-y-8">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold font-sans text-foreground">Mi Perfil</h1>
         <div className="flex gap-2">

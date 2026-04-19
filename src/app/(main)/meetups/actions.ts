@@ -143,6 +143,27 @@ export async function sendChatMessage(meetupId: string, content: string) {
       content,
     })
 
+    // Fetch meetup title and creator
+    const meetup = await db.select().from(meetups).where(eq(meetups.id, meetupId)).limit(1).then(r => r[0])
+    
+    // Fetch all attendees to notify them
+    const attendeesList = await db.select().from(attendees).where(eq(attendees.meetup_id, meetupId))
+    
+    // Create notifications for all other attendees
+    for (const attendee of attendeesList) {
+      if (attendee.user_id !== session.user.id) {
+        await db.insert(notifications).values({
+          user_id: attendee.user_id,
+          type: 'chat',
+          title: `Nuevo mensaje en ${meetup?.title || 'Ruta'}`,
+          message: `${session.user.name || 'Alguien'} ha escrito en el chat.`,
+          link: `/meetups/${meetupId}`,
+          isRead: false
+        })
+      }
+    }
+
+    revalidatePath('/dashboard')
     return { success: true }
   } catch (error) {
     console.error(error)

@@ -5,7 +5,7 @@ import { getChatMessages, sendChatMessage } from '@/app/(main)/meetups/actions'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Send, Loader2, MessagesSquare, X, Zap } from 'lucide-react'
+import { Send, Loader2, MessagesSquare, X, Zap, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
@@ -26,7 +26,7 @@ export function ChatModule({ meetupId, userId, inline = false }: { meetupId: str
   const [newMessage, setNewMessage] = useState('')
   const [isLoading, setIsLoading] = useState(true)
   const [isSending, setIsSending] = useState(false)
-  const [isOpen, setIsOpen] = useState(inline) // Start open if inline
+  const [isOpen, setIsOpen] = useState(false) // Always start closed
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -141,6 +141,28 @@ export function ChatModule({ meetupId, userId, inline = false }: { meetupId: str
       </div>
     </div>
   )
+
+  if (inline && !isOpen) {
+    return (
+      <div
+        onClick={() => setIsOpen(true)}
+        className="w-full p-8 border border-white/5 bg-white/[0.02] rounded-[32px] flex items-center justify-between cursor-pointer hover:bg-white/5 transition-all group shadow-sm"
+      >
+        <div className="flex items-center gap-5">
+          <div className="p-4 bg-primary/10 rounded-2xl group-hover:scale-110 transition-transform">
+            <MessagesSquare className="h-8 w-8 text-primary" />
+          </div>
+          <div>
+            <h4 className="font-black text-white uppercase tracking-widest text-sm">Canal de Chat</h4>
+            <p className="text-xs text-white/30 font-medium mt-1">Conecta con los riders de esta ruta</p>
+          </div>
+        </div>
+        <div className="h-10 w-10 flex items-center justify-center rounded-full bg-white/5 text-white/20 group-hover:text-white transition-colors">
+           <Plus className="h-6 w-6" />
+        </div>
+      </div>
+    )
+  }
 
   if (inline) return ChatContent
 
