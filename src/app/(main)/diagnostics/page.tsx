@@ -8,9 +8,28 @@ export default async function DiagnosticsPage() {
   const session = await auth()
   const user = session?.user
 
-  const allNotifications = await db.select().from(notifications).orderBy(desc(notifications.createdAt)).limit(50)
-  const allUsers = await db.select().from(users).limit(10)
-  const allAttendees = await db.select().from(attendees).limit(20)
+  let allNotifications: any[] = []
+  let allUsers: any[] = []
+  let allAttendees: any[] = []
+  let errors: string[] = []
+
+  try {
+    allNotifications = await db.select().from(notifications).orderBy(desc(notifications.createdAt)).limit(50)
+  } catch (e: any) {
+    errors.push("Error Notificaciones: " + e.message)
+  }
+
+  try {
+    allUsers = await db.select().from(users).limit(10)
+  } catch (e: any) {
+    errors.push("Error Usuarios: " + e.message)
+  }
+
+  try {
+    allAttendees = await db.select().from(attendees).limit(20)
+  } catch (e: any) {
+    errors.push("Error Asistentes: " + e.message)
+  }
 
   return (
     <div className="container px-4 pt-32 pb-20 max-w-4xl mx-auto space-y-12">
@@ -18,6 +37,16 @@ export default async function DiagnosticsPage() {
         <h1 className="text-4xl font-black text-white">Diagnóstico de Sistema</h1>
         {user && <TestNotifButton userId={user.id!} />}
       </div>
+
+      {errors.length > 0 && (
+        <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-3xl space-y-2">
+          <h2 className="text-red-400 font-bold">⚠️ Errores Detectados:</h2>
+          <ul className="text-xs text-red-300/60 list-disc list-inside">
+            {errors.map((err, i) => <li key={i}>{err}</li>)}
+          </ul>
+          <p className="text-xs text-white/40 mt-4 italic">Tip: Si dice que la tabla no existe, necesitas ejecutar 'npx drizzle-kit push'</p>
+        </div>
+      )}
 
       <section className="p-8 glass rounded-3xl space-y-4 border border-white/10">
         <h2 className="text-xl font-bold text-primary italic underline">Sesión Actual</h2>
