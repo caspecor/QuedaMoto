@@ -22,23 +22,36 @@ export default async function DashboardPage() {
     redirect("/auth/login")
   }
 
-  // Fetch upcoming meetups user is attending
-  const attendeeRecords = await db.select({
-    meetup: meetupsTable
-  }).from(attendeesTable)
-    .innerJoin(meetupsTable, eq(attendeesTable.meetup_id, meetupsTable.id))
-    .where(eq(attendeesTable.user_id, user.id!))
-    .orderBy(desc(meetupsTable.date))
-    .limit(5)
+  let upcomingMeetups: any[] = []
+  let notifications: any[] = []
 
-  const upcomingMeetups = attendeeRecords.map(a => a.meetup) || []
+  try {
+    // Fetch upcoming meetups user is attending
+    const attendeeRecords = await db.select({
+      meetup: meetupsTable
+    }).from(attendeesTable)
+      .innerJoin(meetupsTable, eq(attendeesTable.meetup_id, meetupsTable.id))
+      .where(eq(attendeesTable.user_id, user.id!))
+      .orderBy(desc(meetupsTable.date))
+      .limit(5)
 
-  // Fetch notifications
-  const notifications = await db.select()
-    .from(notificationsTable)
-    .where(eq(notificationsTable.user_id, user.id!))
-    .orderBy(desc(notificationsTable.createdAt))
-    .limit(10)
+    upcomingMeetups = attendeeRecords.map(a => a.meetup) || []
+  } catch (err) {
+    console.error("Error fetching meetups:", err)
+  }
+
+  try {
+    // Fetch notifications
+    notifications = await db.select()
+      .from(notificationsTable)
+      .where(eq(notificationsTable.user_id, user.id!))
+      .orderBy(desc(notificationsTable.createdAt))
+      .limit(10)
+  } catch (err) {
+    console.error("Error fetching notifications. Table might not exist yet:", err)
+    // Fallback notification for first-time use
+    notifications = []
+  }
 
   return (
     <div className="min-h-screen bg-mesh pb-20">

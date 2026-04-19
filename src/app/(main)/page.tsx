@@ -175,6 +175,38 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Community Section */}
+      <section className="relative py-40 overflow-hidden">
+        <div className="absolute inset-0 z-0 opacity-40">
+           <Image 
+             src="/_next/image?url=file%3A%2F%2FC%3A%2FUsers%2FAncor%2F.gemini%2Fantigravity%2Fbrain%2F2294b512-ccce-4f73-8b26-2dc0939ad82a%2Fquedamoto_community_footer_1776601046137.png&w=3840&q=80" 
+             alt="Community footer" 
+             fill 
+             className="object-cover"
+           />
+           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/20 to-background" />
+        </div>
+        
+        <div className="container relative z-10 mx-auto px-4 text-center space-y-8">
+           <motion.div
+             initial={{ opacity: 0, scale: 0.9 }}
+             whileInView={{ opacity: 1, scale: 1 }}
+             viewport={{ once: true }}
+           >
+             <h2 className="text-5xl md:text-7xl font-black tracking-tight text-white italic">ÚNETE AL MOVIMIENTO</h2>
+             <p className="mt-4 text-white/40 text-lg max-w-xl mx-auto font-medium">La carretera no tiene fin, y tu comunidad tampoco. Regístrate hoy y empieza a rodar.</p>
+             <div className="mt-12">
+               <Link 
+                 href="/auth/register" 
+                 className={buttonVariants({ size: "lg", className: "h-16 px-12 rounded-full font-black text-xl bg-white text-black hover:bg-white/90 transition-all hover:scale-105" })}
+               >
+                 Empezar ahora
+               </Link>
+             </div>
+           </motion.div>
+        </div>
+      </section>
+
       <footer className="w-full border-t border-white/5 py-12 bg-black/50">
         <div className="container px-4 mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
           <div className="flex items-center gap-2">
