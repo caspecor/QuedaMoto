@@ -246,3 +246,25 @@ export async function leaveMeetupAction(meetupId: string) {
     return { error: 'Error al abandonar la quedada' }
   }
 }
+
+export async function createTestNotification(userId: string) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) return { error: "Not auth" }
+
+    await db.insert(notifications).values({
+      user_id: userId,
+      type: 'chat',
+      title: 'Notificación de Prueba',
+      message: 'Esto es una prueba del sistema de notificaciones.',
+      link: '/dashboard',
+      isRead: false
+    })
+
+    revalidatePath('/dashboard')
+    return { success: true }
+  } catch (err) {
+    console.error("Test Notify Error", err)
+    return { success: false, error: String(err) }
+  }
+}

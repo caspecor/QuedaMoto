@@ -2,6 +2,7 @@ import { auth } from "@/auth"
 import { db } from "@/db"
 import { notifications, users, attendees, meetups } from "@/db/schema"
 import { desc, eq } from "drizzle-orm"
+import { TestNotifButton } from "./TestNotifButton"
 
 export default async function DiagnosticsPage() {
   const session = await auth()
@@ -13,7 +14,10 @@ export default async function DiagnosticsPage() {
 
   return (
     <div className="container px-4 pt-32 pb-20 max-w-4xl mx-auto space-y-12">
-      <h1 className="text-4xl font-black text-white">Diagnóstico de Sistema</h1>
+      <div className="flex justify-between items-center">
+        <h1 className="text-4xl font-black text-white">Diagnóstico de Sistema</h1>
+        {user && <TestNotifButton userId={user.id!} />}
+      </div>
 
       <section className="p-8 glass rounded-3xl space-y-4 border border-white/10">
         <h2 className="text-xl font-bold text-primary italic underline">Sesión Actual</h2>
@@ -47,7 +51,7 @@ export default async function DiagnosticsPage() {
       </section>
 
       <section className="p-8 glass rounded-3xl space-y-4 border border-white/10">
-        <h2 className="text-xl font-bold text-primary italic underline">Usuarios de Prueba</h2>
+        <h2 className="text-xl font-bold text-primary italic underline">Usuarios de Prueba (Primeros 10)</h2>
         <div className="grid grid-cols-2 gap-4">
            {allUsers.map((u: any) => (
              <div key={u.id} className="p-3 bg-white/5 rounded-lg text-[10px]">
@@ -59,7 +63,7 @@ export default async function DiagnosticsPage() {
       </section>
 
        <section className="p-8 glass rounded-3xl space-y-4 border border-white/10">
-        <h2 className="text-xl font-bold text-primary italic underline">Asistentes en BD</h2>
+        <h2 className="text-xl font-bold text-primary italic underline">Asistentes en BD (Muestra)</h2>
         <div className="space-y-2">
            {allAttendees.map((a: any) => (
              <div key={a.id} className="p-2 bg-white/5 rounded text-[10px] flex justify-between">
