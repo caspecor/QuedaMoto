@@ -16,18 +16,31 @@ export function NotificationListener() {
         const data = await res.json()
         
         if (data.unread && data.unread.length > 0) {
+          // Load already shown IDs from localStorage
+          const storageKey = 'quedamoto_shown_notifications'
+          const shownIdsRaw = localStorage.getItem(storageKey)
+          const shownIds = shownIdsRaw ? JSON.parse(shownIdsRaw) : []
+          const shownSet = new Set(shownIds)
+          let updated = false
+
           data.unread.forEach((notif: any) => {
-            if (!prevIds.current.has(notif.id)) {
+            if (!prevIds.current.has(notif.id) && !shownSet.has(notif.id)) {
               prevIds.current.add(notif.id)
+              shownSet.add(notif.id)
+              updated = true
               
               toast.custom((t) => (
                 <NotificationToast notif={notif} toastId={t} />
               ), {
                 duration: 6000,
-                position: 'top-right'
+                position: 'bottom-right'
               })
             }
           })
+
+          if (updated) {
+            localStorage.setItem(storageKey, JSON.stringify(Array.from(shownSet).slice(-100)))
+          }
         }
       } catch (err) {
         console.error('Failed to poll notifications:', err)

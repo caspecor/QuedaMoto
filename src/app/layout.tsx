@@ -32,7 +32,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         {children}
-        <Toaster />
+        <Toaster position="bottom-right" />
       </body>
     </html>
   );
