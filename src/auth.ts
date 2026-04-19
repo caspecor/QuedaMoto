@@ -37,12 +37,14 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     jwt({ token, user, trigger, session }) {
       if (user) {
+        console.log("[AUTH] JWT init with user image:", user.image)
         token.id = user.id
         token.name = user.name
         token.picture = user.image
       }
       
       if (trigger === "update" && session) {
+        console.log("[AUTH] JWT updating with:", session)
         if (session.name) token.name = session.name
         if (session.image) token.picture = session.image
       }
@@ -54,6 +56,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         session.user.id = token.id as string
         session.user.name = token.name
         session.user.image = token.picture as string
+        console.log("[AUTH] Session exported with image:", session.user.image?.substring(0, 50) + "...")
       }
       return session
     },

@@ -11,6 +11,11 @@ import { useSession } from 'next-auth/react'
 export function Navbar({ user: initialUser }: { user?: any }) {
   const { data: session } = useSession()
   const user = session?.user || initialUser
+  
+  useEffect(() => {
+    console.log("[NAVBAR] User State:", user)
+  }, [user])
+
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -71,7 +76,7 @@ export function Navbar({ user: initialUser }: { user?: any }) {
                     <Plus className="h-4 w-4 text-black" /> 
                     <span className="text-black">Crear</span>
                   </Link>
-                  <Link href="/profile" className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white/10 transition-all overflow-hidden">
+                  <Link href="/profile" className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white/10 transition-all overflow-hidden shrink-0">
                     {user.image ? (
                       <img src={user.image} alt="Profile" className="w-full h-full object-cover" />
                     ) : (

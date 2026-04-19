@@ -52,6 +52,7 @@ export function ProfileEditForm({ profile }: { profile: any }) {
     
     if (res.success) {
       // Trigger session update for real-time changes in Navbar
+      console.log("[PROFILE_EDIT] Calling update() with:", { name: username, hasImage: !!avatar })
       await update({
         name: username,
         image: avatar
