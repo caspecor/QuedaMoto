@@ -4,6 +4,8 @@ import { notifications as notificationsTable } from "@/db/schema"
 import { eq, and, desc } from "drizzle-orm"
 import { NextResponse } from "next/server"
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   const session = await auth()
   if (!session?.user?.id) {
