@@ -161,7 +161,7 @@ export async function sendChatMessage(meetupId: string, content: string) {
             type: 'chat',
             title: `Nuevo mensaje en ${meetup?.title || 'Ruta'}`,
             message: `${currentUser!.name || 'Alguien'} ha escrito en el chat.`,
-            link: `/meetups/${meetupId}`,
+            link: `/meetups/${meetupId}#chat`,
             isRead: false
           })
         })
@@ -257,7 +257,7 @@ export async function createTestNotification(userId: string) {
       type: 'chat',
       title: 'Notificación de Prueba',
       message: 'Esto es una prueba del sistema de notificaciones.',
-      link: '/dashboard',
+      link: '/dashboard#chat',
       isRead: false
     })
 

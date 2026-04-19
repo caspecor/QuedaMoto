@@ -30,8 +30,23 @@ export function ChatModule({ meetupId, userId, inline = false }: { meetupId: str
   const scrollRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
+    // Initial load check for messages
+    const init = async () => {
+      await loadMessages()
+      setIsLoading(false)
+      
+      // Check if we should auto-open based on URL hash
+      if (inline && typeof window !== 'undefined' && window.location.hash === '#chat') {
+        setIsOpen(true)
+        // Smooth scroll to chat if needed
+        setTimeout(() => {
+          document.getElementById('chat-module-inline')?.scrollIntoView({ behavior: 'smooth' })
+        }, 500)
+      }
+    }
+    init()
+
     if (!isOpen) return
-    loadMessages()
     const interval = setInterval(loadMessages, 5000)
     return () => clearInterval(interval)
   }, [meetupId, isOpen])
@@ -145,6 +160,7 @@ export function ChatModule({ meetupId, userId, inline = false }: { meetupId: str
   if (inline && !isOpen) {
     return (
       <div
+        id="chat-module-inline"
         onClick={() => setIsOpen(true)}
         className="w-full p-8 border border-white/5 bg-white/[0.02] rounded-[32px] flex items-center justify-between cursor-pointer hover:bg-white/5 transition-all group shadow-sm"
       >
