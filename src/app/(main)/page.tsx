@@ -5,6 +5,7 @@ import Link from "next/link"
 import { motion } from "framer-motion"
 import { buttonVariants } from "@/components/ui/button"
 import { MapPin, Users, Shield, Calendar, ChevronRight, Zap, TrendingUp, Trophy } from "lucide-react"
+import { HomepageMap } from "@/components/layout/HomepageMap"
 
 export default function HomePage() {
   const containerVariants = {
@@ -161,15 +162,7 @@ export default function HomePage() {
             
             <div className="relative aspect-square">
                <div className="absolute -inset-10 bg-primary/20 blur-[100px] rounded-full" />
-               <div className="relative h-full w-full rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
-                 <Image 
-                   src="https://images.unsplash.com/photo-1591637333184-1d0c41038676?q=80&w=1974" 
-                   alt="Biker Detail" 
-                   fill 
-                   className="object-cover"
-                 />
-                 <div className="absolute inset-0 bg-gradient-to-tr from-background via-transparent to-transparent" />
-               </div>
+               <HomepageMap />
             </div>
           </div>
         </div>

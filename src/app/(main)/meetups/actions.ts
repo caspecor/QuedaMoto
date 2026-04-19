@@ -264,6 +264,22 @@ export async function leaveMeetupAction(meetupId: string) {
   }
 }
 
+export async function getPublicMeetups() {
+  try {
+    const res = await db.select({
+      id: meetups.id,
+      title: meetups.title,
+      lat: meetups.lat,
+      lng: meetups.lng,
+    }).from(meetups).where(eq(meetups.visibility, 'public'))
+    
+    return { meetups: res.filter(m => m.lat !== null && m.lng !== null) }
+  } catch (error) {
+    console.error(error)
+    return { meetups: [] }
+  }
+}
+
 export async function createTestNotification(userId: string) {
   try {
     const session = await auth()
