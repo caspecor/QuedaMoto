@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm"
 import { redirect } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Settings, LogOut } from "lucide-react"
+import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export const metadata = {
@@ -13,6 +13,8 @@ export const metadata = {
 }
 
 import { ProfileEditForm } from "@/components/profile/ProfileEditForm"
+import { BikeCard } from "@/components/profile/BikeCard"
+import { logoutAction } from "@/app/auth/actions"
 import { AvatarImage } from "@/components/ui/avatar"
 
 export default async function ProfilePage() {
@@ -31,7 +33,7 @@ export default async function ProfilePage() {
       <div className="flex items-center justify-between">
         <h1 className="text-4xl font-black font-sans text-white tracking-tight">Mi Perfil</h1>
         <div className="flex gap-3">
-          <form action="/auth/logout" method="POST">
+          <form action={logoutAction}>
              <Button variant="ghost" size="icon" className="rounded-full text-white/20 hover:text-red-400 hover:bg-red-400/10" type="submit">
                <LogOut className="w-5 h-5" />
              </Button>
@@ -55,40 +57,9 @@ export default async function ProfilePage() {
 
            <ProfileEditForm profile={profile} />
         </CardContent>
-      </Card>
-      
-      <Card className="bg-card shadow-lg border-border/50">
-        <CardHeader>
-           <CardTitle className="text-xl">Mi Garaje & Estilo</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-           {profile?.moto_brand ? (
-             <div className="grid grid-cols-2 gap-6">
-               <div className="bg-background p-4 rounded-xl border border-border/50">
-                  <p className="text-xs uppercase tracking-wider font-bold text-primary">Moto</p>
-                  <p className="font-semibold text-lg mt-1">{profile.moto_brand} {profile.moto_model}</p>
-               </div>
-               <div className="bg-background p-4 rounded-xl border border-border/50">
-                  <p className="text-xs uppercase tracking-wider font-bold text-primary">Nivel</p>
-                  <p className="font-semibold text-lg mt-1">{profile.level}</p>
-               </div>
-               <div className="col-span-2 bg-background p-4 rounded-xl border border-border/50">
-                  <p className="text-xs uppercase tracking-wider font-bold text-primary">Estilo favorito</p>
-                  <p className="font-semibold text-lg mt-1">{profile.style}</p>
-               </div>
-               <div className="col-span-2">
-                  <p className="text-xs uppercase tracking-wider font-bold text-primary mb-2">Bio</p>
-                  <p className="bg-background border border-border/50 p-4 rounded-xl text-sm leading-relaxed text-muted-foreground">{profile.bio}</p>
-               </div>
-             </div>
-           ) : (
-             <div className="text-center py-10 bg-background rounded-2xl border border-border/50 text-muted-foreground space-y-4">
-               <p className="text-lg">Aún no has completado la información de tu moto.</p>
-               <Button variant="outline" className="rounded-full border-2">Completar Perfil</Button>
-             </div>
-           )}
-        </CardContent>
-      </Card>
-    </div>
-  )
+       </Card>
+
+       <BikeCard profile={profile} />
+     </div>
+   )
 }

@@ -26,7 +26,6 @@ export async function loginAction(data: { email: string; password: string }) {
     console.error("LOGIN ERROR:", error)
     return { error: `Error de servidor: ${error.message || 'Desconocido'}` }
   }
-  redirect('/dashboard')
 }
 
 export async function signupAction(data: { email: string; password: string; username: string }) {
@@ -68,5 +67,5 @@ export async function signupAction(data: { email: string; password: string; user
 }
 
 export async function logoutAction() {
-  await signOut({ redirectTo: '/auth/login' })
+  await signOut({ redirectTo: '/' })
 }

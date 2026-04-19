@@ -294,7 +294,16 @@ export async function getUserAvatar() {
   }
 }
 
-export async function updateProfile(data: { name?: string, avatar?: string }) {
+export async function updateProfile(data: {
+  name?: string;
+  avatar?: string;
+  moto_brand?: string;
+  moto_model?: string;
+  city?: string;
+  level?: string;
+  style?: string;
+  bio?: string;
+}) {
   try {
     const session = await auth()
     if (!session?.user?.id) return { error: "No autenticado" }
@@ -302,6 +311,12 @@ export async function updateProfile(data: { name?: string, avatar?: string }) {
     const updateData: any = {}
     if (data.name) updateData.username = data.name
     if (data.avatar) updateData.avatar = data.avatar
+    if (data.moto_brand !== undefined) updateData.moto_brand = data.moto_brand
+    if (data.moto_model !== undefined) updateData.moto_model = data.moto_model
+    if (data.city !== undefined) updateData.city = data.city
+    if (data.level !== undefined) updateData.level = data.level
+    if (data.style !== undefined) updateData.style = data.style
+    if (data.bio !== undefined) updateData.bio = data.bio
 
     await db.update(users)
       .set(updateData)
