@@ -9,9 +9,11 @@ import { Settings, Camera, Lock, CheckCircle2, AlertCircle, Loader2 } from "luci
 import { updateProfile, updatePassword } from "@/app/(main)/meetups/actions"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { useSession } from "next-auth/react"
 
 export function ProfileEditForm({ profile }: { profile: any }) {
   const router = useRouter()
+  const { update } = useSession()
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
   const [showPasswordFields, setShowPasswordFields] = useState(false)
@@ -47,15 +49,21 @@ export function ProfileEditForm({ profile }: { profile: any }) {
     e.preventDefault()
     setLoading(true)
     const res = await updateProfile({ name: username, avatar })
-    setLoading(false)
     
     if (res.success) {
+      // Trigger session update for real-time changes in Navbar
+      await update({
+        name: username,
+        image: avatar
+      })
+      
       toast.success("Perfil actualizado correctamente")
       setIsEditing(false)
       router.refresh()
     } else {
       toast.error(res.error || "Error al actualizar")
     }
+    setLoading(false)
   }
 
   const handlePasswordUpdate = async (e: React.FormEvent) => {

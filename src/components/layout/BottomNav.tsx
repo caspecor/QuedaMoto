@@ -4,8 +4,11 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { Home, Map, PlusCircle, User, LayoutDashboard, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { useSession } from 'next-auth/react'
 
-export function BottomNav({ user }: { user?: any }) {
+export function BottomNav({ user: initialUser }: { user?: any }) {
+  const { data: session } = useSession()
+  const user = session?.user || initialUser
   const pathname = usePathname()
   const isLoggedIn = !!user
 

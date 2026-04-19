@@ -6,8 +6,11 @@ import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { buttonVariants } from '@/components/ui/button'
 import { Zap, Menu, X, User, Bell, Search, Plus } from 'lucide-react'
+import { useSession } from 'next-auth/react'
 
-export function Navbar({ user }: { user?: any }) {
+export function Navbar({ user: initialUser }: { user?: any }) {
+  const { data: session } = useSession()
+  const user = session?.user || initialUser
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
