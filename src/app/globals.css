@@ -42,89 +42,76 @@
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 3);
 }
 
 :root {
-  --background: #09090b; /* Almost black */
-  --foreground: #fafafa;
-  --card: #18181b; /* Dark gray surfaces */
-  --card-foreground: #fafafa;
-  --popover: #18181b;
-  --popover-foreground: #fafafa;
-  --primary: #f97316; /* Orange accent */
-  --primary-foreground: #fafafa;
-  --secondary: #27272a;
-  --secondary-foreground: #fafafa;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --accent: #27272a;
-  --accent-foreground: #fafafa;
-  --destructive: #7f1d1d;
-  --border: #27272a;
-  --input: #27272a;
-  --ring: #f97316;
-  --chart-1: #f97316;
-  --chart-2: #ea580c;
-  --chart-3: #c2410c;
-  --chart-4: #9a3412;
-  --chart-5: #7c2d12;
-  --radius: 0.75rem;
-  --sidebar: #18181b;
-  --sidebar-foreground: #fafafa;
-  --sidebar-primary: #f97316;
-  --sidebar-primary-foreground: #fafafa;
-  --sidebar-accent: #27272a;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #27272a;
-  --sidebar-ring: #f97316;
+  --background: #030303; /* Deeper black */
+  --foreground: #fefefe;
+  --card: #0a0a0a; /* Premium dark surfaces */
+  --card-foreground: #fefefe;
+  --popover: #0a0a0a;
+  --popover-foreground: #fefefe;
+  --primary: #ff4d00; /* Electric Orange - Much more vibrant */
+  --primary-foreground: #ffffff;
+  --secondary: #121212;
+  --secondary-foreground: #fefefe;
+  --muted: #121212;
+  --muted-foreground: #71717a;
+  --accent: #1a1a1a;
+  --accent-foreground: #fefefe;
+  --destructive: #991b1b;
+  --border: #1a1a1a;
+  --input: #1a1a1a;
+  --ring: #ff4d00;
+  --radius: 0.8rem;
 }
 
-.dark {
-  --background: #09090b;
-  --foreground: #fafafa;
-  --card: #18181b;
-  --card-foreground: #fafafa;
-  --popover: #18181b;
-  --popover-foreground: #fafafa;
-  --primary: #f97316;
-  --primary-foreground: #fafafa;
-  --secondary: #27272a;
-  --secondary-foreground: #fafafa;
-  --muted: #27272a;
-  --muted-foreground: #a1a1aa;
-  --accent: #27272a;
-  --accent-foreground: #fafafa;
-  --destructive: #7f1d1d;
-  --border: #27272a;
-  --input: #27272a;
-  --ring: #f97316;
-  --chart-1: #f97316;
-  --chart-2: #ea580c;
-  --chart-3: #c2410c;
-  --chart-4: #9a3412;
-  --chart-5: #7c2d12;
-  --sidebar: #18181b;
-  --sidebar-foreground: #fafafa;
-  --sidebar-primary: #f97316;
-  --sidebar-primary-foreground: #fafafa;
-  --sidebar-accent: #27272a;
-  --sidebar-accent-foreground: #fafafa;
-  --sidebar-border: #27272a;
-  --sidebar-ring: #f97316;
+body {
+  @apply bg-background text-foreground antialiased selection:bg-primary selection:text-white;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
-  body {
-    @apply bg-background text-foreground;
-  }
-  html {
-    @apply font-sans;
-  }
+/* Glassmorphism Utilities */
+.glass {
+  @apply bg-background/60 backdrop-blur-xl border border-white/5;
+}
+
+.glass-card {
+  @apply bg-white/[0.03] backdrop-blur-md border border-white/[0.05] shadow-2xl;
+}
+
+/* Premium Animations */
+@keyframes reveal {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-reveal {
+  animation: reveal 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar Utilities */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  @apply bg-white/5 rounded-full hover:bg-white/10 transition-colors;
+}
+
+/* Strava/Airbnb style gradients */
+.bg-mesh {
+  background-image: 
+    radial-gradient(at 0% 0%, hsla(24, 100%, 50%, 0.15) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, hsla(230, 100%, 10%, 0.2) 0px, transparent 50%);
 }

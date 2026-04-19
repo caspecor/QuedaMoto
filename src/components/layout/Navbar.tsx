@@ -1,45 +1,134 @@
-import { auth } from '@/auth'
-import Link from 'next/link'
-import { Zap, User, Plus } from 'lucide-react'
-import { buttonVariants } from '@/components/ui/button'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+'use client'
 
-export default async function Navbar() {
-  const session = await auth()
-  const user = session?.user
+import React, { useState, useEffect } from 'react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { motion, AnimatePresence } from 'framer-motion'
+import { buttonVariants } from '@/components/ui/button'
+import { Zap, Menu, X, User, Bell, Search, Plus } from 'lucide-react'
+
+export function Navbar({ user }: { user?: any }) {
+  const pathname = usePathname()
+  const [isScrolled, setIsScrolled] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20)
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  const navLinks = [
+    { name: 'Explorar', href: '/explore', icon: Search },
+    { name: 'Mis Quedadas', href: '/dashboard', icon: Bell },
+  ]
 
   return (
-    <nav className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container flex h-16 items-center justify-between mx-auto px-4 md:px-8">
-        <Link href="/" className="flex items-center gap-2 text-primary hover:opacity-80 transition-opacity">
-          <Zap className="h-6 w-6" />
-          <span className="font-bold text-xl tracking-tight text-foreground">QuedaMoto</span>
-        </Link>
-        <div className="hidden md:flex items-center gap-6">
-          <Link href="/explore" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Explorar Rutas</Link>
-          {user ? (
-            <>
-              <Link href="/dashboard" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">Mis Quedadas</Link>
-              <Link href="/meetups/create" className={buttonVariants({ className: "rounded-full" })}>
-                  <Plus className="mr-2 h-4 w-4" /> Crear Quedada
-              </Link>
-              <Link href="/profile">
-                <Avatar className="h-9 w-9 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
-                  <AvatarFallback className="bg-primary/20 text-primary">
-                    <User className="h-5 w-5" />
-                  </AvatarFallback>
-                </Avatar>
-              </Link>
-            </>
-          ) : (
-            <div className="flex gap-4">
-              <Link href="/auth/login" className={buttonVariants({ variant: "ghost" })}>Entrar</Link>
-              <Link href="/auth/register" className={buttonVariants({ className: "rounded-full" })}>Unirse Gratis</Link>
+    <nav 
+      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 px-4 py-4 ${
+        isScrolled ? 'bg-background/80 backdrop-blur-xl border-b border-white/5 py-3' : 'bg-transparent'
+      }`}
+    >
+      <div className="container mx-auto max-w-7xl">
+        <div className="flex items-center justify-between">
+          
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 group">
+            <div className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
+              <Zap className="h-6 w-6 text-white fill-white" />
             </div>
-          )}
+            <span className="text-2xl font-black italic tracking-tighter text-white">QUEDAMOTO</span>
+          </Link>
+
+          {/* Desktop Nav */}
+          <div className="hidden md:flex items-center gap-8">
+            <div className="flex items-center gap-1">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className={`px-4 py-2 text-xs font-black uppercase tracking-[0.2em] transition-colors rounded-full ${
+                    pathname === link.href ? 'text-primary bg-primary/10' : 'text-white/40 hover:text-white'
+                  }`}
+                >
+                  {link.name}
+                </Link>
+              ))}
+            </div>
+
+            <div className="h-4 w-px bg-white/10" />
+
+            <div className="flex items-center gap-4">
+              {user ? (
+                <>
+                  <Link 
+                    href="/meetups/create" 
+                    className={buttonVariants({ className: "rounded-full bg-white text-black hover:bg-white/90 font-bold h-10 px-6" })}
+                  >
+                    <Plus className="mr-2 h-4 w-4" /> Crear
+                  </Link>
+                  <Link href="/profile" className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white/10 transition-all">
+                    <User className="h-5 w-5" />
+                  </Link>
+                </>
+              ) : (
+                <>
+                  <Link href="/auth/login" className="text-xs font-black uppercase tracking-widest text-white/60 hover:text-white transition-colors">
+                    Login
+                  </Link>
+                  <Link href="/auth/register" className={buttonVariants({ className: "rounded-full bg-primary font-bold h-10 px-6" })}>
+                    Únete
+                  </Link>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Mobile Toggle */}
+          <button 
+            className="md:hidden h-10 w-10 glass rounded-xl flex items-center justify-center text-white"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          >
+            {isMobileMenuOpen ? <X /> : <Menu />}
+          </button>
         </div>
-        {/* Mobile View: we just show Logo and maybe a Login button if not logged in. Navigation is handled by BottomNav */}
       </div>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-full left-4 right-4 mt-4 glass rounded-3xl p-6 md:hidden z-50 flex flex-col gap-6"
+          >
+            {navLinks.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="flex items-center gap-4 text-lg font-bold text-white/80"
+              >
+                <link.icon className="h-5 w-5 text-primary" />
+                {link.name}
+              </Link>
+            ))}
+            <hr className="border-white/5" />
+            <div className="flex flex-col gap-3">
+              {user ? (
+                <Link href="/meetups/create" onClick={() => setIsMobileMenuOpen(false)} className={buttonVariants({ className: "w-full rounded-2xl h-14 font-bold" })}>
+                  Crear Ruta
+                </Link>
+              ) : (
+                <Link href="/auth/register" onClick={() => setIsMobileMenuOpen(false)} className={buttonVariants({ className: "w-full rounded-2xl h-14 font-bold" })}>
+                  Registrarse
+                </Link>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </nav>
   )
 }

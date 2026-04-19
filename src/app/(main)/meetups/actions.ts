@@ -1,12 +1,47 @@
 'use server'
 
 import { db } from '@/db'
-import { meetups, attendees } from '@/db/schema'
+import { meetups, attendees, messages as messagesTable, notifications } from '@/db/schema'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
 import crypto from 'crypto'
 import { revalidatePath } from 'next/cache'
-import { eq, and } from 'drizzle-orm'
+import { eq, and, desc } from 'drizzle-orm'
+
+export async function getNotifications() {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) return { notifications: [] }
+
+    const res = await db.select()
+      .from(notifications)
+      .where(eq(notifications.user_id, session.user.id!))
+      .orderBy(desc(notifications.createdAt))
+      .limit(10)
+
+    return { notifications: res }
+  } catch (error) {
+    console.error(error)
+    return { notifications: [] }
+  }
+}
+
+export async function markNotificationAsRead(notificationId: string) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) return { success: false }
+
+    await db.update(notifications)
+      .set({ isRead: true })
+      .where(and(eq(notifications.id, notificationId), eq(notifications.user_id, session.user.id!)))
+
+    revalidatePath('/dashboard')
+    return { success: true }
+  } catch (error) {
+    console.error(error)
+    return { success: false }
+  }
+}
 
 export async function deleteMeetupAction(meetupId: string) {
   try {

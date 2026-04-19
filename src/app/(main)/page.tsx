@@ -1,88 +1,191 @@
-import Image from "next/image";
-import Link from "next/link";
-import { buttonVariants } from "@/components/ui/button";
-import { MapPin, Users, Shield, Calendar } from "lucide-react";
+'use client'
+
+import Image from "next/image"
+import Link from "next/link"
+import { motion } from "framer-motion"
+import { buttonVariants } from "@/components/ui/button"
+import { MapPin, Users, Shield, Calendar, ChevronRight, Zap, TrendingUp, Trophy } from "lucide-react"
 
 export default function HomePage() {
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.2
+      }
+    }
+  }
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: { 
+      y: 0, 
+      opacity: 1,
+      transition: { type: "spring" as const, stiffness: 100, damping: 20 }
+    }
+  }
+
   return (
-    <div className="flex flex-col min-h-[calc(100vh-4rem)]">
+    <div className="flex flex-col min-h-screen bg-mesh overflow-hidden">
       {/* Hero Section */}
-      <section className="relative w-full h-[80vh] min-h-[600px] flex items-center justify-center">
-        <Image 
-          src="https://images.unsplash.com/photo-1558980394-0a06c4631733?q=80&w=2070" 
-          alt="Bikers riding" 
-          fill 
-          className="object-cover"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-background/30 via-background/60 to-background" />
-        <div className="relative z-10 container px-4 md:px-6 text-center space-y-8">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tighter text-white drop-shadow-lg font-sans">
-            Encuentra moteros <br className="hidden sm:block" />
-            <span className="text-primary">cerca de ti</span>
-          </h1>
-          <p className="mx-auto max-w-[600px] text-xl text-gray-300 md:text-2xl drop-shadow">
-            Sube a la moto y únete a quedadas espontáneas o planificadas en toda España.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+      <section className="relative w-full h-[95vh] flex items-center justify-center pt-16">
+        <div className="absolute inset-0 z-0">
+          <Image 
+            src="/_next/image?url=file%3A%2F%2FC%3A%2FUsers%2FAncor%2F.gemini%2Fantigravity%2Fbrain%2F2294b512-ccce-4f73-8b26-2dc0939ad82a%2Fquedamoto_premium_hero_1776600221880.png&w=3840&q=80" 
+            alt="Biker Overlook" 
+            fill 
+            className="object-cover scale-105"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          <div className="absolute inset-0 bg-black/20" />
+        </div>
+
+        <motion.div 
+          className="relative z-10 container px-4 flex flex-col items-center text-center max-w-4xl"
+          initial="hidden"
+          animate="visible"
+          variants={containerVariants}
+        >
+          <motion.div 
+            variants={itemVariants}
+            className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-6 backdrop-blur-md"
+          >
+            <Zap className="h-3 w-3 text-primary fill-primary" />
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70">Unidos por el asfalto</span>
+          </motion.div>
+
+          <motion.h1 
+            variants={itemVariants}
+            className="text-6xl md:text-8xl font-black tracking-tighter text-white font-sans leading-[0.9]"
+          >
+            LA LIBERTAD <br />
+            <span className="text-primary italic">TE ESTÁ ESPERANDO</span>
+          </motion.h1>
+
+          <motion.p 
+            variants={itemVariants}
+            className="mt-8 text-lg md:text-xl text-white/50 max-w-2xl leading-relaxed font-medium"
+          >
+            Descubre las rutas más épicas y únete a la mayor comunidad de moteros apasionados. Sin filtros. Sin excusas. Solo tú y la carretera.
+          </motion.p>
+
+          <motion.div 
+            variants={itemVariants}
+            className="flex flex-col sm:flex-row gap-4 justify-center mt-12 w-full max-w-md sm:max-w-none"
+          >
             <Link 
               href="/explore" 
-              className={buttonVariants({ size: "lg", className: "text-lg px-8 py-6 rounded-full font-bold shadow-primary/25 shadow-2xl" })}
+              className={buttonVariants({ size: "lg", className: "h-16 px-10 rounded-2xl font-black text-lg bg-primary hover:bg-primary/90 shadow-[0_0_40px_-10px_rgba(255,77,0,0.5)] transition-all hover:scale-[1.02]" })}
             >
-              Ver Quedadas
+              Explorar Rutas
             </Link>
             <Link 
               href="/meetups/create" 
-              className={buttonVariants({ size: "lg", variant: "outline", className: "text-lg px-8 py-6 rounded-full border-2 bg-background/50 backdrop-blur" })}
+              className={buttonVariants({ variant: "outline", size: "lg", className: "h-16 px-10 rounded-2xl font-black text-lg glass text-white hover:bg-white/10 border-white/10 transition-all" })}
             >
-              Organizar Ruta
+              Organizar Quedada
             </Link>
+          </motion.div>
+        </motion.div>
+        
+        <motion.div 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.5, duration: 1 }}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/30"
+        >
+          <span className="text-[10px] font-bold uppercase tracking-widest">Scroll</span>
+          <div className="w-px h-12 bg-gradient-to-b from-white/30 to-transparent" />
+        </motion.div>
+      </section>
+
+      {/* Trust & Activity Signals */}
+      <section className="relative z-10 py-12 px-4">
+        <div className="container mx-auto">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {[
+              { label: "Rutas Activas", val: "1.2k+", icon: TrendingUp },
+              { label: "Moteros", val: "5k+", icon: Users },
+              { label: "Provincias", val: "52", icon: MapPin },
+              { label: "Top Riders", val: "300+", icon: Trophy }
+            ].map((stat, i) => (
+              <motion.div 
+                key={i}
+                initial={{ opacity: 0, scale: 0.9 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                className="glass-card p-6 rounded-3xl flex flex-col items-center text-center gap-2"
+              >
+                <stat.icon className="h-5 w-5 text-primary/50 mb-1" />
+                <span className="text-3xl font-black text-white">{stat.val}</span>
+                <span className="text-[10px] uppercase font-system tracking-[0.2em] text-white/30">{stat.label}</span>
+              </motion.div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Benefits Section */}
-      <section className="w-full py-20 bg-background">
-        <div className="container px-4 md:px-6 mx-auto">
-          <div className="grid gap-12 sm:grid-cols-2 lg:grid-cols-4">
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="p-4 bg-primary/10 rounded-full text-primary">
-                <MapPin className="h-8 w-8" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground">Rutas Locales</h3>
-              <p className="text-muted-foreground">Descubre los mejores rincones y curvas cerca de tu ciudad.</p>
+      {/* Value Propositions */}
+      <section className="py-32 px-4">
+        <div className="container mx-auto space-y-24">
+          <div className="grid lg:grid-cols-2 gap-16 items-center">
+            <div className="space-y-8">
+              <div className="h-1 w-20 bg-primary" />
+              <h2 className="text-4xl md:text-6xl font-black tracking-tight text-white leading-tight">
+                No vuelvas a rodar <br /> EN SOLITARIO.
+              </h2>
+              <p className="text-xl text-white/40 leading-relaxed font-light">
+                Conecta con personas que comparten tu misma pasión y estilo de conducción. Desde rutas por la costa hasta trial técnico, hay un grupo esperándote.
+              </p>
+              <ul className="space-y-6">
+                {[
+                  { title: "Niveles reales", desc: "Filtra rutas según tu experiencia: Novato, Intermedio o Pro." },
+                  { title: "Chat Integrado", desc: "Coordina las paradas y el repostaje antes de salir." },
+                  { title: "Sin Comisiones", desc: "Plataforma 100% abierta y gratuita para la comunidad." }
+                ].map((item, i) => (
+                  <li key={i} className="flex gap-4 group">
+                    <div className="h-6 w-6 rounded-full bg-primary/20 flex items-center justify-center text-primary shrink-0 group-hover:scale-110 transition-transform">
+                      <ChevronRight className="h-4 w-4" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-white text-lg">{item.title}</h4>
+                      <p className="text-white/40 text-sm">{item.desc}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="p-4 bg-primary/10 rounded-full text-primary">
-                <Users className="h-8 w-8" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground">Comunidad Activa</h3>
-              <p className="text-muted-foreground">Conoce a moteros con tus mismos gustos y niveles de experiencia.</p>
-            </div>
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="p-4 bg-primary/10 rounded-full text-primary">
-                <Calendar className="h-8 w-8" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground">Eventos Diarios</h3>
-              <p className="text-muted-foreground">Desde un café rápido hasta viajes de fin de semana completos.</p>
-            </div>
-            <div className="flex flex-col items-center text-center space-y-4">
-              <div className="p-4 bg-primary/10 rounded-full text-primary">
-                <Shield className="h-8 w-8" />
-              </div>
-              <h3 className="text-xl font-bold text-foreground">Seguridad</h3>
-              <p className="text-muted-foreground">Perfiles verificados y valoraciones para rodar con tranquilidad.</p>
+            
+            <div className="relative aspect-square">
+               <div className="absolute -inset-10 bg-primary/20 blur-[100px] rounded-full" />
+               <div className="relative h-full w-full rounded-3xl overflow-hidden border border-white/5 shadow-2xl">
+                 <Image 
+                   src="https://images.unsplash.com/photo-1591637333184-1d0c41038676?q=80&w=1974" 
+                   alt="Biker Detail" 
+                   fill 
+                   className="object-cover"
+                 />
+                 <div className="absolute inset-0 bg-gradient-to-tr from-background via-transparent to-transparent" />
+               </div>
             </div>
           </div>
         </div>
       </section>
-      
-      {/* Footer Placeholder */}
-      <footer className="w-full border-t border-border/40 py-8 bg-card mt-auto">
-        <div className="container px-4 text-center text-muted-foreground text-sm">
-          © {new Date().getFullYear()} QuedaMoto. Todos los derechos reservados.
+
+      <footer className="w-full border-t border-white/5 py-12 bg-black/50">
+        <div className="container px-4 mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
+          <div className="flex items-center gap-2">
+            <Zap className="h-6 w-6 text-primary" />
+            <span className="text-xl font-black tracking-tighter text-white italic">QUEDAMOTO</span>
+          </div>
+          <div className="text-white/20 text-xs font-medium uppercase tracking-[0.25em]">
+            © {new Date().getFullYear()} QuedaMoto. Engineered for high performance.
+          </div>
         </div>
       </footer>
     </div>
-  );
+  )
 }

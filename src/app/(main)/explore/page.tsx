@@ -3,8 +3,8 @@ import { db } from "@/db"
 import { meetups as meetupsTable } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { Button } from "@/components/ui/button";
-import { Filter } from "lucide-react";
-import Link from 'next/link';
+import { Filter, SlidersHorizontal, Map as MapIcon, List, Search } from "lucide-react";
+import { MeetupCard } from "@/components/meetups/MeetupCard";
 
 export const metadata = {
   title: "Explorar Quedadas - QuedaMoto",
@@ -17,45 +17,44 @@ export default async function ExplorePage() {
     lat: meetupsTable.lat,
     lng: meetupsTable.lng,
     date: meetupsTable.date,
-    time: meetupsTable.time
+    time: meetupsTable.time,
+    type: meetupsTable.type,
+    level_required: meetupsTable.level_required,
+    max_attendees: meetupsTable.max_attendees
   }).from(meetupsTable).where(eq(meetupsTable.visibility, 'public'))
   
   const meetups = (meetupsArr || []).filter(m => m.lat !== null && m.lng !== null) as any[]
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] md:flex-row overflow-hidden bg-background">
+    <div className="flex flex-col h-[calc(100vh-4rem)] md:flex-row overflow-hidden bg-background pt-16">
       {/* Map Section */}
-      <div className="w-full h-1/2 md:h-full md:flex-1 relative z-0">
+      <div className="w-full h-1/2 md:h-full md:flex-1 relative z-0 border-r border-white/5">
          <MapboxView meetups={meetups || []} />
       </div>
       
       {/* Sidebar (Filters & List) */}
-      <div className="w-full h-1/2 md:h-full md:w-[400px] bg-card border-t md:border-t-0 md:border-l border-border flex flex-col z-10 overflow-hidden shadow-2xl relative">
-        <div className="p-4 border-b border-border/40 flex items-center justify-between shadow-sm">
-          <div>
-            <h2 className="text-xl font-bold text-foreground">Rutas cercanas</h2>
-            <p className="text-sm text-muted-foreground mt-1">Explora en el mapa o en la lista.</p>
+      <div className="w-full h-1/2 md:h-full md:w-[450px] bg-card flex flex-col z-10 overflow-hidden shadow-2xl relative">
+        <div className="p-6 border-b border-white/5 bg-black/20 backdrop-blur-md">
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-2xl font-black text-white tracking-tight">Rutas Cercanas</h2>
+            <div className="flex gap-2">
+              <Button variant="outline" size="icon" className="rounded-xl border-white/10 bg-white/5 h-10 w-10">
+                <SlidersHorizontal className="w-4 h-4 text-white/40" />
+              </Button>
+            </div>
           </div>
-          <Button variant="outline" size="icon" className="rounded-full">
-            <Filter className="w-4 h-4" />
-          </Button>
+          <p className="text-sm text-white/30 font-medium">Encuentra tu próximo desafío en el mapa o en la lista.</p>
         </div>
         
-        <div className="flex-1 p-4 flex flex-col gap-4 overflow-y-auto w-full">
+        <div className="flex-1 p-6 flex flex-col gap-6 overflow-y-auto w-full custom-scrollbar">
           {(meetups || []).length > 0 ? (
              meetups?.map(m => (
-               <Link href={`/meetups/${m.id}`} key={m.id}>
-                 <div className="p-4 rounded-xl bg-background border border-border/50 hover:border-primary/50 transition-colors cursor-pointer group">
-                   <h3 className="font-semibold text-primary group-hover:underline">{m.title}</h3>
-                   <div className="mt-2 text-xs text-muted-foreground flex gap-2 items-center">
-                     <span className="font-medium text-foreground">{m.date} - {m.time}</span>
-                   </div>
-                 </div>
-               </Link>
+               <MeetupCard key={m.id} meetup={m} />
              ))
           ) : (
-            <div className="flex h-full items-center justify-center flex-col text-center space-y-2 opacity-50">
-              <p className="text-sm text-muted-foreground">No se encontraron quedadas en esta área.</p>
+            <div className="flex h-full items-center justify-center flex-col text-center space-y-4 opacity-30 py-20">
+              <Search className="h-12 w-12 text-white" />
+              <p className="text-sm text-white font-medium">No se encontraron quedadas en esta área.</p>
             </div>
           )}
         </div>

@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, doublePrecision, varchar, uuid } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, integer, doublePrecision, varchar, uuid, boolean } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -42,9 +42,20 @@ export const attendees = pgTable('attendees', {
 });
 
 export const messages = pgTable('messages', {
-  id: uuid('id').defaultRandom().primaryKey(),
+  id: uuid('id').primaryKey().defaultRandom(),
   meetup_id: uuid('meetup_id').references(() => meetups.id, { onDelete: 'cascade' }).notNull(),
   user_id: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   content: text('content').notNull(),
-  createdAt: timestamp('created_at').defaultNow(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const notifications = pgTable('notifications', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  user_id: text('user_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  type: text('type').notNull(), // 'chat', 'join', 'update'
+  title: text('title').notNull(),
+  message: text('message').notNull(),
+  link: text('link'),
+  isRead: boolean('is_read').default(false).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
 });

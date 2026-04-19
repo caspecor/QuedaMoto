@@ -2,10 +2,10 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Map, PlusCircle, User, LayoutDashboard } from 'lucide-react'
+import { Home, Map, PlusCircle, User, LayoutDashboard, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-export default function BottomNav({ isLoggedIn }: { isLoggedIn: boolean }) {
+export function BottomNav({ isLoggedIn }: { isLoggedIn: boolean }) {
   const pathname = usePathname()
 
   const navItems = [
@@ -14,7 +14,7 @@ export default function BottomNav({ isLoggedIn }: { isLoggedIn: boolean }) {
     ...(isLoggedIn 
       ? [
           { name: 'Crear', href: '/meetups/create', icon: PlusCircle, highlight: true },
-          { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+          { name: 'Garaje', href: '/dashboard', icon: LayoutDashboard },
           { name: 'Perfil', href: '/profile', icon: User },
         ] 
       : [
@@ -24,7 +24,7 @@ export default function BottomNav({ isLoggedIn }: { isLoggedIn: boolean }) {
   ]
 
   return (
-    <div className="fixed bottom-0 left-0 z-50 w-full h-16 bg-background/95 backdrop-blur border-t border-border/40 md:hidden">
+    <div className="fixed bottom-0 left-0 z-[100] w-full h-18 bg-background/60 backdrop-blur-xl border-t border-white/5 md:hidden pb-safe-area-inset-bottom">
       <div className="grid h-full w-full mx-auto" style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}>
         {navItems.map((item) => {
           const isActive = pathname === item.href
@@ -34,23 +34,31 @@ export default function BottomNav({ isLoggedIn }: { isLoggedIn: boolean }) {
             <Link 
               key={item.name} 
               href={item.href}
-              className="inline-flex flex-col items-center justify-center px-2 hover:bg-muted/50 group"
+              className="inline-flex flex-col items-center justify-center px-2 group py-2"
             >
-              <Icon 
-                className={cn(
-                  "w-6 h-6 mb-1 transition-colors",
-                  isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground",
-                  item.highlight && "text-primary stroke-[2.5]"
-                )} 
-              />
+              <div className={cn(
+                "p-2 rounded-xl transition-all duration-300",
+                isActive ? "bg-primary/10 text-primary scale-110" : "text-white/30 group-hover:text-white/60",
+                item.highlight && "bg-primary/20 text-primary"
+              )}>
+                <Icon 
+                  className={cn(
+                    "w-5 h-5",
+                    item.highlight && "stroke-[2.5]"
+                  )} 
+                />
+              </div>
               <span 
                 className={cn(
-                  "text-[10px] font-medium transition-colors",
-                  isActive ? "text-primary" : "text-muted-foreground group-hover:text-foreground"
+                  "text-[9px] font-black uppercase tracking-widest mt-1 transition-colors duration-300",
+                  isActive ? "text-primary opacity-100" : "text-white/20 opacity-80"
                 )}
               >
                 {item.name}
               </span>
+              {isActive && (
+                <div className="absolute top-0 h-0.5 w-4 bg-primary rounded-full animate-in fade-in zoom-in duration-500" />
+              )}
             </Link>
           )
         })}
