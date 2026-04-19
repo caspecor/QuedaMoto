@@ -5,12 +5,24 @@ import { usePathname } from 'next/navigation'
 import { Home, Map, PlusCircle, User, LayoutDashboard, Zap } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSession } from 'next-auth/react'
+import { getUserAvatar } from '@/app/(main)/meetups/actions'
+import { useState, useEffect } from 'react'
 
 export function BottomNav({ user: initialUser }: { user?: any }) {
   const { data: session } = useSession()
+  const [dbAvatar, setDbAvatar] = useState<string | null>(null)
   const user = session?.user || initialUser
+  const displayAvatar = dbAvatar || user?.image
   const pathname = usePathname()
   const isLoggedIn = !!user
+  
+  useEffect(() => {
+    async function fetchAvatar() {
+      const avatar = await getUserAvatar()
+      if (avatar) setDbAvatar(avatar)
+    }
+    fetchAvatar()
+  }, [user?.id])
 
   const navItems = [
     { name: 'Inicio', href: '/', icon: Home },
@@ -45,10 +57,10 @@ export function BottomNav({ user: initialUser }: { user?: any }) {
                 "p-2 rounded-xl transition-all duration-300 overflow-hidden",
                 isActive ? "bg-primary/10 text-primary scale-110" : "text-white/30 group-hover:text-white/60",
                 item.highlight && "bg-primary/20 text-primary",
-                isProfile && user?.image && "p-0 h-9 w-9 border border-white/10"
+                isProfile && displayAvatar && "p-0 h-9 w-9 border border-white/10"
               )}>
-                {isProfile && user?.image ? (
-                  <img src={user.image} alt="Profile" className="w-full h-full object-cover" />
+                {isProfile && displayAvatar ? (
+                  <img src={displayAvatar} alt="Profile" className="w-full h-full object-cover" />
                 ) : (
                   <Icon 
                     className={cn(

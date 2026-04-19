@@ -281,6 +281,19 @@ export async function getPublicMeetups() {
   }
 }
 
+export async function getUserAvatar() {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) return null
+    
+    const userArr = await db.select({ avatar: users.avatar }).from(users).where(eq(users.id, session.user.id)).limit(1)
+    return userArr[0]?.avatar || null
+  } catch (err) {
+    console.error(err)
+    return null
+  }
+}
+
 export async function updateProfile(data: { name?: string, avatar?: string }) {
   try {
     const session = await auth()

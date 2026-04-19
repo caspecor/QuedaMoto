@@ -7,14 +7,25 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { buttonVariants } from '@/components/ui/button'
 import { Zap, Menu, X, User, Bell, Search, Plus } from 'lucide-react'
 import { useSession } from 'next-auth/react'
+import { getUserAvatar } from '@/app/(main)/meetups/actions'
 
 export function Navbar({ user: initialUser }: { user?: any }) {
   const { data: session } = useSession()
+  const [dbAvatar, setDbAvatar] = useState<string | null>(null)
   const user = session?.user || initialUser
+  const displayAvatar = dbAvatar || user?.image
   
   useEffect(() => {
-    console.log("[NAVBAR] User State:", user)
-  }, [user])
+    async function fetchAvatar() {
+      const avatar = await getUserAvatar()
+      if (avatar) setDbAvatar(avatar)
+    }
+    fetchAvatar()
+  }, [user?.id])
+
+  useEffect(() => {
+    console.log("[NAVBAR] User State:", user?.name, "HasDisplayAvatar:", !!displayAvatar)
+  }, [user, displayAvatar])
 
   const pathname = usePathname()
   const [isScrolled, setIsScrolled] = useState(false)
@@ -77,8 +88,8 @@ export function Navbar({ user: initialUser }: { user?: any }) {
                     <span className="text-black">Crear</span>
                   </Link>
                   <Link href="/profile" className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white/10 transition-all overflow-hidden shrink-0">
-                    {user.image ? (
-                      <img src={user.image} alt="Profile" className="w-full h-full object-cover" />
+                    {displayAvatar ? (
+                      <img src={displayAvatar} alt="Profile" className="w-full h-full object-cover" />
                     ) : (
                       <User className="h-5 w-5" />
                     )}
