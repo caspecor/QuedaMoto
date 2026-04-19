@@ -26,7 +26,7 @@ export default async function ExplorePage() {
   const meetups = (meetupsArr || []).filter(m => m.lat !== null && m.lng !== null) as any[]
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] md:flex-row overflow-hidden bg-background pt-16">
+    <div className="flex flex-col h-[calc(100vh-4rem)] md:flex-row overflow-hidden bg-background pt-24">
       {/* Map Section */}
       <div className="w-full h-1/2 md:h-full md:flex-1 relative z-0 border-r border-white/5">
          <MapboxView meetups={meetups || []} />

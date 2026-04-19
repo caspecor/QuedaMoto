@@ -44,9 +44,9 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
   const isCreator = user?.id === meetup.creator_id
 
   return (
-    <div className="flex flex-col md:flex-row min-h-screen bg-background pt-16">
+    <div className="flex flex-col md:flex-row min-h-screen bg-background pt-24">
       {/* Map Section - Mobile Header / Desktop Left */}
-      <div className="w-full h-80 md:h-full md:flex-1 relative order-1 md:order-2 z-0 border-l border-white/5 bg-[#030303]">
+      <div className="w-full h-96 md:h-[calc(100vh-6rem)] md:flex-1 relative order-1 md:order-2 z-0 border-l border-white/5 bg-[#030303] sticky top-24">
         <MapboxView meetups={[{
           id: meetup.id,
           lat: meetup.lat,
@@ -151,10 +151,10 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
         </div>
 
         {/* Floating Action Bar */}
-        <div className="fixed bottom-0 left-0 md:left-0 md:w-[500px] lg:w-[600px] p-6 z-50 animate-reveal [animation-delay:0.5s]">
-          <div className="glass shadow-2xl rounded-[40px] p-4 flex flex-col gap-4 border border-white/10 ring-1 ring-white/5">
+        <div className="fixed bottom-0 left-0 md:left-0 md:w-[500px] lg:w-[600px] p-8 z-50 animate-reveal [animation-delay:0.5s]">
+          <div className="glass shadow-2xl rounded-[40px] p-6 flex flex-col gap-6 border border-white/10 ring-1 ring-white/5 max-h-[80vh] overflow-hidden">
              {!user ? (
-              <Link href="/auth/login" className={buttonVariants({ className: "w-full text-lg h-14 rounded-[28px] font-black bg-primary shadow-xl shadow-primary/20 transition-all hover:scale-[1.02]" })}>
+              <Link href="/auth/login" className={buttonVariants({ className: "w-full text-lg h-16 rounded-[28px] font-black bg-primary shadow-xl shadow-primary/20 transition-all hover:scale-[1.02]" })}>
                 ÚNETE A LA RUTA
               </Link>
             ) : isCreator ? (
@@ -164,7 +164,7 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
             )}
             
             {user && isAttending && (
-               <div className="pt-2">
+               <div className="pt-2 flex-1 min-h-[400px]">
                  <ChatModule meetupId={id} userId={user.id!} />
                </div>
             )}

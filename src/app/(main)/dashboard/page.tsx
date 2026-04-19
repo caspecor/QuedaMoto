@@ -55,7 +55,7 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-mesh pb-20">
-      <div className="container px-4 py-12 max-w-6xl mx-auto space-y-12">
+      <div className="container px-4 pt-32 pb-12 max-w-6xl mx-auto space-y-12">
         
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 animate-reveal">

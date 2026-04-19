@@ -61,13 +61,25 @@ function LeafletMapView({ meetups }: { meetups: MeetupPin[] }) {
   // Internal component to handle map invalidation/resizing
   function MapResizer() {
     const map = useMap();
+    
     useEffect(() => {
-      // Small delay to ensure container is fully rendered in the DOM
-      const timer = setTimeout(() => {
+      const handleResize = () => {
         map.invalidateSize();
-      }, 250);
-      return () => clearTimeout(timer);
+      };
+
+      // Multiple triggers to ensure rendering after layout shifts
+      const timers = [50, 250, 500, 1000].map(delay => 
+        setTimeout(() => map.invalidateSize(), delay)
+      );
+
+      window.addEventListener('resize', handleResize);
+      
+      return () => {
+        window.removeEventListener('resize', handleResize);
+        timers.forEach(t => clearTimeout(t));
+      };
     }, [map]);
+    
     return null;
   }
 
