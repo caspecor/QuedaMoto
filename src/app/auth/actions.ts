@@ -23,9 +23,10 @@ export async function loginAction(data: { email: string; password: string }) {
     
     return { success: true }
   } catch (error: any) {
-    console.error(error)
-    return { error: 'Ocurrió un error inesperado al iniciar sesión.' }
+    console.error("LOGIN ERROR:", error)
+    return { error: `Error de servidor: ${error.message || 'Desconocido'}` }
   }
+  redirect('/dashboard')
 }
 
 export async function signupAction(data: { email: string; password: string; username: string }) {
