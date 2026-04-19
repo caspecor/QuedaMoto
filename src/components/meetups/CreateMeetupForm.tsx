@@ -1,13 +1,13 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useRouter } from 'next/navigation'
 import { createMeetupAction } from '@/app/(main)/meetups/actions'
 import { toast } from 'sonner'
-import { Loader2, MapPin } from 'lucide-react'
+import { Loader2, MapPin, Navigation, Search } from 'lucide-react'
 import { MapPicker } from '@/components/map/MapPicker'
 
 import { Button } from '@/components/ui/button'
@@ -35,6 +35,10 @@ type CreateFormValues = z.infer<typeof createSchema>
 
 export function CreateMeetupForm() {
   const [isLoading, setIsLoading] = useState(false)
+  const [isGeolocating, setIsGeolocating] = useState(false)
+  const [isGeocoding, setIsGeocoding] = useState(false)
+  const [mapPosition, setMapPosition] = useState<[number, number] | null>(null)
+  const geocodeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const router = useRouter()
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<CreateFormValues>({
     resolver: zodResolver(createSchema) as any,
@@ -44,6 +48,61 @@ export function CreateMeetupForm() {
       type: 'route',
     }
   })
+
+  // Geocode address using free Nominatim API (no key required)
+  async function geocodeAddress(address: string) {
+    if (address.length < 5) return
+    setIsGeocoding(true)
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`,
+        { headers: { 'Accept-Language': 'es' } }
+      )
+      const data = await res.json()
+      if (data.length > 0) {
+        const lat = parseFloat(data[0].lat)
+        const lng = parseFloat(data[0].lon)
+        setMapPosition([lat, lng])
+        setValue('lat', lat)
+        setValue('lng', lng)
+      }
+    } catch (e) {
+      console.error('Geocoding error:', e)
+    } finally {
+      setIsGeocoding(false)
+    }
+  }
+
+  // Debounced handler for address input
+  function handleAddressChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const value = e.target.value
+    if (geocodeTimer.current) clearTimeout(geocodeTimer.current)
+    geocodeTimer.current = setTimeout(() => geocodeAddress(value), 800)
+  }
+
+  // Use browser GPS
+  function handleUseMyLocation() {
+    if (!navigator.geolocation) {
+      toast.error('Tu navegador no soporta la geolocalización')
+      return
+    }
+    setIsGeolocating(true)
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const lat = pos.coords.latitude
+        const lng = pos.coords.longitude
+        setMapPosition([lat, lng])
+        setValue('lat', lat)
+        setValue('lng', lng)
+        toast.success('Ubicación actual marcada en el mapa')
+        setIsGeolocating(false)
+      },
+      (err) => {
+        toast.error('No se pudo obtener tu ubicación. Comprueba los permisos del navegador.')
+        setIsGeolocating(false)
+      }
+    )
+  }
 
   async function onSubmit(data: CreateFormValues) {
     setIsLoading(true)
@@ -133,19 +192,54 @@ export function CreateMeetupForm() {
           <div className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="address">Punto de Encuentro (Dirección)</Label>
-              <Input id="address" placeholder="Gasolinera X, Calle Y..." {...register('address')} />
+              <div className="relative">
+                <Input
+                  id="address"
+                  placeholder="Ej: Alcampo Telde, Gasolinera X..."
+                  {...register('address', {
+                    onChange: handleAddressChange,
+                  })}
+                  className="pr-10"
+                />
+                {isGeocoding && (
+                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-pulse" />
+                )}
+              </div>
               {errors.address && <p className="text-xs text-destructive">{errors.address.message}</p>}
+              <p className="text-xs text-muted-foreground">
+                Escribe una dirección y el mapa se actualizará automáticamente.
+              </p>
             </div>
 
             <div className="space-y-2">
-              <Label>Ubicación exacta en mapa</Label>
-              <MapPicker 
+              <div className="flex items-center justify-between">
+                <Label>Ubicación en mapa</Label>
+                <button
+                  type="button"
+                  onClick={handleUseMyLocation}
+                  disabled={isGeolocating}
+                  className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 font-semibold transition-colors disabled:opacity-50"
+                >
+                  {isGeolocating
+                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    : <Navigation className="h-3.5 w-3.5" />
+                  }
+                  {isGeolocating ? 'Obteniendo ubicación...' : 'Usar mi ubicación actual'}
+                </button>
+              </div>
+              <MapPicker
+                externalPosition={mapPosition}
                 onLocationSelect={(lat, lng) => {
-                  setValue('lat', lat);
-                  setValue('lng', lng);
-                }} 
+                  setMapPosition([lat, lng])
+                  setValue('lat', lat)
+                  setValue('lng', lng)
+                }}
               />
-              {(errors.lat || errors.lng) && <p className="text-xs text-destructive">Debes marcar un punto en el mapa</p>}
+              {mapPosition && (
+                <p className="text-xs text-primary font-medium">
+                  📍 Marcado: {mapPosition[0].toFixed(5)}, {mapPosition[1].toFixed(5)}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
