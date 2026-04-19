@@ -16,7 +16,7 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
       <main className="flex-1">
         {children}
       </main>
-      <BottomNav isLoggedIn={!!user} />
+      <BottomNav user={user} />
     </div>
   )
 }

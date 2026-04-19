@@ -12,6 +12,9 @@ export const metadata = {
   title: "Perfil - QuedaMoto",
 }
 
+import { ProfileEditForm } from "@/components/profile/ProfileEditForm"
+import { AvatarImage } from "@/components/ui/avatar"
+
 export default async function ProfilePage() {
   const session = await auth()
   const userSession = session?.user
@@ -24,27 +27,33 @@ export default async function ProfilePage() {
   const profile = userArr[0]
 
   return (
-    <div className="container px-4 pt-32 pb-8 max-w-3xl mx-auto space-y-8">
+    <div className="container px-4 pt-32 pb-8 max-w-3xl mx-auto space-y-8 animate-reveal">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold font-sans text-foreground">Mi Perfil</h1>
-        <div className="flex gap-2">
-          <Button variant="outline" size="icon" className="rounded-full"><Settings className="w-4 h-4" /></Button>
+        <h1 className="text-4xl font-black font-sans text-white tracking-tight">Mi Perfil</h1>
+        <div className="flex gap-3">
           <form action="/auth/logout" method="POST">
-             <Button variant="destructive" size="icon" className="rounded-full" type="submit"><LogOut className="w-4 h-4" /></Button>
+             <Button variant="ghost" size="icon" className="rounded-full text-white/20 hover:text-red-400 hover:bg-red-400/10" type="submit">
+               <LogOut className="w-5 h-5" />
+             </Button>
           </form>
         </div>
       </div>
 
-      <Card className="bg-card shadow-lg border-border/50">
-        <CardContent className="p-6 md:p-8 flex flex-col md:flex-row items-center gap-8">
-           <Avatar className="w-32 h-32 border-4 border-primary/20 shadow-xl">
-             <AvatarFallback className="text-4xl bg-primary/10 text-primary font-bold">{profile?.username?.[0] || 'U'}</AvatarFallback>
-           </Avatar>
-           <div className="space-y-2 text-center md:text-left">
-              <h2 className="text-2xl font-bold text-foreground">{profile?.username}</h2>
-              <p className="text-muted-foreground">{profile?.email}</p>
-              {profile?.city && <p className="text-sm font-medium mt-2">📍 {profile.city}</p>}
+      <Card className="bg-card shadow-lg border-border/50 rounded-3xl overflow-hidden">
+        <CardContent className="p-6 md:p-8 space-y-8">
+           <div className="flex flex-col md:flex-row items-center gap-8 border-b border-white/5 pb-8">
+              <Avatar className="w-32 h-32 border-4 border-primary/20 shadow-xl overflow-hidden">
+                <AvatarImage src={profile?.avatar || ""} className="object-cover" />
+                <AvatarFallback className="text-4xl bg-primary/10 text-primary font-black uppercase">{profile?.username?.[0] || 'U'}</AvatarFallback>
+              </Avatar>
+              <div className="space-y-1 text-center md:text-left flex-1">
+                 <h2 className="text-3xl font-black text-white italic tracking-tight">{profile?.username}</h2>
+                 <p className="text-white/40 font-medium">{profile?.email}</p>
+                 {profile?.city && <p className="text-sm font-bold text-primary inline-flex items-center mt-2 px-3 py-1 bg-primary/5 rounded-full">📍 {profile.city}</p>}
+              </div>
            </div>
+
+           <ProfileEditForm profile={profile} />
         </CardContent>
       </Card>
       

@@ -1,9 +1,10 @@
 'use server'
 
 import { db } from '@/db'
-import { meetups, attendees, messages as messagesTable, notifications } from '@/db/schema'
+import { users, meetups, attendees, messages as messagesTable, notifications } from '@/db/schema'
 import { redirect } from 'next/navigation'
 import { auth } from '@/auth'
+import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { revalidatePath } from 'next/cache'
 import { eq, and, desc } from 'drizzle-orm'
@@ -277,6 +278,52 @@ export async function getPublicMeetups() {
   } catch (error) {
     console.error(error)
     return { meetups: [] }
+  }
+}
+
+export async function updateProfile(data: { name?: string, avatar?: string }) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) return { error: "No autenticado" }
+
+    const updateData: any = {}
+    if (data.name) updateData.username = data.name
+    if (data.avatar) updateData.avatar = data.avatar
+
+    await db.update(users)
+      .set(updateData)
+      .where(eq(users.id, session.user.id))
+
+    revalidatePath('/profile')
+    return { success: true }
+  } catch (err) {
+    console.error(err)
+    return { error: "Error al actualizar perfil" }
+  }
+}
+
+export async function updatePassword(oldPass: string, newPass: string) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) return { error: "No autenticado" }
+
+    const userArr = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1)
+    const user = userArr[0]
+
+    if (!user || !user.password) return { error: "Usuario no encontrado" }
+
+    const isMatch = await bcrypt.compare(oldPass, user.password)
+    if (!isMatch) return { error: "La contraseña actual es incorrecta" }
+
+    const hashed = await bcrypt.hash(newPass, 10)
+    await db.update(users)
+      .set({ password: hashed })
+      .where(eq(users.id, session.user.id))
+
+    return { success: true }
+  } catch (err) {
+    console.error(err)
+    return { error: "Error al actualizar contraseña" }
   }
 }
 
