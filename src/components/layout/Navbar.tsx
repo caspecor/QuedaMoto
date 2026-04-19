@@ -68,8 +68,12 @@ export function Navbar({ user }: { user?: any }) {
                     <Plus className="h-4 w-4 text-black" /> 
                     <span className="text-black">Crear</span>
                   </Link>
-                  <Link href="/profile" className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white/10 transition-all">
-                    <User className="h-5 w-5" />
+                  <Link href="/profile" className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white/10 transition-all overflow-hidden">
+                    {user.image ? (
+                      <img src={user.image} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      <User className="h-5 w-5" />
+                    )}
                   </Link>
                 </>
               ) : (
