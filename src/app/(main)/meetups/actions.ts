@@ -35,6 +35,23 @@ export async function markNotificationAsRead(notificationId: string) {
       .set({ isRead: true })
       .where(and(eq(notifications.id, notificationId), eq(notifications.user_id, session.user.id!)))
 
+    return { success: true }
+  } catch (error) {
+    console.error(error)
+    return { success: false }
+  }
+}
+
+export async function deleteNotification(id: string) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) return { success: false }
+
+    await db.delete(notifications).where(and(
+      eq(notifications.id, id),
+      eq(notifications.user_id, session.user.id!)
+    ))
+
     revalidatePath('/dashboard')
     return { success: true }
   } catch (error) {
