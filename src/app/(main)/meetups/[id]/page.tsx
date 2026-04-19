@@ -5,6 +5,7 @@ import { notFound } from "next/navigation"
 import { MapboxView } from "@/components/map/MapboxView"
 import { ChatModule } from "@/components/meetups/ChatModule"
 import { JoinButton } from "@/components/meetups/JoinButton"
+import { OrganizerControls } from "@/components/meetups/OrganizerControls"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Calendar, Clock, MapPin, Users, Shield, MessagesSquare } from "lucide-react"
@@ -131,7 +132,7 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
                 Inicia sesión para unirte
               </a>
             ) : isCreator ? (
-               <Button className="w-full h-12 rounded-full font-bold" variant="outline" disabled>Eres el organizador</Button>
+               <OrganizerControls meetup={meetup as any} />
             ) : (
                <JoinButton meetupId={id} isAttending={isAttending} />
             )}

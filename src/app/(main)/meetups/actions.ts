@@ -8,6 +8,55 @@ import crypto from 'crypto'
 import { revalidatePath } from 'next/cache'
 import { eq, and } from 'drizzle-orm'
 
+export async function deleteMeetupAction(meetupId: string) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) return { error: 'No estás autenticado.' }
+
+    // Verify the user is the creator before deleting
+    const meetup = await db.select().from(meetups).where(eq(meetups.id, meetupId)).limit(1).then(r => r[0])
+    if (!meetup) return { error: 'Quedada no encontrada' }
+    if (meetup.creator_id !== session.user.id) return { error: 'No tienes permiso para eliminar esta quedada' }
+
+    await db.delete(meetups).where(eq(meetups.id, meetupId))
+
+    return { success: true }
+  } catch (error) {
+    console.error(error)
+    return { error: 'Error al eliminar la quedada' }
+  }
+}
+
+export async function updateMeetupAction(meetupId: string, data: any) {
+  try {
+    const session = await auth()
+    if (!session?.user?.id) return { error: 'No estás autenticado.' }
+
+    const meetup = await db.select().from(meetups).where(eq(meetups.id, meetupId)).limit(1).then(r => r[0])
+    if (!meetup) return { error: 'Quedada no encontrada' }
+    if (meetup.creator_id !== session.user.id) return { error: 'Sin permiso' }
+
+    await db.update(meetups).set({
+      title: data.title,
+      description: data.description,
+      date: data.date,
+      time: data.time,
+      max_attendees: parseInt(data.max_attendees),
+      address: data.address,
+      address_notes: data.address_notes || null,
+      type: data.type,
+      level_required: data.level_required,
+      visibility: data.visibility,
+    }).where(eq(meetups.id, meetupId))
+
+    revalidatePath(`/meetups/${meetupId}`)
+    return { success: true }
+  } catch (error) {
+    console.error(error)
+    return { error: 'Error al actualizar la quedada' }
+  }
+}
+
 export async function createMeetupAction(data: any) {
   try {
     const session = await auth()
