@@ -138,7 +138,7 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
           </div>
           
           {user && isAttending && (
-             <ChatModule meetupId={id} userId={user.id} />
+             <ChatModule meetupId={id} userId={user.id!} />
           )}
         </div>
       </div>
