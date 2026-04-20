@@ -14,7 +14,7 @@ export const metadata = {
 
 import { ProfileEditForm } from "@/components/profile/ProfileEditForm"
 import { BikeCard } from "@/components/profile/BikeCard"
-import { logoutAction } from "@/app/auth/actions"
+import { redirect } from "next/navigation"
 import { AvatarImage } from "@/components/ui/avatar"
 
 export default async function ProfilePage() {
@@ -33,11 +33,9 @@ export default async function ProfilePage() {
       <div className="flex items-center justify-between">
         <h1 className="text-4xl font-black font-sans text-white tracking-tight">Mi Perfil</h1>
         <div className="flex gap-3">
-          <form action={logoutAction}>
-             <Button variant="ghost" size="icon" className="rounded-full text-white/20 hover:text-red-400 hover:bg-red-400/10" type="submit">
-               <LogOut className="w-5 h-5" />
-             </Button>
-          </form>
+<a href="/auth/logout" className="p-2 rounded-full text-white/20 hover:text-red-400 hover:bg-red-400/10">
+            <LogOut className="w-5 h-5" />
+          </a>
         </div>
       </div>
 
