@@ -2,7 +2,6 @@ import { auth } from "@/auth"
 import { db } from "@/db"
 import { users as usersTable } from "@/db/schema"
 import { eq } from "drizzle-orm"
-import { redirect } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { LogOut } from "lucide-react"
@@ -33,9 +32,11 @@ export default async function ProfilePage() {
       <div className="flex items-center justify-between">
         <h1 className="text-4xl font-black font-sans text-white tracking-tight">Mi Perfil</h1>
         <div className="flex gap-3">
-<a href="/auth/logout" className="p-2 rounded-full text-white/20 hover:text-red-400 hover:bg-red-400/10">
-            <LogOut className="w-5 h-5" />
-          </a>
+<form action="/auth/logout" method="POST">
+            <button type="submit" className="p-2 rounded-full text-white/20 hover:text-red-400 hover:bg-red-400/10">
+              <LogOut className="w-5 h-5" />
+            </button>
+          </form>
         </div>
       </div>
 

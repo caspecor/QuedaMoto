@@ -1,6 +1,6 @@
 import { signOut } from '@/auth'
 
-export async function GET() {
+export async function POST() {
   await signOut({
     redirectTo: '/'
   })
