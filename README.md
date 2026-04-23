@@ -1,71 +1,106 @@
 # QuedaMoto
 
-Biker social platform MVP for discovering and organizing spontaneous motorcycle meetups across Spain. Built with Next.js (App Router), Tailwind CSS, Shadcn UI, Supabase, and Mapbox.
+> **Descubre y organiza quedadas moteras espontáneas en España**  
+> Plataforma social para motociclistas que permite encontrar, crear y unirse a rutas y encuentros en tiempo real.
 
-## Features Delivered
-- **Authentication**: Email/Password powered by Supabase with Zod validation. Protected server routes using Middleware.
-- **Premium Biker UI**: Dark theme customized using Shadcn and Tailwind v4. Glassmorphism layered cards, high contrast orange highlights, and responsive Mobile-First views.
-- **Core Views**: 
-  - Visual Landing Page with bold calls to action.
-  - Interactive Explore map utilizing Mapbox GL JS Native.
-  - Comprehensive user dashboard displaying scheduled rides.
-  - Dynamic meetup forms and detailed views for organizing rides.
+QuedaMoto es un MVP (Producto Mínimo Viable) construido con el stack moderno de Next.js 16 (App Router), Tailwind CSS v4, Shadcn UI, Supabase y Mapbox. Su objetivo es facilitar la comunidad motera ofreciendo una experiencia fluida tanto en desktop como en móvil.
 
-## Screenshots
+---
 
-### Landing Page
-![Landing Page](docs/screenshots/landing-page.png)
-*Hero section with call-to-action to discover nearby meetups.*
+## 🚀 Características principales
 
-### Explore Map
-![Explore Map](docs/screenshots/explore-map.png)
-*Interactive map showing motorcycle meetups as pins across Spain.*
+- **Autenticación segura**: Email/password con Supabase y validación Zod. Rutas protegidas mediante Middleware.
+- **UI Premium para bikers**: Tema oscuro personalizado con Shadcn y Tailwind, glassmorphism, acentos naranja altos contraste y diseño mobile-first.
+- **Mapa interactivo de quedadas**: Visualiza eventos cercanos en un mapa powered by Mapbox GL JS (con fallback a Leaflet).
+- **Panel de usuario**: Vista de perfil con edición de datos, información de moto y bio.
+- **Gestión de eventos**: Crear, editar, eliminar meetups; unirse o salir de eventos; chat en tiempo real dentro de cada quedada.
+- **Notificaciones en tiempo real**: Alertas de nuevos mensajes, invitaciones y actualizaciones de eventos mediante canales Supabase.
+- **Diseño responsive**: Optimizado para todo tipo de dispositivos, desde smartphones hasta pantallas grandes.
 
-### User Profile
-![User Profile](docs/screenshots/user-profile.png)
-*Profile page with avatar, motorcycle details, and editing capabilities.*
+---
 
-### Meetup Creation
-![Meetup Creation](docs/screenshots/create-meetup.png)
-*Form to create a new motorcycle meetup with location, date, and details.*
+## 📸 Capturas de pantalla
 
-### Dashboard
-![Dashboard](docs/screenshots/dashboard.png)
-*User dashboard showing upcoming rides and recent notifications.*
+| Pantalla | Descripción |
+|----------|-------------|
+| ![Landing Page](docs/screenshots/landing-page.png) | **Landing Page** – Encabezado destacado con llamada a la acción para explorar quedadas cercanas. |
+| ![Explore Map](docs/screenshots/explore-map.png) | **Mapa de Exploración** – Pinpoints de meetups en tiempo real, filtrado por visibilidad y ubicación. |
+| ![User Profile](docs/screenshots/user-profile.png) | **Perfil de Usuario** – Avatar, detalles de la moto, nivel, estilo y bio; edición inline. |
+| ![Create Meetup](docs/screenshots/create-meetup.png) | **Crear Quedada** – Formulario completo para definir ruta, fecha, hora, ubicación, nivel requerido y más. |
+| ![Dashboard](docs/screenshots/dashboard.png) | **Panel de Control** – Próximas rides, notificaciones recientes y acceso rápido a tu perfil y creaciones. |
 
-## Setup Instructions
+> *Nota: Reemplaza los placeholders en `docs/screenshots/` con capturas reales de tu despliegue local o de producción.*
 
-### 1. Supabase Database
-   - Open your Supabase project dashboard.
-   - Run the commands specified in `database/schema.sql` in the Supabase SQL editor to create the Tables and Row Level Security Rules.
-   - Run `database/seed.sql` to populate sample bikers and Canary Island meetup locations.
+---
 
-### 2. Environment Variables
-   - Rename `.env.local.example` to `.env.local`.
-   - Update `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from your Supabase API settings.
-   - Insert your `NEXT_PUBLIC_MAPBOX_TOKEN` from Mapbox.
+## 🛠️ Stack tecnológico
 
-### 3. Install & Run
-   ```bash
-   npm install
-   npm run dev
-   ```
+| Categoría | Tecnología |
+|-----------|------------|
+| **Framework** | Next.js 16 (App Router) |
+| **Estilizado** | Tailwind CSS v4 + Shadcn UI |
+| **Estado global** | Zustand |
+| **Formularios** | React Hook Form + Zod |
+| **Base de datos** | Supabase (PostgreSQL) |
+| **Autenticación** | NextAuth.js (proveedor de credenciales) |
+| **Mapas** | Mapbox GL JS / Leaflet (vía react-leaflet) |
+| **Notificaciones en tiempo real** | Supabase Realtime + Sonner (toast) |
+| **Iconos** | Lucide React |
+| **Tipografía** | Sistema (inter, sans-serif) |
+| **Despliegue** | Vercel (optimizado para Next.js) |
 
-Go to `http://localhost:3000` to start exploring QuedaMoto!
+---
 
-## Tech Stack
-- **Framework**: Next.js 16 (App Router)
-- **Styling**: Tailwind CSS v4, Shadcn UI
-- **State Management**: Zustand
-- **Forms**: React Hook Form with Zod validation
-- **Database**: Supabase (PostgreSQL)
-- **Maps**: Mapbox GL JS / Leaflet (via react-leaflet)
-- **Authentication**: NextAuth.js with Credentials provider
-- **Notifications**: Sonner (toast) + real-time Supabase channels
-- **Icons**: Lucide React
+## 📋 Instrucciones de setup
 
-## Development
-This project follows Next.js 16 conventions with the App Router. Server actions are used for data mutations, and real-time features are implemented with Supabase channels.
+### 1. Base de datos Supabase
+1. Crea un proyecto en [Supabase](https://supabase.com).
+2. En el panel de SQL, ejecuta el script `database/schema.sql` para crear tablas y políticas RLS.
+3. Pobla datos de ejemplo con `database/seed.sql` (bikers de prueba y quedadas en Islas Canarias).
 
-## License
-MIT
+### 2. Variables de entorno
+Duplica el archivo de ejemplo:
+```bash
+cp .env.local.example .env.local
+```
+Luego completa:
+- `NEXT_PUBLIC_SUPABASE_URL` – URL de tu proyecto Supabase
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` – clave anon pública
+- `NEXT_PUBLIC_MAPBOX_TOKEN` – token de acceso a Mapbox (obténlo en [Mapbox Studio](https://studio.mapbox.com/))
+
+### 3. Instalación y ejecución
+```bash
+npm install          # instala dependencias
+npm run dev          # inicia el servidor de desarrollo en http://localhost:3000
+```
+
+Para construir para producción:
+```bash
+npm run build
+npm start
+```
+
+---
+
+## � contribuir
+
+Queremos que QuedaMoto crezca con la comunidad. Si deseas contribuir:
+
+1. Haz un **fork** del repositorio.
+2. Crea una rama para tu feature o fix:  
+   `git checkout -b feature/nueva-funcionalidad`
+3. Realiza tus cambios y asegúrate de que el linter y los tests pasen (si existen).
+4. Haz commit con mensajes claros y descriptivos.
+5. Abre un **Pull Request** hacia la rama `main` (o `linen-brie` si estás trabajando en una feature específica).
+
+Por favor, sigue el estilo de código existente y agrega tests cuando corresponda.
+
+---
+
+## 📄 Licencia
+
+Este proyecto está bajo la licencia MIT – ver el archivo [LICENSE](LICENSE) para más detalles.
+
+---
+
+**¡Gracias por usar y mejorar QuedaMoto!** 🏍️💨
