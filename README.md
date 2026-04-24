@@ -78,9 +78,16 @@ Los usuarios con rol `admin` verán un botón rojo "Admin" en la barra de navega
 ### 1. Base de datos Neon/Vercel Postgres
 1. Crea una base de datos en [Neon](https://neon.tech) o usa Vercel Postgres.
 2. Vincula la base de datos a tu proyecto Vercel (Storage → Database).
-3. En el SQL editor de Neon/Vercel, ejecuta `database/schema.sql` para crear tablas y políticas RLS.
-4. Ejecuta `database/migration-admin.sql` para agregar campos de administración.
-5. Opcionalmente, pobla datos de ejemplo con `database/seed.sql`.
+3. **Inicialización rápida**: Ejecuta `database/init.sql` en el SQL editor - esto crea todas las tablas, índices y un usuario admin por defecto.
+4. **O inicialización manual**:
+   - Ejecuta `database/schema.sql` para crear tablas y políticas RLS
+   - Ejecuta `database/migration-admin.sql` para agregar campos de administración
+   - Opcionalmente, pobla datos de ejemplo con `database/seed.sql`
+
+**Usuario admin por defecto:**
+- Email: `admin@quedamoto.com`
+- Password: `password`
+- Cambia la contraseña después del primer login.
 
 ### 2. Variables de entorno
 En Vercel, configura estas variables de entorno en tu proyecto:
