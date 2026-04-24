@@ -25,7 +25,7 @@ export const authOptions = {
           const passwordsMatch = await bcrypt.compare(credentials.password as string, user.password)
           if (!passwordsMatch) return null
 
-          return { id: user.id, name: user.username, email: user.email }
+          return { id: user.id, name: user.username, email: user.email, role: user.role }
         } catch (err) {
           return null
         }
@@ -40,6 +40,7 @@ export const authOptions = {
       if (user) {
         token.id = user.id
         token.name = user.name
+        token.role = user.role
       }
       return token
     },
@@ -47,6 +48,7 @@ export const authOptions = {
       if (session.user) {
         session.user.id = token.id as string
         session.user.name = token.name
+        session.user.role = token.role as string
       }
       return session
     },
