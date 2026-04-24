@@ -64,7 +64,7 @@ Los usuarios con rol `admin` verán un botón rojo "Admin" en la barra de navega
 | **Estado global** | Zustand |
 | **Formularios** | React Hook Form + Zod |
 | **Base de datos** | Supabase (PostgreSQL) |
-| **Autenticación** | NextAuth.js (proveedor de credenciales) |
+| **Autenticación** | NextAuth.js v4 (proveedor de credenciales) |
 | **Mapas** | Mapbox GL JS / Leaflet (vía react-leaflet) |
 | **Notificaciones en tiempo real** | Supabase Realtime + Sonner (toast) |
 | **Iconos** | Lucide React |
@@ -75,20 +75,28 @@ Los usuarios con rol `admin` verán un botón rojo "Admin" en la barra de navega
 
 ## 📋 Instrucciones de setup
 
-### 1. Base de datos Supabase
-1. Crea un proyecto en [Supabase](https://supabase.com).
-2. En el panel de SQL, ejecuta el script `database/schema.sql` para crear tablas y políticas RLS.
-3. Pobla datos de ejemplo con `database/seed.sql` (bikers de prueba y quedadas en Islas Canarias).
+### 1. Base de datos Neon/Vercel Postgres
+1. Crea una base de datos en [Neon](https://neon.tech) o usa Vercel Postgres.
+2. Vincula la base de datos a tu proyecto Vercel (Storage → Database).
+3. En el SQL editor de Neon/Vercel, ejecuta `database/schema.sql` para crear tablas y políticas RLS.
+4. Ejecuta `database/migration-admin.sql` para agregar campos de administración.
+5. Opcionalmente, pobla datos de ejemplo con `database/seed.sql`.
 
 ### 2. Variables de entorno
-Duplica el archivo de ejemplo:
-```bash
-cp .env.local.example .env.local
-```
-Luego completa:
-- `NEXT_PUBLIC_SUPABASE_URL` – URL de tu proyecto Supabase
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` – clave anon pública
-- `NEXT_PUBLIC_MAPBOX_TOKEN` – token de acceso a Mapbox (obténlo en [Mapbox Studio](https://studio.mapbox.com/))
+En Vercel, configura estas variables de entorno en tu proyecto:
+
+**Requeridas:**
+- `NEXTAUTH_URL` – URL de tu aplicación Vercel (ej: `https://tu-app.vercel.app`)
+- `NEXTAUTH_SECRET` – Secreto para NextAuth (genera uno con `openssl rand -base64 32`)
+- `NEXT_PUBLIC_MAPBOX_TOKEN` – Token de Mapbox (obténlo en [Mapbox Studio](https://studio.mapbox.com/))
+
+**Base de datos (Neon/Vercel Postgres):**
+- Estas se configuran automáticamente cuando vinculas tu base de datos Neon en Vercel
+- Variables como `POSTGRES_URL`, `POSTGRES_USER`, etc. serán auto-configuradas
+
+**Opcional (para uploads de imágenes):**
+- `NEXT_PUBLIC_SUPABASE_URL` – Si usas Supabase para storage de imágenes
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` – Clave anónima de Supabase
 
 ### 3. Instalación y ejecución
 ```bash
@@ -101,6 +109,28 @@ Para construir para producción:
 npm run build
 npm start
 ```
+
+---
+
+## 👑 Panel de Administración
+
+QuedaMoto incluye un panel completo de administración accesible únicamente para usuarios con rol `admin`.
+
+### Características del Panel Admin:
+
+- **📊 Dashboard Principal**: Estadísticas en tiempo real del sitio
+- **👥 Gestión de Usuarios**: Ver, bloquear/desbloquear, cambiar roles y eliminar usuarios
+- **📅 Gestión de Quedadas**: Supervisar todas las quedadas y eliminar contenido
+- **💬 Moderación de Mensajes**: Revisar mensajes recientes y marcados
+
+### Creación del primer administrador:
+```sql
+-- En el SQL editor de Neon/Vercel, ejecuta:
+UPDATE users SET role = 'admin' WHERE email = 'tu-email@example.com';
+```
+
+### Acceso al Panel:
+Los usuarios con rol `admin` verán un botón "Admin" en la barra de navegación.
 
 ---
 
