@@ -10,7 +10,6 @@ import {
 } from "@/components/ui/table"
 import { MessageSquare, AlertTriangle } from "lucide-react"
 import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
 import { getRecentMessages } from "@/app/admin/actions"
 
 export default async function AdminMessagesPage() {
@@ -85,7 +84,7 @@ export default async function AdminMessagesPage() {
                         </Badge>
                       </div>
                       <span className="text-xs text-white/40">
-                        {format(new Date(message.createdAt), 'HH:mm dd/MM', { locale: es })}
+                      {format(new Date(message.createdAt), 'HH:mm dd/MM')}
                       </span>
                     </div>
                     <p className="text-sm text-white/80">{message.content}</p>

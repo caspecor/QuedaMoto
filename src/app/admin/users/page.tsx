@@ -19,7 +19,6 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal, Shield, User, Crown, Ban, CheckCircle, Trash2 } from "lucide-react"
 import { format } from 'date-fns'
-import { es } from 'date-fns/locale'
 
 export default async function AdminUsersPage() {
   const { users } = await getAllUsers()
@@ -102,7 +101,7 @@ export default async function AdminUsersPage() {
                     )}
                   </TableCell>
                   <TableCell className="text-white/60">
-                    {user.createdAt ? format(new Date(user.createdAt), 'dd/MM/yyyy', { locale: es }) : 'N/A'}
+                    {user.createdAt ? format(new Date(user.createdAt), 'dd/MM/yyyy') : 'N/A'}
                   </TableCell>
                   <TableCell className="text-white/60">
                     {user.moto_brand && user.moto_model ? `${user.moto_brand} ${user.moto_model}` : 'Sin moto'}
