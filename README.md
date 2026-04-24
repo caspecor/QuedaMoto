@@ -15,6 +15,7 @@ QuedaMoto es un MVP (Producto Mínimo Viable) construido con el stack moderno de
 - **Panel de usuario**: Vista de perfil con edición de datos, información de moto y bio.
 - **Gestión de eventos**: Crear, editar, eliminar meetups; unirse o salir de eventos; chat en tiempo real dentro de cada quedada.
 - **Notificaciones en tiempo real**: Alertas de nuevos mensajes, invitaciones y actualizaciones de eventos mediante canales Supabase.
+- **Panel de Administración**: Sistema completo para gestionar usuarios, quedadas y mensajes. Incluye bloqueo de usuarios, eliminación de contenido y estadísticas del sitio.
 - **Diseño responsive**: Optimizado para todo tipo de dispositivos, desde smartphones hasta pantallas grandes.
 
 ---
@@ -30,6 +31,27 @@ QuedaMoto es un MVP (Producto Mínimo Viable) construido con el stack moderno de
 | ![Dashboard](docs/screenshots/dashboard.png) | **Panel de Control** – Próximas rides, notificaciones recientes y acceso rápido a tu perfil y creaciones. |
 
 > *Nota: Reemplaza los placeholders en `docs/screenshots/` con capturas reales de tu despliegue local o de producción.*
+
+---
+
+## 👑 Panel de Administración
+
+QuedaMoto incluye un panel completo de administración accesible únicamente para usuarios con rol `admin`. Para crear tu primer administrador, ejecuta el script `database/admin-seed.sql` en tu base de datos Supabase.
+
+### Características del Panel Admin:
+
+- **📊 Dashboard Principal**: Estadísticas en tiempo real del sitio (usuarios activos, quedadas, mensajes, usuarios bloqueados).
+- **👥 Gestión de Usuarios**: Ver, bloquear/desbloquear, cambiar roles y eliminar usuarios problemáticos.
+- **📅 Gestión de Quedadas**: Supervisar todas las quedadas, editar detalles y eliminar contenido inapropiado.
+- **💬 Moderación de Mensajes**: Revisar mensajes recientes y marcados para moderación.
+- **🚫 Sistema de Bloqueo**: Bloquear usuarios temporal o permanentemente con razones específicas.
+
+### Acceso al Panel:
+Los usuarios con rol `admin` verán un botón rojo "Admin" en la barra de navegación. El acceso está protegido por middleware que verifica el rol del usuario.
+
+### Configuración Inicial:
+1. Ejecuta `database/admin-seed.sql` para crear tu usuario administrador.
+2. O actualiza un usuario existente: `UPDATE users SET role = 'admin' WHERE email = 'tu-email@example.com';`
 
 ---
 
