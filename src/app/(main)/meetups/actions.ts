@@ -355,44 +355,7 @@ export async function updatePassword(oldPass: string, newPass: string) {
   }
 }
 
-export async function updatePassword(oldPassword: string, newPassword: string) {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) return { error: "No autenticado" }
 
-    const userArr = await db.select().from(users).where(eq(users.id, session.user.id!)).limit(1)
-    const user = userArr[0]
-
-    if (!user || !user.password) return { error: "Usuario no encontrado" }
-
-    const passwordsMatch = await bcrypt.compare(oldPassword, user.password)
-    if (!passwordsMatch) return { error: "Contraseña actual incorrecta" }
-
-    const hashedPassword = await bcrypt.hash(newPassword, 10)
-
-    await db.update(users)
-      .set({ password: hashedPassword })
-      .where(eq(users.id, session.user.id))
-
-    return { success: true }
-  } catch (err) {
-    console.error(err)
-    return { error: "Error al actualizar contraseña" }
-  }
-}
-
-export async function getUserAvatar() {
-  try {
-    const session = await auth()
-    if (!session?.user?.id) return null
-
-    const userArr = await db.select({ avatar: users.avatar }).from(users).where(eq(users.id, session.user.id)).limit(1)
-    return userArr[0]?.avatar || null
-  } catch (err) {
-    console.error("Error fetching avatar:", err)
-    return null
-  }
-}
 
 export async function createTestNotification(userId: string) {
   try {
