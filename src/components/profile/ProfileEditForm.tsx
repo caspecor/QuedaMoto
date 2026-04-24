@@ -51,13 +51,13 @@ export function ProfileEditForm({ profile }: { profile: any }) {
     const res = await updateProfile({ name: username, avatar })
     
     if (res.success) {
-      // Trigger session update for real-time changes in Navbar
-      console.log("[PROFILE_EDIT] Calling update() with:", { name: username, hasImage: !!avatar })
+      // Trigger session update for real-time changes in Navbar (only name, no image for JWT size limits)
+      console.log("[PROFILE_EDIT] Calling update() with name only:", username)
       await update({
-        name: username,
-        image: avatar
+        name: username
+        // Removed image update to prevent JWT size issues
       })
-      
+
       toast.success("Perfil actualizado correctamente")
       setIsEditing(false)
       router.refresh()
