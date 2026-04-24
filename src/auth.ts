@@ -1,4 +1,4 @@
-import NextAuth from "next-auth"
+import { NextAuth } from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { db } from "@/db"
 import { users } from "@/db/schema"
@@ -23,12 +23,10 @@ export const authOptions = {
         const passwordsMatch = await bcrypt.compare(credentials.password as string, user.password)
         if (!passwordsMatch) return null
 
-        return { 
-          id: user.id, 
-          name: user.username, 
-          email: user.email,
-          role: user.role 
-        }
+      return { 
+        id: user.id, 
+        name: user.username 
+      }
       },
     }),
   ],
@@ -40,7 +38,8 @@ export const authOptions = {
       if (user) {
         token.id = user.id
         token.name = user.name
-        token.role = user.role
+        // No guardamos role en JWT para evitar cookies grandes
+        // El role se obtiene de la BD cuando se necesita
       }
       return token
     },
@@ -48,7 +47,7 @@ export const authOptions = {
       if (session.user) {
         session.user.id = token.id as string
         session.user.name = token.name
-        if (token.role) session.user.role = token.role as string
+        // El role se obtiene de la BD cuando se necesita, no se copia desde token
       }
       return session
     },
