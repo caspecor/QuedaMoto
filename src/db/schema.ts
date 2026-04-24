@@ -12,6 +12,11 @@ export const users = pgTable('users', {
   level: varchar('level', { length: 50 }),
   style: varchar('style', { length: 100 }),
   bio: text('bio'),
+  role: varchar('role', { length: 20 }).default('user'),
+  isBlocked: boolean('is_blocked').default(false),
+  blockedAt: timestamp('blocked_at'),
+  blockedBy: text('blocked_by'),
+  blockReason: text('block_reason'),
   createdAt: timestamp('created_at').defaultNow(),
 });
 
