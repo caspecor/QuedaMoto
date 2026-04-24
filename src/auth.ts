@@ -25,7 +25,7 @@ export const authOptions = {
           const passwordsMatch = await bcrypt.compare(credentials.password as string, user.password)
           if (!passwordsMatch) return null
 
-          return { id: user.id, name: user.username, email: user.email, role: user.role }
+          return { id: user.id, name: user.username, email: user.email, role: user.role || undefined }
         } catch (err) {
           return null
         }
