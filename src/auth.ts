@@ -53,12 +53,11 @@ export const authOptions = {
       return session
     },
   },
-  session: {
-    strategy: "jwt",
-  },
+  // session: { strategy: "jwt" }, // Eliminado para compatibilidad con getServerSession()
   secret: process.env.NEXTAUTH_SECRET,
 }
 
 export const auth = NextAuth(authOptions)
 export const signIn = auth.signIn
 export const signOut = auth.signOut
+export const handlers = auth.handlers

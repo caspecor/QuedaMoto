@@ -1,5 +1,4 @@
 import { getServerSession } from "next-auth/next"
-import { authOptions } from '@/auth'
 import { db } from "@/db"
 import { users as usersTable } from "@/db/schema"
 import { eq } from "drizzle-orm"
