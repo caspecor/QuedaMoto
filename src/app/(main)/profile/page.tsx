@@ -1,4 +1,5 @@
-import { auth } from "@/auth"
+import { getServerSession } from "next-auth/next"
+import { authOptions } from '@/auth'
 import { db } from "@/db"
 import { users as usersTable } from "@/db/schema"
 import { eq } from "drizzle-orm"
@@ -17,7 +18,7 @@ import { redirect } from "next/navigation"
 import { AvatarImage } from "@/components/ui/avatar"
 
 export default async function ProfilePage() {
-  const session = await auth()
+  const session = await getServerSession(authOptions)
   const userSession = session?.user
 
   if (!userSession) {

@@ -3,7 +3,8 @@
 import { db } from '@/db'
 import { users, meetups, attendees, messages as messagesTable, notifications } from '@/db/schema'
 import { redirect } from 'next/navigation'
-import { auth } from '@/auth'
+import { getServerSession } from "next-auth/next"
+import { authOptions } from '@/auth'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { revalidatePath } from 'next/cache'
@@ -11,7 +12,7 @@ import { eq, and, desc } from 'drizzle-orm'
 
 export async function getNotifications() {
   try {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) return { notifications: [] }
 
     const res = await db.select()
@@ -29,7 +30,7 @@ export async function getNotifications() {
 
 export async function markNotificationAsRead(notificationId: string) {
   try {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) return { success: false }
 
     await db.update(notifications)
@@ -45,7 +46,7 @@ export async function markNotificationAsRead(notificationId: string) {
 
 export async function deleteNotification(id: string) {
   try {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) return { success: false }
 
     await db.delete(notifications).where(and(
@@ -63,7 +64,7 @@ export async function deleteNotification(id: string) {
 
 export async function deleteMeetupAction(meetupId: string) {
   try {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) return { error: 'No estás autenticado.' }
 
     // Verify the user is the creator before deleting
@@ -82,7 +83,7 @@ export async function deleteMeetupAction(meetupId: string) {
 
 export async function updateMeetupAction(meetupId: string, data: any) {
   try {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) return { error: 'No estás autenticado.' }
 
     const meetup = await db.select().from(meetups).where(eq(meetups.id, meetupId)).limit(1).then(r => r[0])
@@ -112,7 +113,7 @@ export async function updateMeetupAction(meetupId: string, data: any) {
 
 export async function createMeetupAction(data: any) {
   try {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return { error: 'No estás autenticado.' }
     }
@@ -148,7 +149,7 @@ export async function createMeetupAction(data: any) {
 
 export async function sendChatMessage(meetupId: string, content: string) {
   try {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) {
       return { error: 'No estás autenticado.' }
     }
@@ -228,7 +229,7 @@ export async function getChatMessages(meetupId: string) {
 
 export async function joinMeetupAction(meetupId: string) {
   try {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) return { error: 'Inicia sesión primero' }
 
     await db.insert(attendees).values({
@@ -247,7 +248,7 @@ export async function joinMeetupAction(meetupId: string) {
 
 export async function leaveMeetupAction(meetupId: string) {
   try {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) return { error: 'Inicia sesión primero' }
 
     await db.delete(attendees).where(
@@ -283,7 +284,7 @@ export async function getPublicMeetups() {
 
 export async function getUserAvatar() {
   try {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) return null
     
     const userArr = await db.select({ avatar: users.avatar }).from(users).where(eq(users.id, session.user.id)).limit(1)
@@ -305,7 +306,7 @@ export async function updateProfile(data: {
   bio?: string;
 }) {
   try {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) return { error: "No autenticado" }
 
     const updateData: any = {}
@@ -332,7 +333,7 @@ export async function updateProfile(data: {
 
 export async function updatePassword(oldPass: string, newPass: string) {
   try {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) return { error: "No autenticado" }
 
     const userArr = await db.select().from(users).where(eq(users.id, session.user.id)).limit(1)
@@ -359,7 +360,7 @@ export async function updatePassword(oldPass: string, newPass: string) {
 
 export async function createTestNotification(userId: string) {
   try {
-    const session = await auth()
+    const session = await getServerSession(authOptions)
     if (!session?.user?.id) return { error: "Not auth" }
 
     await db.insert(notifications).values({

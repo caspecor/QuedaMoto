@@ -9,6 +9,12 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Disable Turbopack for Vercel build stability
+  experimental: {
+    turbo: false,
+  },
+  // Ensure proper output for Vercel
+  output: 'standalone',
 };
 
 export default nextConfig;
