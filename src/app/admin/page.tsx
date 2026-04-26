@@ -1,5 +1,6 @@
 import { getAdminStats } from "@/app/admin/actions"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { Users, Calendar, MessageSquare, ShieldAlert, Zap, TrendingUp, BarChart3, Clock } from "lucide-react"
 import Link from "next/link"
 
