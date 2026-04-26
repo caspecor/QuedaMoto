@@ -4,8 +4,7 @@ import { eq } from "drizzle-orm"
 import { notFound } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Bike, MapPin, Trophy, Shield, Info } from "lucide-react"
-import Link from "next/link"
+import { Bike, MapPin, Trophy, Shield, Info, Instagram, Youtube, Share2 } from "lucide-react"
 import { BackButton } from "@/components/ui/BackButton"
 
 export const metadata = {
@@ -25,6 +24,19 @@ export default async function RiderProfilePage({ params }: { params: Promise<{ i
   const displayVehicles = rider.vehicles && rider.vehicles.length > 0 
     ? rider.vehicles 
     : (rider.moto_brand ? [{ brand: rider.moto_brand, model: rider.moto_model }] : []);
+
+  const socials = rider.socials || {};
+
+  const getSocialLink = (platform: string, handle: string) => {
+    if (!handle) return "#";
+    const cleanHandle = handle.startsWith('@') ? handle.slice(1) : handle;
+    switch (platform) {
+      case 'instagram': return `https://instagram.com/${cleanHandle}`;
+      case 'tiktok': return `https://tiktok.com/@${cleanHandle}`;
+      case 'youtube': return handle.startsWith('http') ? handle : `https://youtube.com/${handle}`;
+      default: return "#";
+    }
+  }
 
   return (
     <div className="container px-4 pt-32 pb-24 max-w-4xl mx-auto space-y-8 animate-reveal">
@@ -59,6 +71,43 @@ export default async function RiderProfilePage({ params }: { params: Promise<{ i
                     <Trophy className="h-4 w-4 text-primary" />
                     <span className="font-bold text-sm tracking-tight">{rider.style}</span>
                   </div>
+                )}
+             </div>
+
+             {/* Social Links Bar */}
+             <div className="flex justify-center md:justify-start gap-3 mt-6">
+                {socials.instagram && (
+                  <a 
+                    href={getSocialLink('instagram', socials.instagram)} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="h-10 w-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-pink-500 hover:bg-pink-500/10 hover:border-pink-500/20 transition-all"
+                    title="Instagram"
+                  >
+                    <Instagram className="w-5 h-5" />
+                  </a>
+                )}
+                {socials.tiktok && (
+                  <a 
+                    href={getSocialLink('tiktok', socials.tiktok)} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="h-10 w-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-cyan-400 hover:bg-cyan-400/10 hover:border-cyan-400/20 transition-all"
+                    title="TikTok"
+                  >
+                    <Share2 className="w-5 h-5" />
+                  </a>
+                )}
+                {socials.youtube && (
+                  <a 
+                    href={getSocialLink('youtube', socials.youtube)} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="h-10 w-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/40 hover:text-red-500 hover:bg-red-500/10 hover:border-red-500/20 transition-all"
+                    title="YouTube"
+                  >
+                    <Youtube className="w-5 h-5" />
+                  </a>
                 )}
              </div>
           </div>
@@ -135,12 +184,12 @@ export default async function RiderProfilePage({ params }: { params: Promise<{ i
 
            <div className="p-8 rounded-[2.5rem] bg-white/[0.02] border border-white/5 space-y-4">
               <p className="text-[10px] uppercase font-black tracking-widest text-white/20">Acción</p>
-              <Link 
+              <a 
                 href={`mailto:${rider.email}`}
                 className="flex items-center justify-center w-full h-14 bg-white text-black rounded-2xl font-black uppercase tracking-widest hover:scale-[1.02] transition-all"
               >
                 Enviar Mensaje
-              </Link>
+              </a>
            </div>
         </div>
       </div>

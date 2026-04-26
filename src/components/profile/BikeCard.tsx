@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { updateProfile } from "@/app/(main)/meetups/actions"
-import { Pencil, Bike, Plus, Trash2 } from "lucide-react"
+import { Pencil, Bike, Plus, Trash2, Instagram, Youtube, Share2 } from "lucide-react"
 
 export function BikeCard({ profile }: { profile: any }) {
   const router = useRouter()
@@ -26,6 +26,11 @@ export function BikeCard({ profile }: { profile: any }) {
   const [level, setLevel] = useState(profile.level || '')
   const [style, setStyle] = useState(profile.style || '')
   const [bio, setBio] = useState(profile.bio || '')
+  
+  // Socials state
+  const [instagram, setInstagram] = useState(profile.socials?.instagram || '')
+  const [tiktok, setTiktok] = useState(profile.socials?.tiktok || '')
+  const [youtube, setYoutube] = useState(profile.socials?.youtube || '')
 
   const handleAddVehicle = () => {
     setVehicles([...vehicles, { brand: '', model: '' }])
@@ -54,6 +59,11 @@ export function BikeCard({ profile }: { profile: any }) {
       level: level,
       style: style,
       bio: bio,
+      socials: {
+        instagram: instagram.trim(),
+        tiktok: tiktok.trim(),
+        youtube: youtube.trim()
+      }
     })
     
     if (res.success) {
@@ -127,7 +137,31 @@ export function BikeCard({ profile }: { profile: any }) {
               </div>
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-4 pt-4 border-t border-white/5">
+              <Label className="text-xs font-bold uppercase tracking-widest text-primary">Redes Sociales</Label>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-[10px] uppercase text-white/40 flex items-center gap-2">
+                    <Instagram className="w-3 h-3" /> Instagram
+                  </Label>
+                  <Input value={instagram} onChange={e => setInstagram(e.target.value)} placeholder="@usuario" className="bg-white/5 border-white/10 rounded-xl" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] uppercase text-white/40 flex items-center gap-2">
+                    <Share2 className="w-3 h-3" /> TikTok
+                  </Label>
+                  <Input value={tiktok} onChange={e => setTiktok(e.target.value)} placeholder="@usuario" className="bg-white/5 border-white/10 rounded-xl" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-[10px] uppercase text-white/40 flex items-center gap-2">
+                    <Youtube className="w-3 h-3" /> YouTube
+                  </Label>
+                  <Input value={youtube} onChange={e => setYoutube(e.target.value)} placeholder="Canal" className="bg-white/5 border-white/10 rounded-xl" />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2 pt-4 border-t border-white/5">
               <Label htmlFor="bio" className="text-xs font-bold uppercase tracking-widest text-white/40">Bio</Label>
               <Input id="bio" value={bio} onChange={e => setBio(e.target.value)} placeholder="Cuéntanos sobre ti..." className="bg-white/5 border-white/10 rounded-xl" />
             </div>
@@ -151,6 +185,8 @@ export function BikeCard({ profile }: { profile: any }) {
     ? profile.vehicles 
     : (profile.moto_brand ? [{ brand: profile.moto_brand, model: profile.moto_model }] : []);
 
+  const hasSocials = profile.socials?.instagram || profile.socials?.tiktok || profile.socials?.youtube;
+
   return (
     <Card className="bg-card shadow-lg border-border/50 rounded-3xl animate-reveal [animation-delay:0.1s]">
       <CardHeader>
@@ -164,9 +200,9 @@ export function BikeCard({ profile }: { profile: any }) {
         </div>
       </CardHeader>
       <CardContent className="space-y-6">
-        {displayVehicles.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          {displayVehicles.length > 0 && (
             <div className="md:col-span-2 space-y-3">
               <p className="text-xs uppercase tracking-wider font-bold text-primary">Mis Vehículos</p>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -183,29 +219,57 @@ export function BikeCard({ profile }: { profile: any }) {
                 ))}
               </div>
             </div>
+          )}
 
-            <div className="bg-background p-4 rounded-xl border border-border/50">
-              <p className="text-xs uppercase tracking-wider font-bold text-primary">Nivel</p>
-              <p className="font-semibold text-lg mt-1">{profile.level || 'No definido'}</p>
-            </div>
-            
-            <div className="bg-background p-4 rounded-xl border border-border/50">
-              <p className="text-xs uppercase tracking-wider font-bold text-primary">Estilo favorito</p>
-              <p className="font-semibold text-lg mt-1">{profile.style || 'No definido'}</p>
-            </div>
-            
-            {(profile.bio || profile.city) && (
-              <div className="col-span-1 md:col-span-2">
-                <p className="text-xs uppercase tracking-wider font-bold text-primary mb-2">Bio</p>
-                <div className="bg-background border border-border/50 p-4 rounded-xl text-sm leading-relaxed text-muted-foreground">
-                  {profile.city && <p className="mb-2"><span className="font-bold text-white">Ciudad:</span> {profile.city}</p>}
-                  {profile.bio ? profile.bio : <i className="text-white/20">Sin biografía</i>}
-                </div>
-              </div>
-            )}
-            
+          <div className="bg-background p-4 rounded-xl border border-border/50">
+            <p className="text-xs uppercase tracking-wider font-bold text-primary">Nivel</p>
+            <p className="font-semibold text-lg mt-1">{profile.level || 'No definido'}</p>
           </div>
-        ) : (
+          
+          <div className="bg-background p-4 rounded-xl border border-border/50">
+            <p className="text-xs uppercase tracking-wider font-bold text-primary">Estilo favorito</p>
+            <p className="font-semibold text-lg mt-1">{profile.style || 'No definido'}</p>
+          </div>
+
+          {hasSocials && (
+            <div className="md:col-span-2 space-y-3">
+              <p className="text-xs uppercase tracking-wider font-bold text-primary">Redes Sociales</p>
+              <div className="flex flex-wrap gap-3">
+                {profile.socials.instagram && (
+                  <div className="bg-white/[0.02] px-4 py-2 rounded-full border border-white/5 flex items-center gap-2 text-sm">
+                    <Instagram className="w-4 h-4 text-pink-500" />
+                    <span className="font-bold text-white/80">{profile.socials.instagram}</span>
+                  </div>
+                )}
+                {profile.socials.tiktok && (
+                  <div className="bg-white/[0.02] px-4 py-2 rounded-full border border-white/5 flex items-center gap-2 text-sm">
+                    <Share2 className="w-4 h-4 text-cyan-400" />
+                    <span className="font-bold text-white/80">{profile.socials.tiktok}</span>
+                  </div>
+                )}
+                {profile.socials.youtube && (
+                  <div className="bg-white/[0.02] px-4 py-2 rounded-full border border-white/5 flex items-center gap-2 text-sm">
+                    <Youtube className="w-4 h-4 text-red-500" />
+                    <span className="font-bold text-white/80">{profile.socials.youtube}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+          
+          {(profile.bio || profile.city) && (
+            <div className="col-span-1 md:col-span-2">
+              <p className="text-xs uppercase tracking-wider font-bold text-primary mb-2">Bio</p>
+              <div className="bg-background border border-border/50 p-4 rounded-xl text-sm leading-relaxed text-muted-foreground">
+                {profile.city && <p className="mb-2"><span className="font-bold text-white">Ciudad:</span> {profile.city}</p>}
+                {profile.bio ? profile.bio : <i className="text-white/20">Sin biografía</i>}
+              </div>
+            </div>
+          )}
+          
+        </div>
+
+        {displayVehicles.length === 0 && !profile.level && (
           <div className="text-center py-10 bg-background rounded-2xl border border-border/50 text-muted-foreground space-y-4">
             <Bike className="w-12 h-12 mx-auto text-white/20" />
             <p className="text-lg">Aún no has completado tu garaje.</p>

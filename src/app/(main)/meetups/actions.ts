@@ -304,6 +304,7 @@ export async function updateProfile(data: {
   style?: string;
   bio?: string;
   vehicles?: { brand: string; model: string }[];
+  socials?: { instagram?: string; tiktok?: string; youtube?: string };
 }) {
   try {
     const session = await auth()
@@ -319,6 +320,7 @@ export async function updateProfile(data: {
     if (data.style !== undefined) updateData.style = data.style
     if (data.bio !== undefined) updateData.bio = data.bio
     if (data.vehicles !== undefined) updateData.vehicles = data.vehicles
+    if (data.socials !== undefined) updateData.socials = data.socials
 
     await db.update(users)
       .set(updateData)
