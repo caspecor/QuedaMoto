@@ -108,21 +108,23 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
               </div>
             </div>
             
-            <Link 
-              href={`/riders/${meetup.creator?.id}`}
-              className="flex items-center gap-4 p-5 rounded-3xl bg-white/[0.03] border border-white/5 shadow-sm hover:bg-white/[0.05] transition-all group"
-            >
-              <Avatar className="h-14 w-14 ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all">
-                <AvatarFallback className="bg-primary/20 text-primary font-black text-xl">
-                  {meetup.creator?.username?.[0] || 'U'}
-                </AvatarFallback>
-              </Avatar>
-              <div className="flex-1 space-y-0.5">
-                <p className="text-[10px] uppercase font-black tracking-widest text-white/30">Organizador</p>
-                <p className="text-lg font-bold text-white leading-none group-hover:text-primary transition-colors">{meetup.creator?.username || 'Rider Legend'}</p>
-              </div>
+            <div className="flex items-center gap-4">
+              <Link 
+                href={`/riders/${meetup.creator?.id}`}
+                className="flex-1 flex items-center gap-4 p-5 rounded-3xl bg-white/[0.03] border border-white/5 shadow-sm hover:bg-white/[0.05] transition-all group"
+              >
+                <Avatar className="h-14 w-14 ring-2 ring-primary/20 group-hover:ring-primary/40 transition-all">
+                  <AvatarFallback className="bg-primary/20 text-primary font-black text-xl">
+                    {meetup.creator?.username?.[0] || 'U'}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="space-y-0.5">
+                  <p className="text-[10px] uppercase font-black tracking-widest text-white/30">Organizador</p>
+                  <p className="text-lg font-bold text-white leading-none group-hover:text-primary transition-colors">{meetup.creator?.username || 'Rider Legend'}</p>
+                </div>
+              </Link>
               {!isCreator && user && (
-                <div className="pr-4" onClick={(e) => e.preventDefault()}>
+                <div className="flex-shrink-0">
                   <ReportUserModal 
                     reportedId={meetup.creator?.id || ''} 
                     username={meetup.creator?.username || ''} 
@@ -130,7 +132,7 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
                   />
                 </div>
               )}
-            </Link>
+            </div>
           </div>
 
           {/* Key Stats Grid */}
