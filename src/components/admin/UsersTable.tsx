@@ -117,10 +117,8 @@ export function UsersTable({ users, totalPages, currentPage }: {
               </TableCell>
               <TableCell className="pr-8 text-right">
                 <DropdownMenu>
-                  <DropdownMenuTrigger>
-                    <Button variant="ghost" className="h-8 w-8 p-0 text-white/20 hover:text-white hover:bg-white/5">
-                      <MoreHorizontal className="h-4 w-4" />
-                    </Button>
+                  <DropdownMenuTrigger className="h-8 w-8 inline-flex items-center justify-center rounded-md text-white/20 hover:text-white hover:bg-white/5 transition-colors cursor-pointer outline-none">
+                    <MoreHorizontal className="h-4 w-4" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 bg-card border-white/10 rounded-2xl shadow-2xl">
                     <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-white/30 p-4">Gestionar Rider</DropdownMenuLabel>
