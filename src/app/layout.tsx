@@ -21,6 +21,8 @@ export async function generateMetadata(): Promise<Metadata> {
     const title = res[0]?.value || "QuedaMoto"
     const favRes = await db.select().from(settings).where(eq(settings.key, 'site_favicon')).limit(1)
     const favicon = favRes[0]?.value
+    const gscRes = await db.select().from(settings).where(eq(settings.key, 'google_search_console')).limit(1)
+    const gscCode = gscRes[0]?.value
 
     return {
       title: {
@@ -29,6 +31,11 @@ export async function generateMetadata(): Promise<Metadata> {
       },
       description: "La plataforma para los amantes de las motos",
       icons: favicon ? [{ rel: 'icon', url: favicon }] : undefined,
+      verification: {
+        google: gscCode?.includes('google-site-verification') 
+          ? gscCode.split('=')[1] 
+          : gscCode,
+      }
     }
   } catch (e) {
     return {
@@ -68,13 +75,6 @@ export default async function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <head>
-        {gscCode && (
-          gscCode.startsWith('<') 
-            ? <script dangerouslySetInnerHTML={{ __html: gscCode }} />
-            : <meta name="google-site-verification" content={gscCode} />
-        )}
-      </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <SessionProvider>
           <VisitTracker />
