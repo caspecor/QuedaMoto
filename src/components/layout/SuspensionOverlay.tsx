@@ -35,7 +35,7 @@ export function SuspensionOverlay({ suspendedUntil }: { suspendedUntil: string }
   if (!isVisible) return null
 
   return (
-    <div className="fixed top-0 left-0 w-full z-[10000] bg-orange-600 text-white py-2.5 px-4 shadow-2xl flex items-center justify-center gap-4 animate-in slide-in-from-top duration-500">
+    <div className="fixed top-0 left-0 w-full h-11 z-[10000] bg-orange-600 text-white px-4 shadow-2xl flex items-center justify-center gap-4 animate-in slide-in-from-top duration-500">
       <div className="flex items-center gap-3">
         <div className="bg-white/20 p-1.5 rounded-lg animate-pulse">
           <Clock className="h-4 w-4" />

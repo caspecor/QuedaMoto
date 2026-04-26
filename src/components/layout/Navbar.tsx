@@ -42,9 +42,13 @@ export function Navbar({ user: initialUser }: { user?: any }) {
     { name: 'Mis Quedadas', href: '/dashboard', icon: Bell },
   ]
 
+  const isSuspended = user?.suspendedUntil && new Date(user.suspendedUntil) > new Date()
+
   return (
     <nav 
-      className={`fixed top-0 left-0 right-0 z-[5000] transition-all duration-300 px-4 py-4 ${
+      className={`fixed left-0 right-0 z-[5000] transition-all duration-300 px-4 py-4 ${
+        isSuspended ? 'top-11' : 'top-0'
+      } ${
         isScrolled ? 'bg-background/80 backdrop-blur-xl border-b border-white/5 py-3' : 'bg-transparent'
       }`}
     >
