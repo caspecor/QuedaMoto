@@ -111,7 +111,7 @@ export function MeetupsTable({ meetups, totalPages, currentPage }: {
                    </Link>
 
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
+                      <DropdownMenuTrigger>
                         <Button variant="ghost" className="h-9 w-9 rounded-xl text-white/20 hover:text-white hover:bg-white/5 p-0">
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>

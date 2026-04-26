@@ -117,7 +117,7 @@ export function UsersTable({ users, totalPages, currentPage }: {
               </TableCell>
               <TableCell className="pr-8 text-right">
                 <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
+                  <DropdownMenuTrigger>
                     <Button variant="ghost" className="h-8 w-8 p-0 text-white/20 hover:text-white hover:bg-white/5">
                       <MoreHorizontal className="h-4 w-4" />
                     </Button>
