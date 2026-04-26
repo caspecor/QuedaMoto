@@ -191,7 +191,7 @@ export default function HomePage() {
              <div className="mt-12">
                <Link 
                  href="/auth/register" 
-                 className={buttonVariants({ size: "lg", className: "h-16 px-12 rounded-full font-black text-xl bg-white text-black hover:bg-white/90 transition-all hover:scale-105" })}
+                 className={buttonVariants({ size: "lg", className: "h-16 px-12 rounded-full font-black text-xl bg-white !text-black hover:bg-white/90 transition-all hover:scale-105" })}
                >
                  Empezar ahora
                </Link>
