@@ -7,10 +7,20 @@ import { buttonVariants } from "@/components/ui/button"
 import { MapPin, Users, Shield, Calendar, ChevronRight, Zap, TrendingUp, Trophy } from "lucide-react"
 import { HomepageMap } from "@/components/layout/HomepageMap"
 import { useSession } from "next-auth/react"
+import { getActiveMeetupsCount } from "@/app/(main)/meetups/actions"
 
 export default function HomePage() {
   const { status } = useSession()
   const isLoggedIn = status === 'authenticated'
+  const [activeCount, setActiveCount] = useState<number | string>("...")
+
+  useEffect(() => {
+    async function load() {
+      const count = await getActiveMeetupsCount()
+      setActiveCount(count > 1000 ? `${(count/1000).toFixed(1)}k+` : count)
+    }
+    load()
+  }, [])
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -112,7 +122,7 @@ export default function HomePage() {
         <div className="container mx-auto">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
             {[
-              { label: "Rutas Activas", val: "1.2k+", icon: TrendingUp },
+              { label: "Rutas Activas", val: activeCount, icon: TrendingUp },
               { label: "Moteros", val: "5k+", icon: Users },
               { label: "Provincias", val: "52", icon: MapPin },
               { label: "Top Riders", val: "300+", icon: Trophy }

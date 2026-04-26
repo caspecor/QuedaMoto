@@ -1,7 +1,7 @@
 import { MapboxView } from "@/components/map/MapboxView";
 import { db } from "@/db"
 import { meetups as meetupsTable } from "@/db/schema"
-import { eq } from "drizzle-orm"
+import { eq, and, gte } from "drizzle-orm"
 import { Button } from "@/components/ui/button";
 import { Filter, SlidersHorizontal, Map as MapIcon, List, Search } from "lucide-react";
 import { MeetupCard } from "@/components/meetups/MeetupCard";
@@ -11,6 +11,7 @@ export const metadata = {
 };
 
 export default async function ExplorePage() {
+  const today = new Date().toISOString().split('T')[0]
   const meetupsArr = await db.select({
     id: meetupsTable.id,
     title: meetupsTable.title,
@@ -21,7 +22,12 @@ export default async function ExplorePage() {
     type: meetupsTable.type,
     level_required: meetupsTable.level_required,
     max_attendees: meetupsTable.max_attendees
-  }).from(meetupsTable).where(eq(meetupsTable.visibility, 'public'))
+  }).from(meetupsTable).where(
+    and(
+      eq(meetupsTable.visibility, 'public'),
+      gte(meetupsTable.date, today)
+    )
+  )
   
   const meetups = (meetupsArr || []).filter(m => m.lat !== null && m.lng !== null) as any[]
 

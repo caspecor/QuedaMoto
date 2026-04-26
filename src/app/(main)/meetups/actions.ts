@@ -7,7 +7,7 @@ import { auth } from "@/auth"
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { revalidatePath } from 'next/cache'
-import { eq, and, desc } from 'drizzle-orm'
+import { eq, and, desc, gte } from 'drizzle-orm'
 
 export async function getNotifications() {
   try {
@@ -265,14 +265,38 @@ export async function leaveMeetupAction(meetupId: string) {
   }
 }
 
+export async function getActiveMeetupsCount() {
+  try {
+    const today = new Date().toISOString().split('T')[0]
+    const res = await db.select()
+      .from(meetups)
+      .where(
+        and(
+          eq(meetups.visibility, 'public'),
+          gte(meetups.date, today)
+        )
+      )
+    return res.length
+  } catch (error) {
+    return 0
+  }
+}
+
 export async function getPublicMeetups() {
   try {
+    const today = new Date().toISOString().split('T')[0]
     const res = await db.select({
       id: meetups.id,
       title: meetups.title,
       lat: meetups.lat,
       lng: meetups.lng,
-    }).from(meetups).where(eq(meetups.visibility, 'public'))
+    }).from(meetups)
+      .where(
+        and(
+          eq(meetups.visibility, 'public'),
+          gte(meetups.date, today)
+        )
+      )
     
     return { meetups: res.filter(m => m.lat !== null && m.lng !== null) }
   } catch (error) {
