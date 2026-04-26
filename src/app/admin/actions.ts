@@ -345,3 +345,20 @@ export async function getRecentMessages(limit = 50) {
     return { messages: [], flaggedMessages: [] }
   }
 }
+
+export async function deleteMessage(messageId: string) {
+  try {
+    const session = await auth()
+    if (!session?.user?.role || session?.user?.role !== 'admin') {
+      throw new Error('Unauthorized')
+    }
+
+    await db.delete(messages).where(eq(messages.id, messageId))
+
+    revalidatePath('/admin/messages')
+    return { success: true }
+  } catch (error) {
+    console.error('Error deleting message:', error)
+    return { success: false, error: 'Error al eliminar mensaje' }
+  }
+}
