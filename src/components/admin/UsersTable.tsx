@@ -9,10 +9,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Shield, ShieldAlert, Trash2, Ban, CheckCircle, UserCog } from "lucide-react"
-import { toggleUserBlock, deleteUser, changeUserRole } from "@/app/admin/actions"
+import { Button } from "@/components/ui/button"
+import { Shield, ShieldAlert, Trash2, Ban, CheckCircle, UserCog, Clock, XCircle } from "lucide-react"
+import { toggleUserBlock, deleteUser, changeUserRole, suspendUser } from "@/app/admin/actions"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 
@@ -49,7 +49,20 @@ export function UsersTable({ users, totalPages, currentPage }: {
     setLoading(null)
   }
 
-  const handleChangeRole = async (userId: string, role: string) => {
+  const handleSuspend = async (userId: string, hours: number) => {
+    setLoading(userId)
+    const res = await suspendUser(userId, hours)
+    if (res.success) {
+      toast.success(hours === 0 ? "Suspensión levantada" : `Usuario suspendido por ${hours}h`)
+      router.refresh()
+    } else {
+      toast.error(res.error || "Error")
+    }
+    setLoading(userId + "_suspend") // special key to close selector
+    setLoading(null)
+  }
+
+  const [suspendingUser, setSuspendingUser] = useState<string | null>(null)
     setLoading(userId)
     const res = await changeUserRole(userId, role)
     if (res.success) {
@@ -106,9 +119,67 @@ export function UsersTable({ users, totalPages, currentPage }: {
                     <span className="text-xs font-black uppercase tracking-widest">Activo</span>
                   </div>
                 )}
+                {user.suspendedUntil && new Date(user.suspendedUntil) > new Date() && (
+                  <div className="flex items-center gap-2 text-orange-500 mt-1">
+                    <Clock className="h-3 w-3" />
+                    <span className="text-[9px] font-bold uppercase tracking-widest">Suspendido</span>
+                  </div>
+                )}
               </TableCell>
               <TableCell className="pr-8 text-right">
-                <div className="flex justify-end gap-2">
+                <div className="flex justify-end gap-2 relative">
+                   {/* Botón de Suspensión */}
+                   {suspendingUser === user.id ? (
+                     <div className="absolute right-0 bottom-full mb-2 bg-card border border-white/10 rounded-2xl p-2 shadow-2xl flex gap-1 z-50 animate-in slide-in-from-bottom-2">
+                       {[1, 24, 72, 168].map(h => (
+                         <Button 
+                          key={h} 
+                          variant="ghost" 
+                          size="sm" 
+                          className="h-8 px-2 text-[10px] font-bold hover:bg-primary hover:text-black rounded-lg"
+                          onClick={() => {
+                            handleSuspend(user.id, h)
+                            setSuspendingUser(null)
+                          }}
+                         >
+                           {h < 24 ? `${h}h` : `${Math.floor(h/24)}d`}
+                         </Button>
+                       ))}
+                       <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 px-2 text-[10px] font-bold text-red-500 hover:bg-red-500/10 rounded-lg"
+                        onClick={() => {
+                          handleSuspend(user.id, 0)
+                          setSuspendingUser(null)
+                        }}
+                       >
+                         Quitar
+                       </Button>
+                       <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        className="h-8 w-8 p-0 text-white/20 hover:text-white rounded-lg"
+                        onClick={() => setSuspendingUser(null)}
+                       >
+                         <XCircle className="h-4 w-4" />
+                       </Button>
+                     </div>
+                   ) : (
+                     <Button 
+                      variant="ghost" 
+                      size="icon"
+                      disabled={loading === user.id}
+                      onClick={() => setSuspendingUser(user.id)}
+                      title="Suspender temporalmente"
+                      className={`h-9 w-9 rounded-xl transition-all ${
+                        user.suspendedUntil && new Date(user.suspendedUntil) > new Date() ? 'text-orange-500 bg-orange-500/10' : 'text-white/20 hover:text-orange-500 hover:bg-orange-500/10'
+                      }`}
+                     >
+                       <Clock className="h-4 w-4" />
+                     </Button>
+                   )}
+
                    {/* Botón de Rol */}
                    <Button 
                     variant="ghost" 

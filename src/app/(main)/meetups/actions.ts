@@ -9,6 +9,15 @@ import crypto from 'crypto'
 import { revalidatePath } from 'next/cache'
 import { eq, and, desc, gte } from 'drizzle-orm'
 
+
+async function checkSuspension(userId: string) {
+  const [user] = await db.select({ suspendedUntil: users.suspendedUntil }).from(users).where(eq(users.id, userId)).limit(1)
+  if (user?.suspendedUntil && new Date(user.suspendedUntil) > new Date()) {
+    return user.suspendedUntil
+  }
+  return null
+}
+
 export async function getNotifications() {
   try {
     const session = await auth()
@@ -84,6 +93,8 @@ export async function updateMeetupAction(meetupId: string, data: any) {
   try {
     const session = await auth()
     if (!session?.user?.id) return { error: 'No estás autenticado.' }
+    const isSuspended = await checkSuspension(session.user.id)
+    if (isSuspended) return { error: `Tu cuenta está suspendida hasta el ${isSuspended.toLocaleString()}` }
 
     const meetup = await db.select().from(meetups).where(eq(meetups.id, meetupId)).limit(1).then(r => r[0])
     if (!meetup) return { error: 'Quedada no encontrada' }
@@ -116,6 +127,8 @@ export async function createMeetupAction(data: any) {
     if (!session?.user?.id) {
       return { error: 'No estás autenticado.' }
     }
+    const isSuspended = await checkSuspension(session.user.id)
+    if (isSuspended) return { error: `Tu cuenta está suspendida hasta el ${isSuspended.toLocaleString()}` }
 
     const meetupId = crypto.randomUUID()
     
@@ -152,6 +165,8 @@ export async function sendChatMessage(meetupId: string, content: string) {
     if (!session?.user?.id) {
       return { error: 'No estás autenticado.' }
     }
+    const isSuspended = await checkSuspension(session.user.id)
+    if (isSuspended) return { error: `Cuenta suspendida temporalmente.` }
 
     // 1. Insert message (Core operation)
     await db.insert(messagesTable).values({
@@ -230,6 +245,8 @@ export async function joinMeetupAction(meetupId: string) {
   try {
     const session = await auth()
     if (!session?.user?.id) return { error: 'Inicia sesión primero' }
+    const isSuspended = await checkSuspension(session.user.id)
+    if (isSuspended) return { error: `Tu cuenta está suspendida hasta el ${isSuspended.toLocaleString()}` }
 
     await db.insert(attendees).values({
       meetup_id: meetupId,
@@ -333,6 +350,8 @@ export async function updateProfile(data: {
   try {
     const session = await auth()
     if (!session?.user?.id) return { error: "No autenticado" }
+    const isSuspended = await checkSuspension(session.user.id)
+    if (isSuspended) return { error: "No puedes editar tu perfil mientras estás suspendido." }
 
     const updateData: any = {}
     if (data.name) updateData.username = data.name

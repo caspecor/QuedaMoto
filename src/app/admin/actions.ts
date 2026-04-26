@@ -118,7 +118,8 @@ export async function getAllUsers(page = 1, limit = 20) {
       createdAt: users.createdAt,
       city: users.city,
       moto_brand: users.moto_brand,
-      moto_model: users.moto_model
+      moto_model: users.moto_model,
+      suspendedUntil: users.suspendedUntil
     })
     .from(users)
     .orderBy(desc(users.createdAt))
@@ -360,5 +361,26 @@ export async function deleteMessage(messageId: string) {
   } catch (error) {
     console.error('Error deleting message:', error)
     return { success: false, error: 'Error al eliminar mensaje' }
+  }
+}
+
+export async function suspendUser(userId: string, hours: number) {
+  try {
+    const session = await auth()
+    if (!session?.user?.role || session?.user?.role !== 'admin') {
+      throw new Error('Unauthorized')
+    }
+
+    const suspendedUntil = hours === 0 ? null : new Date(Date.now() + hours * 60 * 60 * 1000)
+
+    await db.update(users)
+      .set({ suspendedUntil })
+      .where(eq(users.id, userId))
+
+    revalidatePath('/admin/users')
+    return { success: true }
+  } catch (error) {
+    console.error('Error suspending user:', error)
+    return { success: false, error: 'Error al suspender usuario' }
   }
 }

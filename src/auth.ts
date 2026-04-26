@@ -27,7 +27,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         id: user.id, 
         name: user.username,
         email: user.email,
-        role: user.role
+        role: user.role,
+        suspendedUntil: user.suspendedUntil
       }
       },
     }),
@@ -43,6 +44,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         token.email = user.email
         // @ts-ignore
         token.role = user.role
+        // @ts-ignore
+        token.suspendedUntil = user.suspendedUntil
       }
       return token
     },
@@ -53,6 +56,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.email = token.email as string
         // @ts-ignore
         session.user.role = token.role as string
+        // @ts-ignore
+        session.user.suspendedUntil = token.suspendedUntil as string
       }
       return session
     },
