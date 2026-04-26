@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Users, Calendar, MessageSquare, ShieldAlert, Zap, TrendingUp, BarChart3, Clock } from "lucide-react"
 import Link from "next/link"
+import { SystemStatusBadge } from "@/components/admin/SystemStatusBadge"
 
 export const metadata = {
   title: "Panel de Administración - QuedaMoto",
@@ -19,10 +20,7 @@ export default async function AdminDashboard() {
           <p className="text-white/40 font-medium text-lg mt-2">Visión global y control de la plataforma</p>
         </div>
         <div className="flex gap-4">
-           <div className="px-6 py-3 rounded-2xl bg-white/[0.03] border border-white/5 flex items-center gap-3">
-              <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
-              <span className="text-xs font-black uppercase tracking-widest text-white/60">Sistema Online</span>
-           </div>
+          <SystemStatusBadge />
         </div>
       </div>
 
