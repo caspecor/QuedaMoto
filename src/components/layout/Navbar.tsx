@@ -64,15 +64,17 @@ export function Navbar({
         <div className="flex items-center justify-between">
           
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform overflow-hidden">
+          <Link href="/" className="flex items-center gap-3 group flex-shrink-0">
+            <div className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform overflow-hidden flex-shrink-0">
               {branding.logo ? (
                 <img src={branding.logo} alt={branding.title} className="w-full h-full object-cover" />
               ) : (
                 <Zap className="h-6 w-6 text-white fill-white" />
               )}
             </div>
-            <span className="text-2xl font-black italic tracking-tighter text-white uppercase">{branding.title}</span>
+            <span className="text-xl md:text-2xl font-black italic tracking-tighter text-white truncate max-w-[150px] md:max-w-[250px]">
+              {branding.title}
+            </span>
           </Link>
 
           {/* Desktop Nav */}
