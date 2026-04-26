@@ -80,12 +80,22 @@ export default async function DashboardPage() {
             
             <div className="grid gap-4">
               {upcomingMeetups.length > 0 ? (
-                upcomingMeetups.map((meetup: any) => (
-                  <Link 
-                    key={meetup.id} 
-                    href={`/meetups/${meetup.id}`}
-                    className="group relative flex flex-col p-6 rounded-3xl glass-card transition-all hover:bg-white/[0.05]"
-                  >
+                upcomingMeetups.map((meetup: any) => {
+                  const today = new Date().toISOString().split('T')[0]
+                  const isPast = meetup.date < today
+                  return (
+                    <Link 
+                      key={meetup.id} 
+                      href={`/meetups/${meetup.id}`}
+                      className={`group relative flex flex-col p-6 rounded-3xl glass-card transition-all hover:bg-white/[0.05] ${isPast ? 'grayscale-[0.5] opacity-80' : ''}`}
+                    >
+                      {isPast && (
+                        <div className="absolute inset-0 z-20 bg-black/60 backdrop-blur-[2px] rounded-3xl flex items-center justify-center group-hover:opacity-0 transition-opacity duration-500 pointer-events-none">
+                          <div className="px-6 py-2 bg-red-600/20 border border-red-600/40 rounded-full shadow-[0_0_20px_rgba(220,38,38,0.2)]">
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-red-500">Caducada</span>
+                          </div>
+                        </div>
+                      )}
                     <div className="flex justify-between items-start">
                       <div className="space-y-1">
                         <span className="text-[10px] font-bold uppercase tracking-widest text-primary/80">{meetup.type}</span>
@@ -107,7 +117,7 @@ export default async function DashboardPage() {
                       </div>
                     </div>
                   </Link>
-                ))
+                )})
               ) : (
                 <div className="flex flex-col items-center justify-center py-12 rounded-3xl border-2 border-dashed border-white/5 bg-white/[0.02] text-white/30 space-y-4">
                   <PlusCircle className="h-10 w-10 opacity-20" />
