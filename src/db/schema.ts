@@ -73,3 +73,16 @@ export const settings = pgTable('settings', {
   value: text('value'),
   updatedAt: timestamp('updated_at').defaultNow(),
 });
+
+export const visits = pgTable('visits', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: text('user_id').references(() => users.id, { onDelete: 'set null' }),
+  ip: varchar('ip', { length: 100 }),
+  path: text('path'),
+  userAgent: text('user_agent'),
+  city: varchar('city', { length: 100 }),
+  country: varchar('country', { length: 100 }),
+  lat: varchar('lat', { length: 50 }),
+  lng: varchar('lng', { length: 50 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});

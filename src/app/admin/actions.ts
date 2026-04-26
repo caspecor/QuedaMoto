@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/db'
-import { users, meetups, messages, attendees, notifications, settings } from '@/db/schema'
+import { users, meetups, messages, attendees, notifications, settings, visits } from '@/db/schema'
 import { eq, desc, sql, and, gte } from 'drizzle-orm'
 import { auth } from "@/auth"
 import { revalidatePath } from 'next/cache'
@@ -426,5 +426,20 @@ export async function updateSiteSettings(config: Record<string, string>) {
   } catch (error) {
     console.error('Error updating settings:', error)
     return { success: false, error: 'Error al actualizar configuración' }
+  }
+}
+
+export async function getVisitsData() {
+  try {
+    const session = await auth()
+    if (!session?.user?.role || session?.user?.role !== 'admin') {
+      throw new Error('Unauthorized')
+    }
+
+    const data = await db.select().from(visits).orderBy(desc(visits.createdAt)).limit(1000)
+    return data
+  } catch (error) {
+    console.error('Error fetching visits:', error)
+    return []
   }
 }

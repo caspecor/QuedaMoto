@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { VisitTracker } from "@/components/layout/VisitTracker";
 import "./globals.css";
 import "leaflet/dist/leaflet.css";
 
@@ -52,6 +53,7 @@ export default async function RootLayout({
       </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <SessionProvider>
+          <VisitTracker />
           {children}
         </SessionProvider>
         <Toaster position="bottom-right" />
