@@ -6,8 +6,12 @@ import { motion } from "framer-motion"
 import { buttonVariants } from "@/components/ui/button"
 import { MapPin, Users, Shield, Calendar, ChevronRight, Zap, TrendingUp, Trophy } from "lucide-react"
 import { HomepageMap } from "@/components/layout/HomepageMap"
+import { useSession } from "next-auth/react"
 
 export default function HomePage() {
+  const { status } = useSession()
+  const isLoggedIn = status === 'authenticated'
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -190,10 +194,10 @@ export default function HomePage() {
              <p className="mt-4 text-white/40 text-lg max-w-xl mx-auto font-medium">La carretera no tiene fin, y tu comunidad tampoco. Regístrate hoy y empieza a rodar.</p>
              <div className="mt-12">
                <Link 
-                 href="/auth/register" 
+                 href={isLoggedIn ? "/explore" : "/auth/register"} 
                  className={buttonVariants({ size: "lg", className: "h-16 px-12 rounded-full font-black text-xl bg-white !text-black hover:bg-white/90 transition-all hover:scale-105" })}
                >
-                 Empezar ahora
+                 {isLoggedIn ? "Explorar rutas" : "Empezar ahora"}
                </Link>
              </div>
            </motion.div>
