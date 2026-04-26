@@ -6,7 +6,7 @@ import { auth } from "@/auth"
 import { NotificationListener } from "@/components/layout/NotificationListener"
 import { SuspensionOverlay } from "@/components/layout/SuspensionOverlay"
 import { db } from "@/db"
-import { users } from "@/db/schema"
+import { users, settings } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { redirect } from "next/navigation"
 
@@ -16,15 +16,15 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
 
   let suspendedUntil = null
   if (user?.id) {
-    const [dbUser] = await db.select({ 
+    const [dbUser] = await db.select({
       suspendedUntil: users.suspendedUntil,
-      isBlocked: users.isBlocked 
+      isBlocked: users.isBlocked
     }).from(users).where(eq(users.id, user.id)).limit(1)
-    
+
     if (dbUser?.isBlocked) {
       redirect('/auth/logout') // Or a blocked page
     }
-    
+
     if (dbUser?.suspendedUntil && new Date(dbUser.suspendedUntil) > new Date()) {
       suspendedUntil = dbUser.suspendedUntil.toISOString()
     }
