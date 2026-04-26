@@ -93,13 +93,15 @@ export function Navbar({ user: initialUser }: { user?: any }) {
                       <span>Admin</span>
                     </Link>
                   )}
-                  <Link
-                    href="/meetups/create"
-                    className="flex items-center gap-2 px-6 h-10 rounded-full bg-white text-black hover:bg-white/90 font-bold transition-all shadow-lg shadow-white/10"
-                  >
-                    <Plus className="h-4 w-4 text-black" />
-                    <span className="text-black">Crear</span>
-                  </Link>
+                  {!(user.suspendedUntil && new Date(user.suspendedUntil) > new Date()) && (
+                    <Link
+                      href="/meetups/create"
+                      className="flex items-center gap-2 px-6 h-10 rounded-full bg-white text-black hover:bg-white/90 font-bold transition-all shadow-lg shadow-white/10"
+                    >
+                      <Plus className="h-4 w-4 text-black" />
+                      <span className="text-black">Crear</span>
+                    </Link>
+                  )}
                   <Link href="/profile" className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white/10 transition-all overflow-hidden shrink-0">
                     {displayAvatar ? (
                       <img src={displayAvatar} alt="Profile" className="w-full h-full object-cover" />

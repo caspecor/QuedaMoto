@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/db'
-import { users, meetups, messages, attendees, notifications } from '@/db/schema'
+import { users, meetups, messages, attendees, notifications, settings } from '@/db/schema'
 import { eq, desc, sql, and, gte } from 'drizzle-orm'
 import { auth } from "@/auth"
 import { revalidatePath } from 'next/cache'
@@ -382,5 +382,49 @@ export async function suspendUser(userId: string, hours: number) {
   } catch (error) {
     console.error('Error suspending user:', error)
     return { success: false, error: 'Error al suspender usuario' }
+  }
+}
+
+export async function getSiteSettings() {
+  try {
+    const session = await auth()
+    if (!session?.user?.role || session?.user?.role !== 'admin') {
+      throw new Error('Unauthorized')
+    }
+
+    const res = await db.select().from(settings)
+    const config: Record<string, string> = {}
+    res.forEach(s => {
+      config[s.key] = s.value || ''
+    })
+    return config
+  } catch (error) {
+    console.error('Error fetching settings:', error)
+    return {}
+  }
+}
+
+export async function updateSiteSettings(config: Record<string, string>) {
+  try {
+    const session = await auth()
+    if (!session?.user?.role || session?.user?.role !== 'admin') {
+      throw new Error('Unauthorized')
+    }
+
+    const promises = Object.entries(config).map(([key, value]) => {
+      return db.insert(settings)
+        .values({ key, value, updatedAt: new Date() })
+        .onConflictDoUpdate({
+          target: settings.key,
+          set: { value, updatedAt: new Date() }
+        })
+    })
+
+    await Promise.all(promises)
+    revalidatePath('/')
+    return { success: true }
+  } catch (error) {
+    console.error('Error updating settings:', error)
+    return { success: false, error: 'Error al actualizar configuración' }
   }
 }

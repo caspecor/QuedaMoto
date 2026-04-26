@@ -29,7 +29,7 @@ export function BottomNav({ user: initialUser }: { user?: any }) {
     { name: 'Explorar', href: '/explore', icon: Map },
     ...(isLoggedIn 
       ? [
-          { name: 'Crear', href: '/meetups/create', icon: PlusCircle, highlight: true },
+          ...(!(user.suspendedUntil && new Date(user.suspendedUntil) > new Date()) ? [{ name: 'Crear', href: '/meetups/create', icon: PlusCircle, highlight: true }] : []),
           ...(user.role === 'admin' || user.email === 'admin@quedamoto.com' ? [{ name: 'Admin', href: '/admin', icon: Shield }] : []),
           { name: 'Garaje', href: '/dashboard', icon: LayoutDashboard },
           { name: 'Perfil', href: '/profile', icon: User },

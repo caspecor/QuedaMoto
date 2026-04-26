@@ -20,18 +20,36 @@ export const metadata: Metadata = {
 };
 
 import { SessionProvider } from "next-auth/react"
+import { db } from "@/db"
+import { settings } from "@/db/schema"
+import { eq } from "drizzle-orm"
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  let gscCode = null
+  try {
+    const res = await db.select().from(settings).where(eq(settings.key, 'google_search_console')).limit(1)
+    gscCode = res[0]?.value
+  } catch (e) {
+    // Table might not exist yet or other DB error
+  }
+
   return (
     <html
-      lang="en"
+      lang="es"
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        {gscCode && (
+          gscCode.startsWith('<') 
+            ? <script dangerouslySetInnerHTML={{ __html: gscCode }} />
+            : <meta name="google-site-verification" content={gscCode} />
+        )}
+      </head>
       <body className="min-h-full flex flex-col" suppressHydrationWarning>
         <SessionProvider>
           {children}

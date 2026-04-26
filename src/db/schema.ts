@@ -67,3 +67,9 @@ export const notifications = pgTable('notifications', {
   isRead: boolean('is_read').default(false).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const settings = pgTable('settings', {
+  key: varchar('key', { length: 255 }).primaryKey(),
+  value: text('value'),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
