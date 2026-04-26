@@ -303,6 +303,7 @@ export async function updateProfile(data: {
   level?: string;
   style?: string;
   bio?: string;
+  vehicles?: { brand: string; model: string }[];
 }) {
   try {
     const session = await auth()
@@ -317,6 +318,7 @@ export async function updateProfile(data: {
     if (data.level !== undefined) updateData.level = data.level
     if (data.style !== undefined) updateData.style = data.style
     if (data.bio !== undefined) updateData.bio = data.bio
+    if (data.vehicles !== undefined) updateData.vehicles = data.vehicles
 
     await db.update(users)
       .set(updateData)

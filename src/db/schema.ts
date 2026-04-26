@@ -1,4 +1,4 @@
-import { pgTable, text, timestamp, integer, doublePrecision, varchar, uuid, boolean } from 'drizzle-orm/pg-core';
+import { pgTable, text, timestamp, integer, doublePrecision, varchar, uuid, boolean, jsonb } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
   id: text('id').primaryKey(),
@@ -12,6 +12,7 @@ export const users = pgTable('users', {
   level: varchar('level', { length: 50 }),
   style: varchar('style', { length: 100 }),
   bio: text('bio'),
+  vehicles: jsonb('vehicles').$type<{ brand: string; model: string }[]>().default([]),
   role: varchar('role', { length: 20 }).default('user'),
   isBlocked: boolean('is_blocked').default(false),
   blockedAt: timestamp('blocked_at'),

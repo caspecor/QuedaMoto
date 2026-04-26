@@ -5,36 +5,59 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { updateProfile } from "@/app/(main)/meetups/actions"
-import { Pencil, Bike } from "lucide-react"
+import { Pencil, Bike, Plus, Trash2 } from "lucide-react"
 
 export function BikeCard({ profile }: { profile: any }) {
   const router = useRouter()
   const [isEditing, setIsEditing] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const [moto_brand, setMotoBrand] = useState(profile.moto_brand || '')
-  const [moto_model, setMotoModel] = useState(profile.moto_model || '')
+  // Initialize vehicles array. Fallback to old moto_brand/model if vehicles array is empty/undefined.
+  const initialVehicles = profile.vehicles && profile.vehicles.length > 0 
+    ? profile.vehicles 
+    : (profile.moto_brand ? [{ brand: profile.moto_brand, model: profile.moto_model || '' }] : []);
+
+  const [vehicles, setVehicles] = useState<{brand: string, model: string}[]>(initialVehicles)
   const [city, setCity] = useState(profile.city || '')
   const [level, setLevel] = useState(profile.level || '')
   const [style, setStyle] = useState(profile.style || '')
   const [bio, setBio] = useState(profile.bio || '')
 
+  const handleAddVehicle = () => {
+    setVehicles([...vehicles, { brand: '', model: '' }])
+  }
+
+  const handleRemoveVehicle = (index: number) => {
+    setVehicles(vehicles.filter((_, i) => i !== index))
+  }
+
+  const handleVehicleChange = (index: number, field: 'brand' | 'model', value: string) => {
+    const newVehicles = [...vehicles]
+    newVehicles[index][field] = value
+    setVehicles(newVehicles)
+  }
+
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
+    
+    // Filter out completely empty vehicles before saving
+    const validVehicles = vehicles.filter(v => v.brand.trim() !== '' || v.model.trim() !== '')
+
     const res = await updateProfile({
-      moto_brand: moto_brand,
-      moto_model: moto_model,
+      vehicles: validVehicles,
       city: city,
       level: level,
       style: style,
       bio: bio,
     })
+    
     if (res.success) {
-      toast.success("Información de moto actualizada")
+      toast.success("Información actualizada")
       setIsEditing(false)
       router.refresh()
     } else {
@@ -48,38 +71,67 @@ export function BikeCard({ profile }: { profile: any }) {
       <Card className="bg-card shadow-lg border-border/50 rounded-3xl">
         <CardHeader>
           <CardTitle className="text-xl flex items-center gap-2">
-            <Bike className="w-5 h-5 text-primary" /> Mi Moto
+            <Bike className="w-5 h-5 text-primary" /> Mi Garaje & Estilo
           </CardTitle>
-          <p className="text-xs text-white/40">Actualiza los detalles de tu moto y tu estilo de conducción</p>
+          <p className="text-xs text-white/40">Actualiza los detalles de tus motos y tu estilo de conducción</p>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSave} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="moto_brand" className="text-xs font-bold uppercase tracking-widest text-white/40">Marca de la Moto</Label>
-                <Input id="moto_brand" value={moto_brand} onChange={e => setMotoBrand(e.target.value)} placeholder="Ej: Honda" className="bg-white/5 border-white/10 rounded-xl" />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="moto_model" className="text-xs font-bold uppercase tracking-widest text-white/40">Modelo</Label>
-                <Input id="moto_model" value={moto_model} onChange={e => setMotoModel(e.target.value)} placeholder="Ej: CBR 600" className="bg-white/5 border-white/10 rounded-xl" />
-              </div>
+            
+            <div className="space-y-4">
+              <Label className="text-xs font-bold uppercase tracking-widest text-primary">Mis Vehículos</Label>
+              {vehicles.map((vehicle, index) => (
+                <div key={index} className="flex flex-col md:flex-row gap-4 p-4 bg-white/[0.02] border border-white/5 rounded-2xl relative group">
+                  <div className="flex-1 space-y-2">
+                    <Label className="text-[10px] uppercase text-white/40">Marca</Label>
+                    <Input value={vehicle.brand} onChange={e => handleVehicleChange(index, 'brand', e.target.value)} placeholder="Ej: Honda" className="bg-white/5 border-white/10" />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <Label className="text-[10px] uppercase text-white/40">Modelo</Label>
+                    <Input value={vehicle.model} onChange={e => handleVehicleChange(index, 'model', e.target.value)} placeholder="Ej: CBR 600" className="bg-white/5 border-white/10" />
+                  </div>
+                  <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVehicle(index)} className="md:mt-6 text-white/20 hover:text-destructive hover:bg-destructive/10 transition-colors">
+                    <Trash2 className="w-4 h-4" />
+                  </Button>
+                </div>
+              ))}
+              
+              <Button type="button" variant="outline" onClick={handleAddVehicle} className="w-full border-dashed border-white/10 text-white/50 hover:text-white hover:border-white/20 rounded-2xl h-12">
+                <Plus className="w-4 h-4 mr-2" /> Añadir Moto
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
               <div className="space-y-2">
                 <Label htmlFor="city" className="text-xs font-bold uppercase tracking-widest text-white/40">Ciudad</Label>
                 <Input id="city" value={city} onChange={e => setCity(e.target.value)} placeholder="Ej: Madrid" className="bg-white/5 border-white/10 rounded-xl" />
               </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="level" className="text-xs font-bold uppercase tracking-widest text-white/40">Nivel</Label>
-                <Input id="level" value={level} onChange={e => setLevel(e.target.value)} placeholder="Ej: Intermedio" className="bg-white/5 border-white/10 rounded-xl" />
+                <Select value={level} onValueChange={setLevel}>
+                  <SelectTrigger className="bg-white/5 border-white/10 rounded-xl">
+                    <SelectValue placeholder="Selecciona tu nivel" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Principiante">Principiante</SelectItem>
+                    <SelectItem value="Intermedio">Intermedio</SelectItem>
+                    <SelectItem value="Avanzado">Avanzado</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
-              <div className="space-y-2">
+
+              <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="style" className="text-xs font-bold uppercase tracking-widest text-white/40">Estilo favorito</Label>
-                <Input id="style" value={style} onChange={e => setStyle(e.target.value)} placeholder="Ej: Turismo" className="bg-white/5 border-white/10 rounded-xl" />
+                <Input id="style" value={style} onChange={e => setStyle(e.target.value)} placeholder="Ej: Turismo, Enduro, Circuito..." className="bg-white/5 border-white/10 rounded-xl" />
               </div>
             </div>
+
             <div className="space-y-2">
               <Label htmlFor="bio" className="text-xs font-bold uppercase tracking-widest text-white/40">Bio</Label>
-              <Input id="bio" value={bio} onChange={e => setBio(e.target.value)} placeholder="Cuéntanos sobre ti y tu moto..." className="bg-white/5 border-white/10 rounded-xl" />
+              <Input id="bio" value={bio} onChange={e => setBio(e.target.value)} placeholder="Cuéntanos sobre ti..." className="bg-white/5 border-white/10 rounded-xl" />
             </div>
+
             <div className="flex gap-2 pt-2">
               <Button type="submit" disabled={loading} className="flex-1 rounded-xl bg-primary font-bold">
                 {loading ? "Guardando..." : "Guardar Cambios"}
@@ -94,8 +146,13 @@ export function BikeCard({ profile }: { profile: any }) {
     )
   }
 
+  // Display mode
+  const displayVehicles = profile.vehicles && profile.vehicles.length > 0 
+    ? profile.vehicles 
+    : (profile.moto_brand ? [{ brand: profile.moto_brand, model: profile.moto_model }] : []);
+
   return (
-    <Card className="bg-card shadow-lg border-border/50 rounded-3xl">
+    <Card className="bg-card shadow-lg border-border/50 rounded-3xl animate-reveal [animation-delay:0.1s]">
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="text-xl flex items-center gap-2">
@@ -106,30 +163,52 @@ export function BikeCard({ profile }: { profile: any }) {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
-        {profile?.moto_brand ? (
-          <div className="grid grid-cols-2 gap-6">
-            <div className="bg-background p-4 rounded-xl border border-border/50">
-              <p className="text-xs uppercase tracking-wider font-bold text-primary">Moto</p>
-              <p className="font-semibold text-lg mt-1">{profile.moto_brand} {profile.moto_model}</p>
+      <CardContent className="space-y-6">
+        {displayVehicles.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div className="md:col-span-2 space-y-3">
+              <p className="text-xs uppercase tracking-wider font-bold text-primary">Mis Vehículos</p>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {displayVehicles.map((v: any, i: number) => (
+                  <div key={i} className="bg-white/[0.02] p-4 rounded-xl border border-white/5 flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center">
+                      <Bike className="h-5 w-5 text-white/50" />
+                    </div>
+                    <div>
+                      <p className="font-bold text-white text-sm">{v.brand}</p>
+                      <p className="text-white/40 text-xs">{v.model}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </div>
+
             <div className="bg-background p-4 rounded-xl border border-border/50">
               <p className="text-xs uppercase tracking-wider font-bold text-primary">Nivel</p>
-              <p className="font-semibold text-lg mt-1">{profile.level}</p>
+              <p className="font-semibold text-lg mt-1">{profile.level || 'No definido'}</p>
             </div>
-            <div className="col-span-2 bg-background p-4 rounded-xl border border-border/50">
+            
+            <div className="bg-background p-4 rounded-xl border border-border/50">
               <p className="text-xs uppercase tracking-wider font-bold text-primary">Estilo favorito</p>
-              <p className="font-semibold text-lg mt-1">{profile.style}</p>
+              <p className="font-semibold text-lg mt-1">{profile.style || 'No definido'}</p>
             </div>
-            <div className="col-span-2">
-              <p className="text-xs uppercase tracking-wider font-bold text-primary mb-2">Bio</p>
-              <p className="bg-background border border-border/50 p-4 rounded-xl text-sm leading-relaxed text-muted-foreground">{profile.bio}</p>
-            </div>
+            
+            {(profile.bio || profile.city) && (
+              <div className="col-span-1 md:col-span-2">
+                <p className="text-xs uppercase tracking-wider font-bold text-primary mb-2">Bio</p>
+                <div className="bg-background border border-border/50 p-4 rounded-xl text-sm leading-relaxed text-muted-foreground">
+                  {profile.city && <p className="mb-2"><span className="font-bold text-white">Ciudad:</span> {profile.city}</p>}
+                  {profile.bio ? profile.bio : <i className="text-white/20">Sin biografía</i>}
+                </div>
+              </div>
+            )}
+            
           </div>
         ) : (
           <div className="text-center py-10 bg-background rounded-2xl border border-border/50 text-muted-foreground space-y-4">
             <Bike className="w-12 h-12 mx-auto text-white/20" />
-            <p className="text-lg">Aún no has completado la información de tu moto.</p>
+            <p className="text-lg">Aún no has completado tu garaje.</p>
             <Button variant="outline" onClick={() => setIsEditing(true)} className="rounded-full border-2">
               Completar Perfil
             </Button>
