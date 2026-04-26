@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getSiteSettings, updateSiteSettings } from "@/app/admin/actions"
 import { toast } from "sonner"
-import { Save, Search, Layout } from "lucide-react"
+import { Save, Search, Layout, Upload } from "lucide-react"
 
 export function SettingsPanel() {
   const [config, setConfig] = useState<Record<string, string>>({
@@ -18,6 +18,17 @@ export function SettingsPanel() {
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
+
+  const handleUpload = (key: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      setConfig(prev => ({ ...prev, [key]: reader.result as string }))
+    }
+    reader.readAsDataURL(file)
+  }
 
   useEffect(() => {
     async function load() {
@@ -69,23 +80,39 @@ export function SettingsPanel() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="logo" className="text-xs font-black uppercase tracking-widest text-white/60">URL del Logo (PNG/SVG)</Label>
-              <Input
-                id="logo"
-                placeholder="https://..."
-                value={config.site_logo}
-                onChange={(e) => setConfig({ ...config, site_logo: e.target.value })}
-                className="bg-white/5 border-white/10 rounded-xl h-12 text-white"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="logo"
+                  placeholder="https://..."
+                  value={config.site_logo}
+                  onChange={(e) => setConfig({ ...config, site_logo: e.target.value })}
+                  className="bg-white/5 border-white/10 rounded-xl h-12 text-white flex-1"
+                />
+                <div className="relative">
+                  <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleUpload('site_logo')} accept="image/*" />
+                  <Button variant="outline" className="h-12 w-12 rounded-xl bg-white/5 border-white/10 text-white p-0">
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
             <div className="space-y-2">
               <Label htmlFor="favicon" className="text-xs font-black uppercase tracking-widest text-white/60">URL del Favicon (.ico/png)</Label>
-              <Input
-                id="favicon"
-                placeholder="https://..."
-                value={config.site_favicon}
-                onChange={(e) => setConfig({ ...config, site_favicon: e.target.value })}
-                className="bg-white/5 border-white/10 rounded-xl h-12 text-white"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="favicon"
+                  placeholder="https://..."
+                  value={config.site_favicon}
+                  onChange={(e) => setConfig({ ...config, site_favicon: e.target.value })}
+                  className="bg-white/5 border-white/10 rounded-xl h-12 text-white flex-1"
+                />
+                <div className="relative">
+                  <input type="file" className="absolute inset-0 opacity-0 cursor-pointer" onChange={handleUpload('site_favicon')} accept="image/*,.ico" />
+                  <Button variant="outline" className="h-12 w-12 rounded-xl bg-white/5 border-white/10 text-white p-0">
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
