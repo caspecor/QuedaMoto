@@ -12,7 +12,7 @@ export const users = pgTable('users', {
   level: varchar('level', { length: 50 }),
   style: varchar('style', { length: 100 }),
   bio: text('bio'),
-  vehicles: jsonb('vehicles').$type<{ brand: string; model: string }[]>().default([]),
+  vehicles: jsonb('vehicles').$type<{ brand: string; model: string; image?: string }[]>().default([]),
   socials: jsonb('socials').$type<{ instagram?: string; tiktok?: string; youtube?: string }>().default({}),
   role: varchar('role', { length: 20 }).default('user'),
   isBlocked: boolean('is_blocked').default(false),

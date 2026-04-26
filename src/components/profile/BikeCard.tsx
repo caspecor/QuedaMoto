@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { updateProfile } from "@/app/(main)/meetups/actions"
-import { Pencil, Bike, Plus, Trash2, Instagram, Youtube, Share2 } from "lucide-react"
+import { Pencil, Bike, Plus, Trash2, Instagram, Youtube, Share2, Image as ImageIcon, Camera } from "lucide-react"
 
 export function BikeCard({ profile }: { profile: any }) {
   const router = useRouter()
@@ -21,7 +21,7 @@ export function BikeCard({ profile }: { profile: any }) {
     ? profile.vehicles 
     : (profile.moto_brand ? [{ brand: profile.moto_brand, model: profile.moto_model || '' }] : []);
 
-  const [vehicles, setVehicles] = useState<{brand: string, model: string}[]>(initialVehicles)
+  const [vehicles, setVehicles] = useState<{brand: string, model: string, image?: string}[]>(initialVehicles)
   const [city, setCity] = useState(profile.city || '')
   const [level, setLevel] = useState(profile.level || '')
   const [style, setStyle] = useState(profile.style || '')
@@ -33,17 +33,33 @@ export function BikeCard({ profile }: { profile: any }) {
   const [youtube, setYoutube] = useState(profile.socials?.youtube || '')
 
   const handleAddVehicle = () => {
-    setVehicles([...vehicles, { brand: '', model: '' }])
+    setVehicles([...vehicles, { brand: '', model: '', image: '' }])
   }
 
   const handleRemoveVehicle = (index: number) => {
     setVehicles(vehicles.filter((_, i) => i !== index))
   }
 
-  const handleVehicleChange = (index: number, field: 'brand' | 'model', value: string) => {
+  const handleVehicleChange = (index: number, field: 'brand' | 'model' | 'image', value: string) => {
     const newVehicles = [...vehicles]
     newVehicles[index][field] = value
     setVehicles(newVehicles)
+  }
+
+  const handleImageUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    if (file.size > 500000) { // 500KB limit for JSONB safety
+      toast.error("La imagen es muy pesada. Máximo 500KB.")
+      return
+    }
+
+    const reader = new FileReader()
+    reader.onloadend = () => {
+      handleVehicleChange(index, 'image', reader.result as string)
+    }
+    reader.readAsDataURL(file)
   }
 
   const handleSave = async (e: React.FormEvent) => {
@@ -99,6 +115,25 @@ export function BikeCard({ profile }: { profile: any }) {
                   <div className="flex-1 space-y-2">
                     <Label className="text-[10px] uppercase text-white/40">Modelo</Label>
                     <Input value={vehicle.model} onChange={e => handleVehicleChange(index, 'model', e.target.value)} placeholder="Ej: CBR 600" className="bg-white/5 border-white/10" />
+                  </div>
+                  <div className="flex-1 space-y-2">
+                    <Label className="text-[10px] uppercase text-white/40">Foto</Label>
+                    <div className="flex gap-2">
+                       <Input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={e => handleImageUpload(index, e)} 
+                        className="hidden" 
+                        id={`bike-photo-${index}`} 
+                       />
+                       <label 
+                        htmlFor={`bike-photo-${index}`}
+                        className="flex-1 flex items-center justify-center gap-2 h-10 rounded-md bg-white/5 border border-white/10 text-white/40 text-xs cursor-pointer hover:bg-white/10 transition-all"
+                       >
+                         {vehicle.image ? <ImageIcon className="w-4 h-4 text-primary" /> : <Camera className="w-4 h-4" />}
+                         {vehicle.image ? 'Cambiar Foto' : 'Subir Foto'}
+                       </label>
+                    </div>
                   </div>
                   <Button type="button" variant="ghost" size="icon" onClick={() => handleRemoveVehicle(index)} className="md:mt-6 text-white/20 hover:text-destructive hover:bg-destructive/10 transition-colors">
                     <Trash2 className="w-4 h-4" />
@@ -205,15 +240,29 @@ export function BikeCard({ profile }: { profile: any }) {
           {displayVehicles.length > 0 && (
             <div className="md:col-span-2 space-y-3">
               <p className="text-xs uppercase tracking-wider font-bold text-primary">Mis Vehículos</p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {displayVehicles.map((v: any, i: number) => (
-                  <div key={i} className="bg-white/[0.02] p-4 rounded-xl border border-white/5 flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center">
-                      <Bike className="h-5 w-5 text-white/50" />
-                    </div>
-                    <div>
-                      <p className="font-bold text-white text-sm">{v.brand}</p>
-                      <p className="text-white/40 text-xs">{v.model}</p>
+                  <div key={i} className="group overflow-hidden bg-white/[0.02] rounded-3xl border border-white/5 flex flex-col transition-all hover:bg-white/[0.04]">
+                    {v.image ? (
+                      <div className="h-40 w-full relative">
+                        <img src={v.image} alt={v.brand} className="w-full h-full object-cover" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent" />
+                      </div>
+                    ) : (
+                      <div className="h-24 w-full flex items-center justify-center bg-white/[0.01] border-b border-white/5">
+                        <Bike className="h-10 w-10 text-white/10" />
+                      </div>
+                    )}
+                    <div className="p-4 flex items-center gap-3">
+                      {!v.image && (
+                         <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center">
+                            <Bike className="h-5 w-5 text-white/50" />
+                         </div>
+                      )}
+                      <div>
+                        <p className="font-black text-white text-base tracking-tight">{v.brand}</p>
+                        <p className="text-white/40 text-xs font-bold uppercase tracking-widest">{v.model}</p>
+                      </div>
                     </div>
                   </div>
                 ))}

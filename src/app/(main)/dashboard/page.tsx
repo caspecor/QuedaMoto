@@ -91,8 +91,8 @@ export default async function DashboardPage() {
                     >
                       {isPast && (
                         <div className="absolute inset-0 z-20 bg-black/60 backdrop-blur-[2px] rounded-3xl flex items-center justify-center group-hover:opacity-0 transition-opacity duration-500 pointer-events-none">
-                          <div className="px-6 py-2 bg-red-600/20 border border-red-600/40 rounded-full shadow-[0_0_20px_rgba(220,38,38,0.2)]">
-                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-red-500">Caducada</span>
+                          <div className="px-6 py-2 bg-white/10 border border-white/20 rounded-full shadow-xl backdrop-blur-md">
+                            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-white">Finalizada</span>
                           </div>
                         </div>
                       )}

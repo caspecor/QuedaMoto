@@ -8,7 +8,7 @@ import { JoinButton } from "@/components/meetups/JoinButton"
 import { OrganizerControls } from "@/components/meetups/OrganizerControls"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Calendar, Clock, MapPin, Users, Shield, MessagesSquare, ChevronLeft, Zap, Info } from "lucide-react"
+import { Calendar, Clock, MapPin, Users, Shield, MessagesSquare, ChevronLeft, Zap, Info, MessageCircle, Share2 } from "lucide-react"
 import Link from "next/link"
 
 import { auth } from "@/auth"
@@ -95,6 +95,16 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
               <h1 className="text-4xl md:text-5xl font-black tracking-tighter text-white font-sans leading-tight">
                 {meetup.title}
               </h1>
+              <div className="flex gap-3 mt-4">
+                <a 
+                  href={`https://wa.me/?text=${encodeURIComponent(`¡Vente a esta ruta en QuedaMoto! 🏍️💨\n\n*${meetup.title}*\n📅 ${meetup.date}\n📍 ${meetup.address}\n\nApúntate aquí: ${process.env.NEXT_PUBLIC_APP_URL || 'https://quedamoto.vercel.app'}/meetups/${meetup.id}`)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#25D366] text-black font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-[#25D366]/20"
+                >
+                  <MessageCircle className="h-4 w-4" /> Invitar WhatsApp
+                </a>
+              </div>
             </div>
             
             <Link 
