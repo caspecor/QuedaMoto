@@ -3,13 +3,12 @@
 import { db } from '@/db'
 import { users, meetups, messages, attendees, notifications } from '@/db/schema'
 import { eq, desc, sql, and, gte } from 'drizzle-orm'
-import { getServerSession } from "next-auth/next"
-import { authOptions } from '@/auth'
+import { auth } from "@/auth"
 import { revalidatePath } from 'next/cache'
 
 export async function getAdminStats() {
   try {
-    const session = await getServerSession()
+    const session = await auth()
     if (!session?.user?.role || session?.user?.role !== 'admin') {
       throw new Error('Unauthorized')
     }
@@ -103,7 +102,7 @@ export async function getAdminStats() {
 
 export async function getAllUsers(page = 1, limit = 20) {
   try {
-    const session = await getServerSession()
+    const session = await auth()
     if (!session?.user?.role || session?.user?.role !== 'admin') {
       throw new Error('Unauthorized')
     }
@@ -143,7 +142,7 @@ export async function getAllUsers(page = 1, limit = 20) {
 
 export async function toggleUserBlock(userId: string, blockReason?: string) {
   try {
-    const session = await getServerSession()
+    const session = await auth()
     if (!session?.user?.role || session?.user?.role !== 'admin') {
       throw new Error('Unauthorized')
     }
@@ -186,7 +185,7 @@ export async function toggleUserBlock(userId: string, blockReason?: string) {
 
 export async function deleteUser(userId: string) {
   try {
-    const session = await getServerSession()
+    const session = await auth()
     if (!session?.user?.role || session?.user?.role !== 'admin') {
       throw new Error('Unauthorized')
     }
@@ -210,7 +209,7 @@ export async function deleteUser(userId: string) {
 
 export async function changeUserRole(userId: string, newRole: string) {
   try {
-    const session = await getServerSession()
+    const session = await auth()
     if (!session?.user?.role || session?.user?.role !== 'admin') {
       throw new Error('Unauthorized')
     }
@@ -233,7 +232,7 @@ export async function changeUserRole(userId: string, newRole: string) {
 
 export async function getAllMeetups(page = 1, limit = 20) {
   try {
-    const session = await getServerSession()
+    const session = await auth()
     if (!session?.user?.role || session?.user?.role !== 'admin') {
       throw new Error('Unauthorized')
     }
@@ -291,7 +290,7 @@ export async function getAllMeetups(page = 1, limit = 20) {
 
 export async function deleteMeetup(meetupId: string) {
   try {
-    const session = await getServerSession()
+    const session = await auth()
     if (!session?.user?.role || session?.user?.role !== 'admin') {
       throw new Error('Unauthorized')
     }
@@ -308,7 +307,7 @@ export async function deleteMeetup(meetupId: string) {
 
 export async function getRecentMessages(limit = 50) {
   try {
-    const session = await getServerSession()
+    const session = await auth()
     if (!session?.user?.role || session?.user?.role !== 'admin') {
       throw new Error('Unauthorized')
     }

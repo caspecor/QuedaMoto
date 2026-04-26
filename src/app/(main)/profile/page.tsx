@@ -1,4 +1,4 @@
-import { getServerSession } from "next-auth/next"
+import { auth } from "@/auth"
 import { db } from "@/db"
 import { users as usersTable } from "@/db/schema"
 import { eq } from "drizzle-orm"
@@ -16,8 +16,10 @@ import { BikeCard } from "@/components/profile/BikeCard"
 import { redirect } from "next/navigation"
 import { AvatarImage } from "@/components/ui/avatar"
 
+import { LogoutButton } from "@/components/auth/LogoutButton"
+
 export default async function ProfilePage() {
-  const session = await getServerSession()
+  const session = await auth()
   const userSession = session?.user
 
   if (!userSession) {
@@ -32,11 +34,7 @@ export default async function ProfilePage() {
       <div className="flex items-center justify-between">
         <h1 className="text-4xl font-black font-sans text-white tracking-tight">Mi Perfil</h1>
         <div className="flex gap-3">
-<form action="/auth/logout" method="POST">
-            <button type="submit" className="p-2 rounded-full text-white/20 hover:text-red-400 hover:bg-red-400/10">
-              <LogOut className="w-5 h-5" />
-            </button>
-          </form>
+          <LogoutButton />
         </div>
       </div>
 

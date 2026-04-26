@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { loginAction } from '@/app/auth/actions'
+import { signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -36,10 +36,15 @@ export function LoginForm() {
     
     // We call the server action
     try {
-      const response = await loginAction(data)
-      if (response?.error) {
-        toast.error(response.error)
-      } else if (response?.success) {
+      const result = await signIn('credentials', {
+        redirect: false,
+        email: data.email,
+        password: data.password,
+      })
+
+      if (result?.error) {
+        toast.error('Credenciales inválidas')
+      } else if (result?.ok) {
         toast.success('¡Bienvenido de nuevo!')
         setTimeout(() => {
           window.location.href = '/dashboard'

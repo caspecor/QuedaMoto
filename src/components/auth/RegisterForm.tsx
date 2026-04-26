@@ -7,6 +7,7 @@ import { z } from 'zod'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { signupAction } from '@/app/auth/actions'
+import { signIn } from 'next-auth/react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -40,10 +41,20 @@ export function RegisterForm() {
       if (response?.error) {
         toast.error(response.error)
       } else {
-        toast.success('Cuenta creada exitosamente')
-        setTimeout(() => {
-          window.location.href = '/dashboard'
-        }, 300)
+        const loginResult = await signIn('credentials', {
+          redirect: false,
+          email: data.email,
+          password: data.password,
+        })
+        
+        if (loginResult?.error) {
+          toast.error('Registrado, pero hubo un error al entrar. Por favor, inicia sesión.')
+        } else {
+          toast.success('Cuenta creada exitosamente')
+          setTimeout(() => {
+            window.location.href = '/dashboard'
+          }, 300)
+        }
       }
     } catch (error: any) {
       console.error(error)

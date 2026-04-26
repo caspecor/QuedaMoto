@@ -1,11 +1,11 @@
-import { NextAuth } from "next-auth"
+import NextAuth from "next-auth"
 import Credentials from "next-auth/providers/credentials"
 import { db } from "@/db"
 import { users } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import bcrypt from "bcryptjs"
 
-export const authOptions = {
+export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
       credentials: {
@@ -54,9 +54,5 @@ export const authOptions = {
   },
   // session: { strategy: "jwt" }, // Eliminado para compatibilidad con getServerSession()
   secret: process.env.NEXTAUTH_SECRET,
-}
+})
 
-export const auth = NextAuth(authOptions)
-export const signIn = auth.signIn
-export const signOut = auth.signOut
-export const handlers = auth.handlers
