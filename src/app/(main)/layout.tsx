@@ -5,6 +5,7 @@ import { auth } from "@/auth"
 
 import { NotificationListener } from "@/components/layout/NotificationListener"
 import { SuspensionOverlay } from "@/components/layout/SuspensionOverlay"
+import { BlockedOverlay } from "@/components/layout/BlockedOverlay"
 import { db } from "@/db"
 import { users, settings } from "@/db/schema"
 import { eq } from "drizzle-orm"
@@ -15,6 +16,7 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
   const user = session?.user
 
   let suspendedUntil = null
+  let isBlocked = false
   if (user?.id) {
     const [dbUser] = await db.select({
       suspendedUntil: users.suspendedUntil,
@@ -22,7 +24,7 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
     }).from(users).where(eq(users.id, user.id)).limit(1)
 
     if (dbUser?.isBlocked) {
-      redirect('/auth/logout') // Or a blocked page
+      isBlocked = true
     }
 
     if (dbUser?.suspendedUntil && new Date(dbUser.suspendedUntil) > new Date()) {
@@ -40,12 +42,13 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
   return (
     <div className="flex min-h-screen flex-col bg-background pb-16 md:pb-0">
       {user && <NotificationListener />}
-      {suspendedUntil && <SuspensionOverlay suspendedUntil={suspendedUntil} />}
-      <Navbar user={user} isSuspended={!!suspendedUntil} branding={branding} />
+      {isBlocked && <BlockedOverlay />}
+      {suspendedUntil && !isBlocked && <SuspensionOverlay suspendedUntil={suspendedUntil} />}
+      <Navbar user={user} isSuspended={!!suspendedUntil || isBlocked} branding={branding} />
       <main className="flex-1">
         {children}
       </main>
-      <BottomNav user={user} isSuspended={!!suspendedUntil} branding={branding} />
+      <BottomNav user={user} isSuspended={!!suspendedUntil || isBlocked} branding={branding} />
     </div>
   )
 }
