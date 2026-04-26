@@ -75,7 +75,8 @@ export function BottomNav({
                   <Icon 
                     className={cn(
                       "w-5 h-5",
-                      item.highlight && "stroke-[2.5]"
+                      item.highlight && "stroke-[2.5]",
+                      item.name === 'Admin' && "text-red-500 animate-pulse"
                     )} 
                   />
                 )}

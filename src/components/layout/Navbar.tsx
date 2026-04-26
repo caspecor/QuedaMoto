@@ -101,7 +101,7 @@ export function Navbar({
                   {(user.role === 'admin' || user.email === 'admin@quedamoto.com') && (
                     <Link
                       href="/admin"
-                      className="flex items-center gap-2 px-4 h-10 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 font-bold transition-all"
+                      className="flex items-center gap-2 px-4 h-10 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 font-bold transition-all animate-pulse"
                     >
                       <Shield className="h-4 w-4" />
                       <span>Admin</span>
