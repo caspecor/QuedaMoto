@@ -25,7 +25,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       return { 
         id: user.id, 
-        name: user.username 
+        name: user.username,
+        role: user.role
       }
       },
     }),
@@ -38,8 +39,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.id = user.id
         token.name = user.name
-        // No guardamos role en JWT para evitar cookies grandes
-        // El role se obtiene de la BD cuando se necesita
+        // @ts-ignore
+        token.role = user.role
       }
       return token
     },
@@ -47,7 +48,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string
         session.user.name = token.name
-        // El role se obtiene de la BD cuando se necesita, no se copia desde token
+        // @ts-ignore
+        session.user.role = token.role as string
       }
       return session
     },
