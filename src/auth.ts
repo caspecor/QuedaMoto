@@ -26,6 +26,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       return { 
         id: user.id, 
         name: user.username,
+        email: user.email,
         role: user.role
       }
       },
@@ -39,6 +40,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (user) {
         token.id = user.id
         token.name = user.name
+        token.email = user.email
         // @ts-ignore
         token.role = user.role
       }
@@ -48,6 +50,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       if (session.user) {
         session.user.id = token.id as string
         session.user.name = token.name
+        session.user.email = token.email as string
         // @ts-ignore
         session.user.role = token.role as string
       }

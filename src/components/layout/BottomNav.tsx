@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Home, Map, PlusCircle, User, LayoutDashboard, Zap } from 'lucide-react'
+import { Home, Map, PlusCircle, User, LayoutDashboard, Zap, Shield } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useSession } from 'next-auth/react'
 import { getUserAvatar } from '@/app/(main)/meetups/actions'
@@ -30,6 +30,7 @@ export function BottomNav({ user: initialUser }: { user?: any }) {
     ...(isLoggedIn 
       ? [
           { name: 'Crear', href: '/meetups/create', icon: PlusCircle, highlight: true },
+          ...(user.role === 'admin' || user.email === 'admin@quedamoto.com' ? [{ name: 'Admin', href: '/admin', icon: Shield }] : []),
           { name: 'Garaje', href: '/dashboard', icon: LayoutDashboard },
           { name: 'Perfil', href: '/profile', icon: User },
         ] 
