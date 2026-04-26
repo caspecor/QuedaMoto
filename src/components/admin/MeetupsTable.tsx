@@ -9,17 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MoreHorizontal, Trash2, ExternalLink, Calendar, MapPin, Users, Shield } from "lucide-react"
+import { Trash2, ExternalLink, Calendar, Users } from "lucide-react"
 import { deleteMeetup } from "@/app/admin/actions"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -110,24 +102,16 @@ export function MeetupsTable({ meetups, totalPages, currentPage }: {
                      <ExternalLink className="h-4 w-4" />
                    </Link>
 
-                    <DropdownMenu>
-                      <DropdownMenuTrigger className="h-9 w-9 inline-flex items-center justify-center rounded-xl text-white/20 hover:text-white hover:bg-white/5 transition-colors cursor-pointer outline-none">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-56 bg-card border-white/10 rounded-2xl shadow-2xl">
-                        <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-white/30 p-4">Moderación</DropdownMenuLabel>
-                        <DropdownMenuSeparator className="bg-white/5" />
-                        
-                        <DropdownMenuItem 
-                          onClick={() => handleDelete(meetup.id)}
-                          className="p-3 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
-                        >
-                          <div className="flex items-center gap-3">
-                            <Trash2 className="w-4 h-4" /> <span>Eliminar Quedada</span>
-                          </div>
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                   <Button 
+                    variant="ghost" 
+                    size="icon"
+                    disabled={loading === meetup.id}
+                    onClick={() => handleDelete(meetup.id)}
+                    title="Eliminar Quedada"
+                    className="h-9 w-9 rounded-xl text-white/20 hover:text-destructive hover:bg-destructive/10 transition-all"
+                   >
+                     <Trash2 className="h-4 w-4" />
+                   </Button>
                 </div>
               </TableCell>
             </TableRow>

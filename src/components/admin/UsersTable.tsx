@@ -9,17 +9,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { MoreHorizontal, Shield, ShieldAlert, Trash2, UserCog, Ban, CheckCircle } from "lucide-react"
+import { Shield, ShieldAlert, Trash2, Ban, CheckCircle, UserCog } from "lucide-react"
 import { toggleUserBlock, deleteUser, changeUserRole } from "@/app/admin/actions"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
@@ -116,52 +108,45 @@ export function UsersTable({ users, totalPages, currentPage }: {
                 )}
               </TableCell>
               <TableCell className="pr-8 text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger className="h-8 w-8 inline-flex items-center justify-center rounded-md text-white/20 hover:text-white hover:bg-white/5 transition-colors cursor-pointer outline-none">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 bg-card border-white/10 rounded-2xl shadow-2xl">
-                    <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-white/30 p-4">Gestionar Rider</DropdownMenuLabel>
-                    <DropdownMenuSeparator className="bg-white/5" />
-                    
-                    <DropdownMenuItem onClick={() => handleToggleBlock(user.id)} className="p-3 cursor-pointer">
-                      {user.isBlocked ? (
-                        <div className="flex items-center gap-3 text-green-500">
-                          <CheckCircle className="w-4 h-4" /> <span>Desbloquear</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-3 text-red-500">
-                          <Ban className="w-4 h-4" /> <span>Bloquear</span>
-                        </div>
-                      )}
-                    </DropdownMenuItem>
+                <div className="flex justify-end gap-2">
+                   {/* Botón de Rol */}
+                   <Button 
+                    variant="ghost" 
+                    size="icon"
+                    disabled={loading === user.id}
+                    onClick={() => handleChangeRole(user.id, user.role === 'admin' ? 'user' : 'admin')}
+                    title={user.role === 'admin' ? "Degradar a Usuario" : "Hacer Admin"}
+                    className="h-9 w-9 rounded-xl text-white/20 hover:text-blue-400 hover:bg-blue-400/10 transition-all"
+                   >
+                     <UserCog className="h-4 w-4" />
+                   </Button>
 
-                    <DropdownMenuSeparator className="bg-white/5" />
-                    
-                    <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-white/30 p-4 pt-2">Cambiar Rol</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => handleChangeRole(user.id, 'user')} className="p-3 cursor-pointer">
-                      Usuario Estándar
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleChangeRole(user.id, 'moderator')} className="p-3 cursor-pointer">
-                      Moderador
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleChangeRole(user.id, 'admin')} className="p-3 cursor-pointer text-primary">
-                      Administrador
-                    </DropdownMenuItem>
+                   {/* Botón de Bloqueo */}
+                   <Button 
+                    variant="ghost" 
+                    size="icon"
+                    disabled={loading === user.id}
+                    onClick={() => handleToggleBlock(user.id)}
+                    title={user.isBlocked ? "Desbloquear" : "Bloquear"}
+                    className={`h-9 w-9 rounded-xl transition-all ${
+                      user.isBlocked ? 'text-red-500 bg-red-500/10' : 'text-white/20 hover:text-red-500 hover:bg-red-500/10'
+                    }`}
+                   >
+                     <Ban className="h-4 w-4" />
+                   </Button>
 
-                    <DropdownMenuSeparator className="bg-white/5" />
-                    
-                    <DropdownMenuItem 
-                      onClick={() => handleDelete(user.id)}
-                      className="p-3 cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
-                      disabled={user.role === 'admin'}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Trash2 className="w-4 h-4" /> <span>Eliminar Permanentemente</span>
-                      </div>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                   {/* Botón de Borrado */}
+                   <Button 
+                    variant="ghost" 
+                    size="icon"
+                    disabled={loading === user.id || user.role === 'admin'}
+                    onClick={() => handleDelete(user.id)}
+                    title="Eliminar permanentemente"
+                    className="h-9 w-9 rounded-xl text-white/20 hover:text-destructive hover:bg-destructive/10 transition-all"
+                   >
+                     <Trash2 className="h-4 w-4" />
+                   </Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}
