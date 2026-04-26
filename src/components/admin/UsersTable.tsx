@@ -63,6 +63,8 @@ export function UsersTable({ users, totalPages, currentPage }: {
   }
 
   const [suspendingUser, setSuspendingUser] = useState<string | null>(null)
+
+  const handleChangeRole = async (userId: string, role: string) => {
     setLoading(userId)
     const res = await changeUserRole(userId, role)
     if (res.success) {
