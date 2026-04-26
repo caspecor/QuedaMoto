@@ -16,7 +16,14 @@ import { auth } from "@/auth"
 export default async function MeetupDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
   
-  const meetupObj = await db.select().from(meetupsTable).where(eq(meetupsTable.id, id)).limit(1).then(res => res[0]);
+  let meetupObj;
+  try {
+    meetupObj = await db.select().from(meetupsTable).where(eq(meetupsTable.id, id)).limit(1).then(res => res[0]);
+  } catch (err) {
+    // If id is not a valid UUID, pg will throw an error
+    console.error("Invalid UUID or DB error:", err);
+    notFound();
+  }
   
   if (!meetupObj) {
     notFound()
@@ -38,7 +45,12 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
     attendees: attendeesList
   }
 
-  const session = await auth()
+  let session = null;
+  try {
+    session = await auth();
+  } catch (err) {
+    console.error("Auth error in meetup detail:", err);
+  }
   const user = session?.user
   const isAttending = user ? meetup.attendees.some((a: any) => a.user_id === user.id) : false
   const isCreator = user?.id === meetup.creator_id
