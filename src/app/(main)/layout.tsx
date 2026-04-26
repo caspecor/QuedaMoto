@@ -34,7 +34,7 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
   const settingsRes = await db.select().from(settings)
   const branding = {
     logo: settingsRes.find(s => s.key === 'site_logo')?.value || '',
-    title: settingsRes.find(s => s.key === 'site_title')?.value || 'QuedaMoto'
+    title: settingsRes.find(s => s.key === 'site_name')?.value || settingsRes.find(s => s.key === 'site_title')?.value || 'QuedaMoto'
   }
 
   return (

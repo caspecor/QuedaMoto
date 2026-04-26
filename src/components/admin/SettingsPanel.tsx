@@ -12,7 +12,8 @@ import { Save, Search, Layout, Upload } from "lucide-react"
 export function SettingsPanel() {
   const [config, setConfig] = useState<Record<string, string>>({
     google_search_console: "",
-    site_title: "QuedaMoto",
+    site_title: "QuedaMoto | Sal de ruta sin conocer gente",
+    site_name: "QuedaMoto",
     site_logo: "",
     site_favicon: ""
   })
@@ -70,11 +71,20 @@ export function SettingsPanel() {
         <CardContent className="p-8 space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="space-y-2">
-              <Label htmlFor="title" className="text-xs font-black uppercase tracking-widest text-white/60">Título de la Web</Label>
+              <Label htmlFor="title" className="text-xs font-black uppercase tracking-widest text-white/60">Título de la Pestaña (SEO)</Label>
               <Input
                 id="title"
                 value={config.site_title}
                 onChange={(e) => setConfig({ ...config, site_title: e.target.value })}
+                className="bg-white/5 border-white/10 rounded-xl h-12 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="name" className="text-xs font-black uppercase tracking-widest text-white/60">Nombre de la Marca (Navbar)</Label>
+              <Input
+                id="name"
+                value={config.site_name}
+                onChange={(e) => setConfig({ ...config, site_name: e.target.value })}
                 className="bg-white/5 border-white/10 rounded-xl h-12 text-white"
               />
             </div>
