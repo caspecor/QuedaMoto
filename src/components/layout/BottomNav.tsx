@@ -40,7 +40,7 @@ export function BottomNav({ user: initialUser }: { user?: any }) {
   ]
 
   return (
-    <div className="fixed bottom-0 left-0 z-[100] w-full h-18 bg-background/60 backdrop-blur-xl border-t border-white/5 md:hidden pb-safe-area-inset-bottom overflow-hidden">
+    <div className="fixed bottom-0 left-0 z-[5000] w-full h-18 bg-background/60 backdrop-blur-xl border-t border-white/5 md:hidden pb-safe-area-inset-bottom overflow-hidden">
       <div className="grid h-full w-full mx-auto" style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}>
         {navItems.map((item) => {
           const isActive = pathname === item.href

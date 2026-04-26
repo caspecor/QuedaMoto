@@ -44,7 +44,7 @@ export function Navbar({ user: initialUser }: { user?: any }) {
 
   return (
     <nav 
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 px-4 py-4 ${
+      className={`fixed top-0 left-0 right-0 z-[5000] transition-all duration-300 px-4 py-4 ${
         isScrolled ? 'bg-background/80 backdrop-blur-xl border-b border-white/5 py-3' : 'bg-transparent'
       }`}
     >
@@ -134,7 +134,7 @@ export function Navbar({ user: initialUser }: { user?: any }) {
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className="absolute top-full left-4 right-4 mt-4 glass rounded-3xl p-6 md:hidden z-50 flex flex-col gap-6"
+            className="absolute top-full left-4 right-4 mt-4 glass rounded-3xl p-6 md:hidden z-[5001] flex flex-col gap-6"
           >
             {navLinks.map((link) => (
               <Link
