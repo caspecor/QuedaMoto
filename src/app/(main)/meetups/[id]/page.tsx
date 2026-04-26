@@ -8,7 +8,8 @@ import { JoinButton } from "@/components/meetups/JoinButton"
 import { OrganizerControls } from "@/components/meetups/OrganizerControls"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
-import { Calendar, Clock, MapPin, Users, Shield, MessagesSquare, ChevronLeft, Zap, Info, MessageCircle, Share2 } from "lucide-react"
+import { Calendar, Clock, MapPin, Users, Shield, MessagesSquare, ChevronLeft, Zap, Info, MessageCircle, Share2, Flag } from "lucide-react"
+import { ReportUserModal } from "@/components/moderation/ReportUserModal"
 import Link from "next/link"
 
 import { auth } from "@/auth"
@@ -116,10 +117,19 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
                   {meetup.creator?.username?.[0] || 'U'}
                 </AvatarFallback>
               </Avatar>
-              <div className="space-y-0.5">
+              <div className="flex-1 space-y-0.5">
                 <p className="text-[10px] uppercase font-black tracking-widest text-white/30">Organizador</p>
                 <p className="text-lg font-bold text-white leading-none group-hover:text-primary transition-colors">{meetup.creator?.username || 'Rider Legend'}</p>
               </div>
+              {!isCreator && user && (
+                <div className="pr-4" onClick={(e) => e.preventDefault()}>
+                  <ReportUserModal 
+                    reportedId={meetup.creator?.id || ''} 
+                    username={meetup.creator?.username || ''} 
+                    meetupId={meetup.id} 
+                  />
+                </div>
+              )}
             </Link>
           </div>
 

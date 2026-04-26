@@ -86,3 +86,14 @@ export const visits = pgTable('visits', {
   lng: varchar('lng', { length: 50 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+export const reports = pgTable('reports', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  reporterId: text('reporter_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  reportedId: text('reported_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
+  meetupId: uuid('meetup_id').references(() => meetups.id, { onDelete: 'set null' }),
+  reason: text('reason').notNull(),
+  description: text('description'),
+  status: varchar('status', { length: 20 }).default('pending'), // pending, resolved, dismissed
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});

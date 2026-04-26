@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { LayoutDashboard, Users, Calendar, MessageSquare, Settings, Shield, BarChart3 } from 'lucide-react'
+import { LayoutDashboard, Users, Calendar, MessageSquare, Settings, Shield, BarChart3, Flag } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const adminNavItems = [
@@ -20,6 +20,11 @@ const adminNavItems = [
     title: 'Usuarios',
     href: '/admin/users',
     icon: Users,
+  },
+  {
+    title: 'Reportes',
+    href: '/admin/reports',
+    icon: Flag,
   },
   {
     title: 'Quedadas',

@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from '@/db'
-import { users, meetups, messages, attendees, notifications, settings, visits } from '@/db/schema'
+import { users, meetups, messages, attendees, notifications, settings, visits, reports } from '@/db/schema'
 import { eq, desc, sql, and, gte } from 'drizzle-orm'
 import { auth } from "@/auth"
 import { revalidatePath } from 'next/cache'
@@ -364,6 +364,25 @@ export async function deleteMessage(messageId: string) {
   }
 }
 
+export async function blockUser(userId: string) {
+  try {
+    const session = await auth()
+    if (!session?.user?.role || session?.user?.role !== 'admin') {
+      throw new Error('Unauthorized')
+    }
+
+    await db.update(users)
+      .set({ isBlocked: true })
+      .where(eq(users.id, userId))
+
+    revalidatePath('/admin/users')
+    return { success: true }
+  } catch (error) {
+    console.error('Error blocking user:', error)
+    return { success: false, error: 'Error al bloquear usuario' }
+  }
+}
+
 export async function suspendUser(userId: string, hours: number) {
   try {
     const session = await auth()
@@ -441,5 +460,65 @@ export async function getVisitsData() {
   } catch (error) {
     console.error('Error fetching visits:', error)
     return []
+  }
+}
+
+export async function getReports() {
+  try {
+    const session = await auth()
+    if (!session?.user?.role || session?.user?.role !== 'admin') {
+      throw new Error('Unauthorized')
+    }
+
+    const res = await db.select({
+      id: reports.id,
+      reason: reports.reason,
+      description: reports.description,
+      status: reports.status,
+      createdAt: reports.createdAt,
+      reporter: {
+        id: users.id,
+        username: users.username,
+        email: users.email
+      },
+      reported: {
+        id: sql<string>`reported.id`,
+        username: sql<string>`reported.username`,
+        email: sql<string>`reported.email`
+      },
+      meetup: {
+        id: meetups.id,
+        title: meetups.title
+      }
+    })
+    .from(reports)
+    .innerJoin(users, eq(reports.reporterId, users.id))
+    .innerJoin(sql`${users} as reported`, eq(reports.reportedId, sql`reported.id`))
+    .leftJoin(meetups, eq(reports.meetupId, meetups.id))
+    .orderBy(desc(reports.createdAt))
+
+    return res
+  } catch (error) {
+    console.error('Error fetching reports:', error)
+    return []
+  }
+}
+
+export async function updateReportStatus(reportId: string, status: 'resolved' | 'dismissed') {
+  try {
+    const session = await auth()
+    if (!session?.user?.role || session?.user?.role !== 'admin') {
+      throw new Error('Unauthorized')
+    }
+
+    await db.update(reports)
+      .set({ status })
+      .where(eq(reports.id, reportId))
+
+    revalidatePath('/admin/reports')
+    return { success: true }
+  } catch (error) {
+    console.error('Error updating report status:', error)
+    return { success: false, error: 'Error al actualizar reporte' }
   }
 }

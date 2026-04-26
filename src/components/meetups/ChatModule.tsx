@@ -9,6 +9,7 @@ import { Send, Loader2, MessagesSquare, X, Zap, Plus } from 'lucide-react'
 import { toast } from 'sonner'
 import { formatDistanceToNow } from 'date-fns'
 import { es } from 'date-fns/locale'
+import { ReportUserModal } from "@/components/moderation/ReportUserModal"
 
 interface Message {
   id: string
@@ -124,9 +125,18 @@ export function ChatModule({ meetupId, userId, inline = false }: { meetupId: str
                 </AvatarFallback>
               </Avatar>
               <div className={`flex flex-col max-w-[75%] ${msg.user.id === userId ? 'items-end' : ''}`}>
-                <span className="text-[9px] font-black text-white/20 mb-1 uppercase tracking-[0.2em]">
-                  {msg.user.username}
-                </span>
+                <div className={`flex items-center gap-2 mb-1 ${msg.user.id === userId ? 'flex-row-reverse' : ''}`}>
+                  <span className="text-[9px] font-black text-white/20 uppercase tracking-[0.2em]">
+                    {msg.user.username}
+                  </span>
+                  {msg.user.id !== userId && (
+                    <ReportUserModal 
+                      reportedId={msg.user.id} 
+                      username={msg.user.username} 
+                      meetupId={meetupId} 
+                    />
+                  )}
+                </div>
                 <div className={`p-4 rounded-2xl text-sm leading-relaxed ${
                   msg.user.id === userId
                     ? 'bg-primary text-white font-bold rounded-tr-none shadow-xl shadow-primary/10'
