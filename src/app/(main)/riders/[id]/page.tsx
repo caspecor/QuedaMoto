@@ -4,8 +4,9 @@ import { eq } from "drizzle-orm"
 import { notFound } from "next/navigation"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Bike, MapPin, Trophy, Shield, Info, ArrowLeft } from "lucide-react"
+import { Bike, MapPin, Trophy, Shield, Info } from "lucide-react"
 import Link from "next/link"
+import { BackButton } from "@/components/ui/BackButton"
 
 export const metadata = {
   title: "Rider Profile - QuedaMoto",
@@ -28,12 +29,7 @@ export default async function RiderProfilePage({ params }: { params: Promise<{ i
   return (
     <div className="container px-4 pt-32 pb-24 max-w-4xl mx-auto space-y-8 animate-reveal">
       {/* Back Button */}
-      <Link 
-        href="javascript:history.back()" 
-        className="inline-flex items-center gap-2 text-white/40 hover:text-white transition-colors text-sm font-bold uppercase tracking-widest"
-      >
-        <ArrowLeft className="w-4 h-4" /> Volver
-      </Link>
+      <BackButton />
 
       <div className="flex flex-col md:flex-row items-center md:items-end justify-between gap-6">
         <div className="flex flex-col md:flex-row items-center gap-8">

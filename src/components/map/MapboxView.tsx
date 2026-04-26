@@ -1,6 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export interface MeetupPin {
   id: string;
@@ -10,6 +11,7 @@ export interface MeetupPin {
 }
 
 function LeafletMapView({ meetups }: { meetups: MeetupPin[] }) {
+  const router = useRouter();
   const [L, setL] = useState<any>(null);
   const [MapContainer, setMapContainer] = useState<any>(null);
   const [TileLayer, setTileLayer] = useState<any>(null);
@@ -97,7 +99,13 @@ function LeafletMapView({ meetups }: { meetups: MeetupPin[] }) {
         {validMeetups.map(m => (
           <Marker key={m.id} position={[m.lat!, m.lng!]} icon={customIcon}>
             <Popup>
-              <div className="text-sm font-bold">{m.title}</div>
+              <div 
+                className="text-sm font-bold cursor-pointer hover:text-primary transition-colors flex items-center gap-2"
+                onClick={() => router.push(`/meetups/${m.id}`)}
+              >
+                {m.title}
+                <span className="text-[8px] bg-primary/10 px-1 rounded text-primary uppercase tracking-tighter">Ver</span>
+              </div>
             </Popup>
           </Marker>
         ))}
