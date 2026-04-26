@@ -7,11 +7,14 @@ import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { getSiteSettings, updateSiteSettings } from "@/app/admin/actions"
 import { toast } from "sonner"
-import { Save, Search } from "lucide-react"
+import { Save, Search, Layout } from "lucide-react"
 
 export function SettingsPanel() {
   const [config, setConfig] = useState<Record<string, string>>({
-    google_search_console: ""
+    google_search_console: "",
+    site_title: "QuedaMoto",
+    site_logo: "",
+    site_favicon: ""
   })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -40,6 +43,54 @@ export function SettingsPanel() {
 
   return (
     <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+      {/* Identidad del Sitio */}
+      <Card className="bg-white/5 border-white/10 rounded-3xl overflow-hidden">
+        <CardHeader className="bg-white/[0.02] border-b border-white/5 p-8">
+          <div className="flex items-center gap-3 mb-2">
+            <div className="p-2 rounded-xl bg-primary/10 text-primary">
+              <Layout className="h-5 w-5" />
+            </div>
+            <CardTitle className="text-2xl font-black text-white uppercase tracking-tight">Identidad del Sitio</CardTitle>
+          </div>
+          <CardDescription className="text-white/40 text-sm">
+            Personaliza el nombre, logo e icono de tu plataforma.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="p-8 space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="title" className="text-xs font-black uppercase tracking-widest text-white/60">Título de la Web</Label>
+              <Input
+                id="title"
+                value={config.site_title}
+                onChange={(e) => setConfig({ ...config, site_title: e.target.value })}
+                className="bg-white/5 border-white/10 rounded-xl h-12 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="logo" className="text-xs font-black uppercase tracking-widest text-white/60">URL del Logo (PNG/SVG)</Label>
+              <Input
+                id="logo"
+                placeholder="https://..."
+                value={config.site_logo}
+                onChange={(e) => setConfig({ ...config, site_logo: e.target.value })}
+                className="bg-white/5 border-white/10 rounded-xl h-12 text-white"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="favicon" className="text-xs font-black uppercase tracking-widest text-white/60">URL del Favicon (.ico/png)</Label>
+              <Input
+                id="favicon"
+                placeholder="https://..."
+                value={config.site_favicon}
+                onChange={(e) => setConfig({ ...config, site_favicon: e.target.value })}
+                className="bg-white/5 border-white/10 rounded-xl h-12 text-white"
+              />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
       <Card className="bg-white/5 border-white/10 rounded-3xl overflow-hidden">
         <CardHeader className="bg-white/[0.02] border-b border-white/5 p-8">
           <div className="flex items-center gap-3 mb-2">

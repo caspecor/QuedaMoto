@@ -8,7 +8,15 @@ import { useSession } from 'next-auth/react'
 import { getUserAvatar } from '@/app/(main)/meetups/actions'
 import { useState, useEffect } from 'react'
 
-export function BottomNav({ user: initialUser, isSuspended: externalSuspended }: { user?: any, isSuspended?: boolean }) {
+export function BottomNav({ 
+  user: initialUser, 
+  isSuspended: externalSuspended,
+  branding = { logo: '', title: 'QuedaMoto' }
+}: { 
+  user?: any, 
+  isSuspended?: boolean,
+  branding?: { logo: string, title: string }
+}) {
   const { data: session } = useSession()
   const [dbAvatar, setDbAvatar] = useState<string | null>(null)
   const user = session?.user || initialUser

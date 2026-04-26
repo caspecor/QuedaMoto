@@ -30,13 +30,19 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  let gscCode = null
+  let settingsData: Record<string, string> = {}
   try {
-    const res = await db.select().from(settings).where(eq(settings.key, 'google_search_console')).limit(1)
-    gscCode = res[0]?.value
+    const res = await db.select().from(settings)
+    res.forEach(s => {
+      settingsData[s.key] = s.value || ''
+    })
   } catch (e) {
     // Table might not exist yet or other DB error
   }
+
+  const gscCode = settingsData.google_search_console
+  const siteTitle = settingsData.site_title || "QuedaMoto"
+  const siteFavicon = settingsData.site_favicon
 
   return (
     <html
@@ -45,6 +51,8 @@ export default async function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        <title>{siteTitle}</title>
+        {siteFavicon && <link rel="icon" href={siteFavicon} />}
         {gscCode && (
           gscCode.startsWith('<') 
             ? <script dangerouslySetInnerHTML={{ __html: gscCode }} />

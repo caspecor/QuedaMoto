@@ -30,15 +30,22 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
     }
   }
 
+  // Fetch Site Settings for Branding
+  const settingsRes = await db.select().from(settings)
+  const branding = {
+    logo: settingsRes.find(s => s.key === 'site_logo')?.value || '',
+    title: settingsRes.find(s => s.key === 'site_title')?.value || 'QuedaMoto'
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-background pb-16 md:pb-0">
       {user && <NotificationListener />}
       {suspendedUntil && <SuspensionOverlay suspendedUntil={suspendedUntil} />}
-      <Navbar user={user} isSuspended={!!suspendedUntil} />
+      <Navbar user={user} isSuspended={!!suspendedUntil} branding={branding} />
       <main className="flex-1">
         {children}
       </main>
-      <BottomNav user={user} isSuspended={!!suspendedUntil} />
+      <BottomNav user={user} isSuspended={!!suspendedUntil} branding={branding} />
     </div>
   )
 }

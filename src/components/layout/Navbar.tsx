@@ -9,7 +9,15 @@ import { Zap, Menu, X, User, Bell, Search, Plus, Shield } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { getUserAvatar } from '@/app/(main)/meetups/actions'
 
-export function Navbar({ user: initialUser, isSuspended: externalSuspended }: { user?: any, isSuspended?: boolean }) {
+export function Navbar({ 
+  user: initialUser, 
+  isSuspended: externalSuspended,
+  branding = { logo: '', title: 'QuedaMoto' }
+}: { 
+  user?: any, 
+  isSuspended?: boolean,
+  branding?: { logo: string, title: string }
+}) {
   const { data: session } = useSession()
   const [dbAvatar, setDbAvatar] = useState<string | null>(null)
   const user = session?.user || initialUser
@@ -57,10 +65,14 @@ export function Navbar({ user: initialUser, isSuspended: externalSuspended }: { 
           
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform">
-              <Zap className="h-6 w-6 text-white fill-white" />
+            <div className="h-10 w-10 bg-primary rounded-xl flex items-center justify-center shadow-lg shadow-primary/20 group-hover:scale-105 transition-transform overflow-hidden">
+              {branding.logo ? (
+                <img src={branding.logo} alt={branding.title} className="w-full h-full object-cover" />
+              ) : (
+                <Zap className="h-6 w-6 text-white fill-white" />
+              )}
             </div>
-            <span className="text-2xl font-black italic tracking-tighter text-white">QUEDAMOTO</span>
+            <span className="text-2xl font-black italic tracking-tighter text-white uppercase">{branding.title}</span>
           </Link>
 
           {/* Desktop Nav */}
