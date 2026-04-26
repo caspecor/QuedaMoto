@@ -8,10 +8,11 @@ import { useSession } from 'next-auth/react'
 import { getUserAvatar } from '@/app/(main)/meetups/actions'
 import { useState, useEffect } from 'react'
 
-export function BottomNav({ user: initialUser }: { user?: any }) {
+export function BottomNav({ user: initialUser, isSuspended: externalSuspended }: { user?: any, isSuspended?: boolean }) {
   const { data: session } = useSession()
   const [dbAvatar, setDbAvatar] = useState<string | null>(null)
   const user = session?.user || initialUser
+  const isSuspended = externalSuspended ?? (user?.suspendedUntil && new Date(user.suspendedUntil) > new Date())
   const displayAvatar = dbAvatar || user?.image
   const pathname = usePathname()
   const isLoggedIn = !!user
@@ -29,7 +30,7 @@ export function BottomNav({ user: initialUser }: { user?: any }) {
     { name: 'Explorar', href: '/explore', icon: Map },
     ...(isLoggedIn 
       ? [
-          ...(!(user.suspendedUntil && new Date(user.suspendedUntil) > new Date()) ? [{ name: 'Crear', href: '/meetups/create', icon: PlusCircle, highlight: true }] : []),
+          ...(!isSuspended ? [{ name: 'Crear', href: '/meetups/create', icon: PlusCircle, highlight: true }] : []),
           ...(user.role === 'admin' || user.email === 'admin@quedamoto.com' ? [{ name: 'Admin', href: '/admin', icon: Shield }] : []),
           { name: 'Garaje', href: '/dashboard', icon: LayoutDashboard },
           { name: 'Perfil', href: '/profile', icon: User },

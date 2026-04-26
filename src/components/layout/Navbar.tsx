@@ -9,7 +9,7 @@ import { Zap, Menu, X, User, Bell, Search, Plus, Shield } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { getUserAvatar } from '@/app/(main)/meetups/actions'
 
-export function Navbar({ user: initialUser }: { user?: any }) {
+export function Navbar({ user: initialUser, isSuspended: externalSuspended }: { user?: any, isSuspended?: boolean }) {
   const { data: session } = useSession()
   const [dbAvatar, setDbAvatar] = useState<string | null>(null)
   const user = session?.user || initialUser
@@ -42,7 +42,7 @@ export function Navbar({ user: initialUser }: { user?: any }) {
     { name: 'Mis Quedadas', href: '/dashboard', icon: Bell },
   ]
 
-  const isSuspended = user?.suspendedUntil && new Date(user.suspendedUntil) > new Date()
+  const isSuspended = externalSuspended ?? (user?.suspendedUntil && new Date(user.suspendedUntil) > new Date())
 
   return (
     <nav 

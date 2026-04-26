@@ -5,21 +5,40 @@ import { auth } from "@/auth"
 
 import { NotificationListener } from "@/components/layout/NotificationListener"
 import { SuspensionOverlay } from "@/components/layout/SuspensionOverlay"
+import { db } from "@/db"
+import { users } from "@/db/schema"
+import { eq } from "drizzle-orm"
+import { redirect } from "next/navigation"
 
 export default async function MainLayout({ children }: { children: ReactNode }) {
   const session = await auth()
   const user = session?.user
 
+  let suspendedUntil = null
+  if (user?.id) {
+    const [dbUser] = await db.select({ 
+      suspendedUntil: users.suspendedUntil,
+      isBlocked: users.isBlocked 
+    }).from(users).where(eq(users.id, user.id)).limit(1)
+    
+    if (dbUser?.isBlocked) {
+      redirect('/auth/logout') // Or a blocked page
+    }
+    
+    if (dbUser?.suspendedUntil && new Date(dbUser.suspendedUntil) > new Date()) {
+      suspendedUntil = dbUser.suspendedUntil.toISOString()
+    }
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-background pb-16 md:pb-0">
       {user && <NotificationListener />}
-      {/* @ts-ignore */}
-      {user?.suspendedUntil && <SuspensionOverlay suspendedUntil={user.suspendedUntil} />}
-      <Navbar user={user} />
+      {suspendedUntil && <SuspensionOverlay suspendedUntil={suspendedUntil} />}
+      <Navbar user={user} isSuspended={!!suspendedUntil} />
       <main className="flex-1">
         {children}
       </main>
-      <BottomNav user={user} />
+      <BottomNav user={user} isSuspended={!!suspendedUntil} />
     </div>
   )
 }
