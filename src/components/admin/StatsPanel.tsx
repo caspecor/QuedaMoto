@@ -44,10 +44,10 @@ export function StatsPanel() {
   // Calculate some quick stats
   const totalVisits = visits.length
   const uniqueIps = new Set(visits.map(v => v.ip)).size
-  const topCities = Array.from(visits.reduce((acc, v) => {
-    acc.set(v.city, (acc.get(v.city) || 0) + 1)
+  const topCities = Array.from(visits.reduce((acc: Map<string, number>, v) => {
+    acc.set(v.city || 'Desconocido', (acc.get(v.city || 'Desconocido') || 0) + 1)
     return acc
-  }, new Map()).entries()).sort((a, b) => b[1] - a[1]).slice(0, 3)
+  }, new Map<string, number>()).entries()).sort((a, b) => b[1] - a[1]).slice(0, 3)
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
