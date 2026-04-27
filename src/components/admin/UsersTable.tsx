@@ -97,6 +97,7 @@ export function UsersTable({ users, totalPages, currentPage }: {
                 <div className="flex flex-col">
                   <span className="font-bold text-white text-base">{user.username}</span>
                   <span className="text-xs text-white/30">{user.email}</span>
+                  {user.phone && <span className="text-xs text-primary/70">{user.phone}</span>}
                 </div>
               </TableCell>
               <TableCell>

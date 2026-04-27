@@ -1,9 +1,11 @@
-export const metadata = {
-  title: "Preguntas Frecuentes - QuedaMoto",
-  description: "Resuelve tus dudas sobre la plataforma",
-}
+'use client'
+
+import { useState } from "react"
+import { ChevronDown } from "lucide-react"
 
 export default function FAQPage() {
+  const [openIndex, setOpenIndex] = useState<number | null>(null)
+
   const faqs = [
     {
       question: "¿Qué es QuedaMoto?",
@@ -43,17 +45,34 @@ export default function FAQPage() {
           </p>
         </div>
 
-        <div className="space-y-6 animate-reveal [animation-delay:0.2s]">
-          {faqs.map((faq, i) => (
-            <div key={i} className="glass-card p-8 rounded-3xl group transition-all hover:bg-white/[0.05]">
-              <h3 className="text-xl font-bold text-white mb-3 group-hover:text-primary transition-colors">
-                {faq.question}
-              </h3>
-              <p className="text-white/60 leading-relaxed font-medium text-sm md:text-base">
-                {faq.answer}
-              </p>
-            </div>
-          ))}
+        <div className="space-y-4 animate-reveal [animation-delay:0.2s]">
+          {faqs.map((faq, i) => {
+            const isOpen = openIndex === i
+            return (
+              <div 
+                key={i} 
+                className={`glass-card rounded-3xl transition-all duration-300 border border-white/5 overflow-hidden ${isOpen ? 'bg-white/[0.05]' : 'hover:bg-white/[0.03]'}`}
+              >
+                <button 
+                  onClick={() => setOpenIndex(isOpen ? null : i)}
+                  className="w-full text-left p-6 flex justify-between items-center gap-4 focus:outline-none"
+                >
+                  <h3 className={`text-xl font-bold transition-colors ${isOpen ? 'text-primary' : 'text-white group-hover:text-primary'}`}>
+                    {faq.question}
+                  </h3>
+                  <ChevronDown className={`w-5 h-5 text-white/50 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`} />
+                </button>
+                <div 
+                  className="overflow-hidden transition-all duration-300 ease-in-out"
+                  style={{ maxHeight: isOpen ? '500px' : '0px', opacity: isOpen ? 1 : 0 }}
+                >
+                  <p className="px-6 pb-6 text-white/60 leading-relaxed font-medium text-sm md:text-base">
+                    {faq.answer}
+                  </p>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

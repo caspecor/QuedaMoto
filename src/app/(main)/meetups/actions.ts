@@ -367,6 +367,7 @@ export async function updateProfile(data: {
   level?: string;
   style?: string;
   bio?: string;
+  phone?: string;
   vehicles?: { brand: string; model: string }[];
   socials?: { instagram?: string; tiktok?: string; youtube?: string };
 }) {
@@ -385,6 +386,7 @@ export async function updateProfile(data: {
     if (data.level !== undefined) updateData.level = data.level
     if (data.style !== undefined) updateData.style = data.style
     if (data.bio !== undefined) updateData.bio = data.bio
+    if (data.phone !== undefined) updateData.phone = data.phone
     if (data.vehicles !== undefined) updateData.vehicles = data.vehicles
     if (data.socials !== undefined) updateData.socials = data.socials
 

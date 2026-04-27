@@ -30,6 +30,7 @@ export function ProfileEditForm({ profile }: { profile: any }) {
   const [username, setUsername] = useState(profile.username || '')
   const [avatar, setAvatar] = useState(profile.avatar || '')
   const [style, setStyle] = useState(profile.style || '')
+  const [phone, setPhone] = useState(profile.phone || '')
   
   // Password state
   const [oldPass, setOldPass] = useState('')
@@ -57,7 +58,7 @@ export function ProfileEditForm({ profile }: { profile: any }) {
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    const res = await updateProfile({ name: username, avatar, style })
+    const res = await updateProfile({ name: username, avatar, style, phone })
     
     if (res.success) {
       // Trigger session update for real-time changes in Navbar (only name, no image for JWT size limits)
@@ -162,6 +163,18 @@ export function ProfileEditForm({ profile }: { profile: any }) {
                 />
               </div>
               <p className="text-[10px] text-white/20 font-medium">Este es el nombre que verán otros usuarios en las quedadas y el chat.</p>
+
+              <div className="space-y-2 mt-4">
+                <Label htmlFor="phone" className="text-xs font-bold uppercase tracking-widest text-white/40">Teléfono (Privado)</Label>
+                <Input 
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="600123456"
+                  className="h-12 bg-white/5 border-white/10 rounded-xl focus:ring-primary/20 text-white font-bold"
+                />
+              </div>
             </div>
           </div>
 
