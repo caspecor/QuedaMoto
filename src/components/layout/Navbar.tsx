@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -30,6 +30,7 @@ export function Navbar({
   const { data: session, status } = useSession()
   const [dbAvatar, setDbAvatar] = useState<string | null>(null)
   const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const user = session?.user || initialUser
   const displayAvatar = dbAvatar || user?.image
   
@@ -40,6 +41,18 @@ export function Navbar({
     }
     fetchAvatar()
   }, [user?.id])
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsProfileMenuOpen(false)
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
 
   useEffect(() => {
     console.log("[NAVBAR] User State:", user?.name, "HasDisplayAvatar:", !!displayAvatar)
@@ -129,7 +142,7 @@ export function Navbar({
                       <span className="text-black">Crear</span>
                     </Link>
                   )}
-                  <div className="relative">
+                  <div className="relative" ref={dropdownRef}>
                     <button 
                       onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
                       className="focus:outline-none h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white/10 transition-all overflow-hidden shrink-0"
