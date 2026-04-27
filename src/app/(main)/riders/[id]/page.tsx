@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Bike, MapPin, Trophy, Shield, Info, Instagram, Youtube, Share2 } from "lucide-react"
 import { BackButton } from "@/components/ui/BackButton"
+import { LevelProgressBar } from "@/components/profile/LevelProgressBar"
 
 export const metadata = {
   title: "Rider Profile - QuedaMoto",
@@ -134,6 +135,11 @@ export default async function RiderProfilePage({ params }: { params: Promise<{ i
                       <p className="text-[10px] uppercase font-black tracking-[0.2em] text-primary/60 mb-1">Vehículo #{i+1}</p>
                       <h4 className="text-xl font-black text-white leading-tight">{v.brand}</h4>
                       <p className="text-white/40 font-bold text-sm mt-1">{v.model}</p>
+                      {v.image && (
+                        <div className="mt-4 w-full h-40 rounded-xl overflow-hidden bg-black/50 border border-white/5 group-hover:border-primary/20 transition-all">
+                          <img src={v.image} alt={`${v.brand} ${v.model}`} className="w-full h-full object-cover" />
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -158,6 +164,9 @@ export default async function RiderProfilePage({ params }: { params: Promise<{ i
                </p>
             </CardContent>
           </Card>
+
+          {/* XP Progress Bar */}
+          <LevelProgressBar xp={rider.xp || 0} />
         </div>
 
         {/* Sidebar - Quick Stats */}
