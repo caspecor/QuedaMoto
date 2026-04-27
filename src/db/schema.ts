@@ -20,6 +20,7 @@ export const users = pgTable('users', {
   blockedBy: text('blocked_by'),
   blockReason: text('block_reason'),
   suspendedUntil: timestamp('suspended_until'),
+  xp: integer('xp').default(0),
   createdAt: timestamp('created_at').defaultNow(),
 });
 

@@ -10,6 +10,14 @@ import { updateProfile, updatePassword } from "@/app/(main)/meetups/actions"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
+import { RIDING_STYLES } from "@/lib/gamification"
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from "@/components/ui/select"
 
 export function ProfileEditForm({ profile }: { profile: any }) {
   const router = useRouter()
@@ -21,6 +29,7 @@ export function ProfileEditForm({ profile }: { profile: any }) {
   // Profile state
   const [username, setUsername] = useState(profile.username || '')
   const [avatar, setAvatar] = useState(profile.avatar || '')
+  const [style, setStyle] = useState(profile.style || '')
   
   // Password state
   const [oldPass, setOldPass] = useState('')
@@ -48,7 +57,7 @@ export function ProfileEditForm({ profile }: { profile: any }) {
   const handleProfileUpdate = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    const res = await updateProfile({ name: username, avatar })
+    const res = await updateProfile({ name: username, avatar, style })
     
     if (res.success) {
       // Trigger session update for real-time changes in Navbar (only name, no image for JWT size limits)
@@ -153,6 +162,25 @@ export function ProfileEditForm({ profile }: { profile: any }) {
                 />
               </div>
               <p className="text-[10px] text-white/20 font-medium">Este es el nombre que verán otros usuarios en las quedadas y el chat.</p>
+            </div>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-6 pt-4 border-t border-white/5">
+            <div className="space-y-2">
+              <Label htmlFor="style" className="text-xs font-bold uppercase tracking-widest text-white/40">Estilo de Conducción</Label>
+              <Select value={style} onValueChange={setStyle}>
+                <SelectTrigger className="w-full h-12 bg-white/5 border-white/10 rounded-xl text-white font-bold">
+                  <SelectValue placeholder="Selecciona tu estilo" />
+                </SelectTrigger>
+                <SelectContent className="bg-[#0f0f0f] border-white/10 text-white rounded-xl">
+                  {RIDING_STYLES.map((s) => (
+                    <SelectItem key={s.value} value={s.value} className="focus:bg-primary/20 focus:text-white rounded-lg">
+                      {s.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-white/20 font-medium">¿Cómo te gusta rodar? Esto ayudará a otros a conocerte.</p>
             </div>
           </div>
 

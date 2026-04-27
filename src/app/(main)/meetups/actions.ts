@@ -7,7 +7,8 @@ import { auth } from "@/auth"
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { revalidatePath } from 'next/cache'
-import { eq, and, desc, gte } from 'drizzle-orm'
+import { eq, and, desc, gte, sql } from 'drizzle-orm'
+import { XP_REWARDS } from '@/lib/gamification'
 
 
 async function checkSuspension(userId: string) {
@@ -152,6 +153,11 @@ export async function createMeetupAction(data: any) {
       joinedAt: new Date()
     })
 
+    // Award XP for creating a meetup
+    try {
+      await db.update(users).set({ xp: sql`COALESCE(${users.xp}, 0) + ${XP_REWARDS.CREATE_MEETUP}` }).where(eq(users.id, session.user.id))
+    } catch (e) { console.error('XP award error:', e) }
+
     return { success: true, meetupId }
   } catch (error: any) {
     console.error(error)
@@ -205,6 +211,11 @@ export async function sendChatMessage(meetupId: string, content: string) {
       // We don't return error here, as the message was already sent
     }
 
+    // Award XP for sending a message
+    try {
+      await db.update(users).set({ xp: sql`COALESCE(${users.xp}, 0) + ${XP_REWARDS.SEND_MESSAGE}` }).where(eq(users.id, session.user.id))
+    } catch (e) { console.error('XP award error:', e) }
+
     revalidatePath('/dashboard')
     revalidatePath(`/meetups/${meetupId}`)
     return { success: true }
@@ -255,6 +266,12 @@ export async function joinMeetupAction(meetupId: string) {
     })
 
     revalidatePath(`/meetups/${meetupId}`)
+
+    // Award XP for joining a meetup
+    try {
+      await db.update(users).set({ xp: sql`COALESCE(${users.xp}, 0) + ${XP_REWARDS.JOIN_MEETUP}` }).where(eq(users.id, session.user.id))
+    } catch (e) { console.error('XP award error:', e) }
+
     return { success: true }
   } catch (error) {
     console.error(error)

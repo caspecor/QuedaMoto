@@ -1,6 +1,6 @@
 import { auth } from "@/auth"
 import { db } from "@/db"
-import { attendees as attendeesTable, meetups as meetupsTable, notifications as notificationsTable } from "@/db/schema"
+import { attendees as attendeesTable, meetups as meetupsTable, notifications as notificationsTable, users as usersTable } from "@/db/schema"
 import { eq, desc } from "drizzle-orm"
 import { redirect } from "next/navigation"
 import { Card, CardHeader, CardTitle, CardContent, CardDescription } from "@/components/ui/card"
@@ -10,6 +10,7 @@ import { PlusCircle, Search, Calendar, MapPin, Bell, MessageSquare, UserPlus, In
 import { formatDistanceToNow } from "date-fns"
 import { es } from "date-fns/locale"
 import { NotificationCard } from "@/components/dashboard/NotificationCard"
+import { LevelProgressBar } from "@/components/profile/LevelProgressBar"
 
 export const metadata = {
   title: "Dashboard - QuedaMoto",
@@ -25,6 +26,9 @@ export default async function DashboardPage() {
 
   let upcomingMeetups: any[] = []
   let notifications: any[] = []
+
+  const userRecord = await db.select().from(usersTable).where(eq(usersTable.id, user.id!)).limit(1).then(r => r[0])
+  const xp = userRecord?.xp || 0
 
   try {
     // Fetch upcoming meetups user is attending
@@ -130,12 +134,15 @@ export default async function DashboardPage() {
             </div>
           </div>
 
-          {/* Sidebar: Notifications */}
-          <div className="space-y-6 animate-reveal [animation-delay:0.2s]">
-            <div className="flex items-center gap-2 mb-2">
-              <Bell className="h-5 w-5 text-primary" />
-              <h2 className="text-xl font-bold text-white uppercase tracking-wider text-sm">Notificaciones</h2>
-            </div>
+          {/* Sidebar: Level & Notifications */}
+          <div className="space-y-8 animate-reveal [animation-delay:0.2s]">
+            <LevelProgressBar xp={xp} />
+
+            <div className="space-y-6">
+              <div className="flex items-center gap-2 mb-2">
+                <Bell className="h-5 w-5 text-primary" />
+                <h2 className="text-xl font-bold text-white uppercase tracking-wider text-sm">Notificaciones</h2>
+              </div>
 
             <div className="space-y-3">
               {notifications.length > 0 ? (
@@ -155,8 +162,8 @@ export default async function DashboardPage() {
                 Marcar todas como leídas
               </button>
             )}
+            </div>
           </div>
-
         </div>
       </div>
     </div>
