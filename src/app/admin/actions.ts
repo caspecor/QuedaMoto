@@ -119,7 +119,8 @@ export async function getAllUsers(page = 1, limit = 20) {
       city: users.city,
       moto_brand: users.moto_brand,
       moto_model: users.moto_model,
-      suspendedUntil: users.suspendedUntil
+      suspendedUntil: users.suspendedUntil,
+      xp: users.xp
     })
     .from(users)
     .orderBy(desc(users.createdAt))

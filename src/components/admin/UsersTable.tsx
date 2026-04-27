@@ -15,6 +15,7 @@ import { Shield, ShieldAlert, Trash2, Ban, CheckCircle, UserCog, Clock, XCircle 
 import { toggleUserBlock, deleteUser, changeUserRole, suspendUser } from "@/app/admin/actions"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { getLevelInfo } from "@/lib/gamification"
 
 export function UsersTable({ users, totalPages, currentPage }: { 
   users: any[], 
@@ -84,6 +85,7 @@ export function UsersTable({ users, totalPages, currentPage }: {
             <TableHead className="w-[250px] font-black text-[10px] uppercase tracking-widest text-white/40 pl-8">Usuario</TableHead>
             <TableHead className="font-black text-[10px] uppercase tracking-widest text-white/40">Rol</TableHead>
             <TableHead className="font-black text-[10px] uppercase tracking-widest text-white/40">Ubicación</TableHead>
+            <TableHead className="font-black text-[10px] uppercase tracking-widest text-white/40">Nivel / XP</TableHead>
             <TableHead className="font-black text-[10px] uppercase tracking-widest text-white/40">Estado</TableHead>
             <TableHead className="font-black text-[10px] uppercase tracking-widest text-white/40 pr-8 text-right">Acciones</TableHead>
           </TableRow>
@@ -108,6 +110,13 @@ export function UsersTable({ users, totalPages, currentPage }: {
               </TableCell>
               <TableCell>
                 <span className="text-sm font-medium text-white/60">{user.city || "—"}</span>
+              </TableCell>
+              <TableCell>
+                <div className="flex flex-col">
+                  <span className="text-xs font-black text-primary uppercase tracking-tighter italic">Nivel {getLevelInfo(user.xp || 0).levelIndex}</span>
+                  <span className="text-[10px] font-bold text-white/40 uppercase tracking-widest">{getLevelInfo(user.xp || 0).level.name}</span>
+                  <span className="text-[9px] text-white/20">{user.xp || 0} XP</span>
+                </div>
               </TableCell>
               <TableCell>
                 {user.isBlocked ? (
