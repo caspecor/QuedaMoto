@@ -35,21 +35,24 @@ export function LevelProgressBar({ xp }: LevelProgressBarProps) {
         </div>
       </div>
 
-      <div className="relative pt-4">
+      <div className="relative pt-6">
         {/* Progress Bar Container */}
-        <div className="h-4 bg-white/5 rounded-full overflow-hidden border border-white/5 p-0.5">
+        <div className="h-4 bg-white/5 rounded-full border border-white/5 p-0.5 relative">
           {/* Progress fill */}
           <div 
-            className="h-full bg-gradient-to-r from-primary/60 to-primary rounded-full transition-all duration-1000 relative"
+            className="h-full bg-gradient-to-r from-primary/60 to-primary rounded-full transition-all duration-1000 overflow-hidden"
             style={{ width: `${info.progress}%` }}
+          />
+
+          {/* The Moto Emoji - Superposed and facing right */}
+          <div 
+            className="absolute top-1/2 -translate-y-[85%] text-2xl drop-shadow-[0_0_8px_rgba(255,77,0,0.5)] z-20 pointer-events-none transition-all duration-1000 ease-out"
+            style={{ 
+              left: `${info.progress}%`,
+              transform: `translate(-50%, -85%) scaleX(-1)` 
+            }}
           >
-            {/* The Moto Emoji at the end of progress */}
-            <div 
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/2 text-lg drop-shadow-[0_0_8px_rgba(255,77,0,0.5)] z-10"
-              style={{ transition: 'all 1s ease-out' }}
-            >
-              🏍️
-            </div>
+            🏍️
           </div>
         </div>
         
