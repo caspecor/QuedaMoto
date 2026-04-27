@@ -46,10 +46,10 @@ export function LevelProgressBar({ xp }: LevelProgressBarProps) {
 
           {/* The Moto Emoji - Superposed and facing right */}
           <div 
-            className="absolute top-1/2 -translate-y-[85%] text-2xl drop-shadow-[0_0_8px_rgba(255,77,0,0.5)] z-20 pointer-events-none transition-all duration-1000 ease-out"
+            className="absolute top-1/2 -translate-y-1/2 text-3xl drop-shadow-[0_0_10px_rgba(255,77,0,0.8)] z-20 pointer-events-none transition-all duration-1000 ease-out"
             style={{ 
               left: `${info.progress}%`,
-              transform: `translate(-50%, -85%) scaleX(-1)` 
+              transform: `translate(-50%, -50%) scaleX(-1)` 
             }}
           >
             🏍️
