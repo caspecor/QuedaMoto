@@ -18,6 +18,8 @@ import { AvatarImage } from "@/components/ui/avatar"
 
 import { LogoutButton } from "@/components/auth/LogoutButton"
 
+import { LevelProgressBar } from "@/components/profile/LevelProgressBar"
+
 export default async function ProfilePage() {
   const session = await auth()
   const userSession = session?.user
@@ -51,6 +53,8 @@ export default async function ProfilePage() {
                  {profile?.city && <p className="text-sm font-bold text-primary inline-flex items-center mt-2 px-3 py-1 bg-primary/5 rounded-full">📍 {profile.city}</p>}
               </div>
            </div>
+
+           <LevelProgressBar xp={profile?.xp || 0} />
 
            <ProfileEditForm profile={profile} />
         </CardContent>
