@@ -6,10 +6,10 @@ export const metadata = {
 
 export default function CreateMeetupPage() {
   return (
-    <div className="container px-4 py-8 max-w-2xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold font-sans text-foreground">Crear Quedada</h1>
-        <p className="text-muted-foreground mt-1">Organiza una ruta, un desayuno o un paseo nocturno.</p>
+    <div className="container px-4 pt-32 pb-12 max-w-2xl mx-auto space-y-6">
+      <div className="animate-reveal">
+        <h1 className="text-4xl md:text-5xl font-black italic tracking-tighter text-white uppercase">Crear Quedada</h1>
+        <p className="text-white/50 mt-2 font-medium">Organiza una ruta, un desayuno o un paseo nocturno.</p>
       </div>
       <CreateMeetupForm />
     </div>

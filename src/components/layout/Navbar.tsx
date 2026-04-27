@@ -2,12 +2,20 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { usePathname } from 'next/navigation'
+import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { buttonVariants } from '@/components/ui/button'
-import { Zap, Menu, X, User, Users, Bell, Search, Plus, Shield } from 'lucide-react'
-import { useSession } from 'next-auth/react'
+import { Zap, Menu, X, User, Users, Bell, Search, Plus, Shield, LogOut } from 'lucide-react'
+import { useSession, signOut } from 'next-auth/react'
 import { getUserAvatar } from '@/app/(main)/meetups/actions'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 export function Navbar({ 
   user: initialUser, 
@@ -18,7 +26,8 @@ export function Navbar({
   isSuspended?: boolean,
   branding?: { logo: string, title: string }
 }) {
-  const { data: session } = useSession()
+  const router = useRouter()
+  const { data: session, status } = useSession()
   const [dbAvatar, setDbAvatar] = useState<string | null>(null)
   const user = session?.user || initialUser
   const displayAvatar = dbAvatar || user?.image
@@ -119,13 +128,51 @@ export function Navbar({
                       <span className="text-black">Crear</span>
                     </Link>
                   )}
-                  <Link href="/profile" className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white/10 transition-all overflow-hidden shrink-0">
-                    {displayAvatar ? (
-                      <img src={displayAvatar} alt="Profile" className="w-full h-full object-cover" />
-                    ) : (
-                      <User className="h-5 w-5" />
-                    )}
-                  </Link>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger className="focus:outline-none">
+                      <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white/10 transition-all overflow-hidden shrink-0">
+                        {displayAvatar ? (
+                          <img src={displayAvatar} alt="Profile" className="w-full h-full object-cover" />
+                        ) : (
+                          <User className="h-5 w-5" />
+                        )}
+                      </div>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56 bg-[#0f0f0f] border-white/10 text-white rounded-2xl shadow-xl mt-2 p-2">
+                      <DropdownMenuLabel className="font-bold text-xs uppercase tracking-widest text-white/50 px-2 pt-2 pb-1">
+                        Mi Cuenta
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator className="bg-white/10 my-2" />
+                      <DropdownMenuItem 
+                        onClick={() => router.push('/profile')}
+                        className="focus:bg-white/5 focus:text-white rounded-xl cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2 px-2 py-2 w-full font-medium">
+                          <User className="w-4 h-4" />
+                          <span>Mi Perfil</span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem 
+                        onClick={() => router.push('/dashboard')}
+                        className="focus:bg-white/5 focus:text-white rounded-xl cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2 px-2 py-2 w-full font-medium">
+                          <Bell className="w-4 h-4" />
+                          <span>Mis Quedadas</span>
+                        </div>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator className="bg-white/10 my-2" />
+                      <DropdownMenuItem 
+                        onClick={() => signOut({ callbackUrl: '/' })}
+                        className="focus:bg-red-500/20 text-red-400 focus:text-red-400 rounded-xl cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2 px-2 py-2 w-full font-bold">
+                          <LogOut className="w-4 h-4" />
+                          <span>Cerrar Sesión</span>
+                        </div>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </>
               ) : (
                 <>
