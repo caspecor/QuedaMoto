@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { buttonVariants } from '@/components/ui/button'
-import { Zap, Menu, X, User, Bell, Search, Plus, Shield } from 'lucide-react'
+import { Zap, Menu, X, User, Users, Bell, Search, Plus, Shield } from 'lucide-react'
 import { useSession } from 'next-auth/react'
 import { getUserAvatar } from '@/app/(main)/meetups/actions'
 
@@ -48,6 +48,9 @@ export function Navbar({
   const navLinks = [
     { name: 'Explorar', href: '/explore', icon: Search },
     { name: 'Mis Quedadas', href: '/dashboard', icon: Bell },
+    { name: 'Historia', href: '/historia', icon: Users },
+    { name: 'FAQ', href: '/faq', icon: Shield },
+    { name: 'Contacto', href: '/contacto', icon: Zap },
   ]
 
   const isSuspended = externalSuspended ?? (user?.suspendedUntil && new Date(user.suspendedUntil) > new Date())

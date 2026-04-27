@@ -223,6 +223,13 @@ export default function HomePage() {
             <Zap className="h-6 w-6 text-primary" />
             <span className="text-xl font-black tracking-tighter text-white italic">QUEDAMOTO</span>
           </div>
+          
+          <div className="flex items-center gap-6 text-sm font-medium">
+            <Link href="/historia" className="text-white/40 hover:text-primary transition-colors">Nuestra Historia</Link>
+            <Link href="/faq" className="text-white/40 hover:text-primary transition-colors">FAQ</Link>
+            <Link href="/contacto" className="text-white/40 hover:text-primary transition-colors">Contacto</Link>
+          </div>
+
           <div className="text-white/20 text-xs font-medium uppercase tracking-[0.25em]">
             © {new Date().getFullYear()} QuedaMoto. Engineered for high performance.
           </div>

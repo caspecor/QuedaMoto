@@ -6,7 +6,7 @@ import { eq } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 
-export async function signupAction(data: { email: string; password: string; username: string }) {
+export async function signupAction(data: { email: string; password: string; username: string; phone: string }) {
   try {
     // Check if user exists
     const existing = await db.select().from(users).where(eq(users.email, data.email))
@@ -24,6 +24,7 @@ export async function signupAction(data: { email: string; password: string; user
       email: data.email,
       username: data.username,
       password: hashedPassword,
+      phone: data.phone,
     })
 
     return { success: true }

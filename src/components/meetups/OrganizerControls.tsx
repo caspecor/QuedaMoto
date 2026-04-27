@@ -185,13 +185,15 @@ export function OrganizerControls({ meetup }: OrganizerControlsProps) {
       >
         <Pencil className="h-4 w-4" /> Editar ruta
       </Button>
-      <Button
-        variant="outline"
-        className="h-11 w-11 rounded-full border-destructive/40 text-destructive hover:bg-destructive hover:text-white transition-colors"
-        onClick={() => setMode('confirmDelete')}
-      >
-        <Trash2 className="h-4 w-4" />
-      </Button>
+      {new Date().toISOString().split('T')[0] <= meetup.date && (
+        <Button
+          variant="outline"
+          className="h-11 w-11 rounded-full border-destructive/40 text-destructive hover:bg-destructive hover:text-white transition-colors"
+          onClick={() => setMode('confirmDelete')}
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      )}
     </div>
   )
 }

@@ -18,6 +18,7 @@ import { Loader2 } from 'lucide-react'
 const registerSchema = z.object({
   username: z.string().min(3, 'Mínimo 3 caracteres'),
   email: z.string().email('Email inválido'),
+  phone: z.string().min(9, 'Mínimo 9 caracteres'),
   password: z.string().min(6, 'Mínimo 6 caracteres'),
   confirmPassword: z.string()
 }).refine((data) => data.password === data.confirmPassword, {
@@ -81,6 +82,11 @@ export function RegisterForm() {
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" placeholder="correo@ejemplo.com" {...register('email')} />
             {errors.email && <p className="text-sm text-destructive">{errors.email.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="phone">Teléfono (Obligatorio)</Label>
+            <Input id="phone" type="tel" placeholder="600123456" {...register('phone')} />
+            {errors.phone && <p className="text-sm text-destructive">{errors.phone.message}</p>}
           </div>
           <div className="space-y-2">
             <Label htmlFor="password">Contraseña</Label>

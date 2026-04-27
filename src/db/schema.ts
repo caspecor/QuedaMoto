@@ -5,6 +5,7 @@ export const users = pgTable('users', {
   email: varchar('email', { length: 255 }).notNull().unique(),
   username: varchar('username', { length: 50 }).notNull(),
   password: text('password').notNull(),
+  phone: varchar('phone', { length: 20 }),
   avatar: text('avatar'),
   moto_brand: varchar('moto_brand', { length: 100 }),
   moto_model: varchar('moto_model', { length: 100 }),
@@ -97,4 +98,14 @@ export const reports = pgTable('reports', {
   description: text('description'),
   status: varchar('status', { length: 20 }).default('pending'), // pending, resolved, dismissed
   createdAt: timestamp('created_at').defaultNow().notNull(),
+});
+
+export const contactMessages = pgTable('contact_messages', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  name: varchar('name', { length: 100 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull(),
+  subject: varchar('subject', { length: 100 }).notNull(),
+  message: text('message').notNull(),
+  status: varchar('status', { length: 20 }).default('unread'), // unread, read, resolved
+  createdAt: timestamp('created_at').defaultNow(),
 });

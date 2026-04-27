@@ -81,6 +81,12 @@ export async function deleteMeetupAction(meetupId: string) {
     if (!meetup) return { error: 'Quedada no encontrada' }
     if (meetup.creator_id !== session.user.id) return { error: 'No tienes permiso para eliminar esta quedada' }
 
+    // Check if the date has passed
+    const today = new Date().toISOString().split('T')[0]
+    if (meetup.date < today) {
+      return { error: 'No se puede eliminar una quedada cuya fecha ya ha pasado.' }
+    }
+
     await db.delete(meetups).where(eq(meetups.id, meetupId))
 
     return { success: true }
