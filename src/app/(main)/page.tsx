@@ -52,10 +52,11 @@ export default function HomePage() {
             src="/images/rider-bg.png" 
             alt="Biker Sunset Group" 
             fill 
-            className="object-cover scale-110 blur-[1px] opacity-90"
+            quality={100}
+            className="object-cover scale-110 opacity-90"
             priority
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/40 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="absolute inset-0 bg-black/25" />
         </div>
 
@@ -190,9 +191,10 @@ export default function HomePage() {
              src="/images/community-bg.png" 
              alt="Comunidad QuedaMoto" 
              fill 
-             className="object-cover scale-105 opacity-50 blur-[1px]"
+             quality={100}
+             className="object-cover scale-105 opacity-50"
            />
-           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/40 to-background" />
+           <div className="absolute inset-0 bg-gradient-to-b from-background via-background/60 to-background" />
         </div>
         
         <div className="container relative z-10 mx-auto px-4 text-center space-y-8">
