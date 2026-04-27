@@ -49,6 +49,30 @@ export function StatsPanel() {
     return acc
   }, new Map<string, number>()).entries()).sort((a, b) => b[1] - a[1]).slice(0, 3)
 
+  const groupedVisits: any[] = Array.from(visits.reduce((acc, v) => {
+    if (!acc.has(v.ip)) {
+      acc.set(v.ip, {
+        ip: v.ip,
+        city: v.city,
+        country: v.country,
+        lastVisit: v.createdAt,
+        totalHits: 1,
+        paths: new Set([v.path]),
+        isRegistered: !!v.userId
+      })
+    } else {
+      const existing = acc.get(v.ip)!
+      existing.totalHits++
+      existing.paths.add(v.path)
+      // visits are ordered descending by date usually, so first seen in array is the latest
+      if (new Date(v.createdAt) > new Date(existing.lastVisit)) {
+        existing.lastVisit = v.createdAt
+      }
+      if (v.userId) existing.isRegistered = true
+    }
+    return acc
+  }, new Map<string, any>()).values()).sort((a: any, b: any) => new Date(b.lastVisit).getTime() - new Date(a.lastVisit).getTime())
+
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -58,7 +82,7 @@ export function StatsPanel() {
               <MousePointer2 className="h-5 w-5" />
             </div>
             <div>
-              <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Total Visitas</p>
+              <p className="text-[10px] font-black uppercase tracking-widest text-white/30">Total Visitas (Hits)</p>
               <p className="text-3xl font-black text-white italic">{totalVisits}</p>
             </div>
           </CardContent>
@@ -92,8 +116,8 @@ export function StatsPanel() {
       <Card className="bg-card border-white/10 rounded-[2.5rem] overflow-hidden">
         <CardHeader className="p-8 border-b border-white/5 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div>
-            <CardTitle className="text-2xl font-black italic uppercase tracking-tighter">REGISTRO DE TRÁFICO</CardTitle>
-            <CardDescription className="text-white/40">Últimos 1000 accesos registrados en la plataforma</CardDescription>
+            <CardTitle className="text-2xl font-black italic uppercase tracking-tighter">REGISTRO DE TRÁFICO (AGRUPADO)</CardTitle>
+            <CardDescription className="text-white/40">Mostrando las últimas interacciones por dirección IP</CardDescription>
           </div>
           <Button 
             onClick={exportToExcel}
@@ -108,18 +132,18 @@ export function StatsPanel() {
             <Table>
               <TableHeader className="bg-white/[0.02]">
                 <TableRow className="border-white/5 h-12 hover:bg-transparent">
-                  <TableHead className="font-black text-[9px] uppercase tracking-widest text-white/30 pl-8">Fecha</TableHead>
+                  <TableHead className="font-black text-[9px] uppercase tracking-widest text-white/30 pl-8">Última Visita</TableHead>
                   <TableHead className="font-black text-[9px] uppercase tracking-widest text-white/30">IP</TableHead>
                   <TableHead className="font-black text-[9px] uppercase tracking-widest text-white/30">Ubicación</TableHead>
-                  <TableHead className="font-black text-[9px] uppercase tracking-widest text-white/30">Ruta</TableHead>
-                  <TableHead className="font-black text-[9px] uppercase tracking-widest text-white/30">Usuario</TableHead>
+                  <TableHead className="font-black text-[9px] uppercase tracking-widest text-white/30">Actividad</TableHead>
+                  <TableHead className="font-black text-[9px] uppercase tracking-widest text-white/30">Estado</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {visits.map((v, i) => (
+                {groupedVisits.map((v, i) => (
                   <TableRow key={i} className="border-white/5 hover:bg-white/[0.02] transition-colors h-16">
                     <TableCell className="pl-8 text-xs font-bold text-white/60">
-                      {format(new Date(v.createdAt), 'dd/MM HH:mm')}
+                      {format(new Date(v.lastVisit), 'dd/MM HH:mm')}
                     </TableCell>
                     <TableCell className="text-xs font-mono text-white/40">{v.ip}</TableCell>
                     <TableCell>
@@ -128,9 +152,14 @@ export function StatsPanel() {
                         <span className="text-[10px] text-white/30 uppercase font-black">{v.country}</span>
                       </div>
                     </TableCell>
-                    <TableCell className="text-xs text-primary font-bold">{v.path}</TableCell>
                     <TableCell>
-                      {v.userId ? (
+                      <div className="flex flex-col">
+                        <span className="text-xs text-primary font-bold">{v.totalHits} hits</span>
+                        <span className="text-[9px] text-white/30 uppercase font-black">{v.paths.size} rutas únicas</span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {v.isRegistered ? (
                         <div className="flex items-center gap-2 text-blue-400">
                           <User className="h-3 w-3" />
                           <span className="text-[10px] font-black uppercase tracking-widest">Registrado</span>
