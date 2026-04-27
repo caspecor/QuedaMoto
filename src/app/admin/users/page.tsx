@@ -7,6 +7,8 @@ export const metadata = {
   title: "Gestión de Usuarios - Admin",
 }
 
+export const revalidate = 0
+
 export default async function AdminUsersPage({
   searchParams,
 }: {
