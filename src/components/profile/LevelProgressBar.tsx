@@ -1,7 +1,6 @@
 'use client'
 
 import { getLevelInfo } from "@/lib/gamification"
-import { Progress } from "@/components/ui/progress"
 import { Zap } from "lucide-react"
 
 interface LevelProgressBarProps {
