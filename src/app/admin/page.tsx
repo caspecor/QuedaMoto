@@ -16,7 +16,7 @@ export default async function AdminDashboard() {
     <div className="space-y-10 animate-reveal">
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
-          <h1 className="text-5xl font-black text-white italic tracking-tighter">ADMIN DASHBOARD</h1>
+          <h1 className="text-3xl md:text-5xl font-black text-white italic tracking-tighter">ADMIN DASHBOARD</h1>
           <p className="text-white/40 font-medium text-lg mt-2">Visión global y control de la plataforma</p>
         </div>
         <div className="flex gap-4">
