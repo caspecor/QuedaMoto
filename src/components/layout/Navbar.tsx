@@ -29,6 +29,7 @@ export function Navbar({
   const router = useRouter()
   const { data: session, status } = useSession()
   const [dbAvatar, setDbAvatar] = useState<string | null>(null)
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false)
   const user = session?.user || initialUser
   const displayAvatar = dbAvatar || user?.image
   
@@ -128,51 +129,61 @@ export function Navbar({
                       <span className="text-black">Crear</span>
                     </Link>
                   )}
-                  <DropdownMenu>
-                    <DropdownMenuTrigger className="focus:outline-none">
-                      <div className="h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white/10 transition-all overflow-hidden shrink-0">
-                        {displayAvatar ? (
-                          <img src={displayAvatar} alt="Profile" className="w-full h-full object-cover" />
-                        ) : (
-                          <User className="h-5 w-5" />
-                        )}
-                      </div>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="w-56 bg-[#0f0f0f] border-white/10 text-white rounded-2xl shadow-xl mt-2 p-2">
-                      <DropdownMenuLabel className="font-bold text-xs uppercase tracking-widest text-white/50 px-2 pt-2 pb-1">
-                        Mi Cuenta
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator className="bg-white/10 my-2" />
-                      <DropdownMenuItem 
-                        onClick={() => router.push('/profile')}
-                        className="focus:bg-white/5 focus:text-white rounded-xl cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2 px-2 py-2 w-full font-medium">
-                          <User className="w-4 h-4" />
-                          <span>Mi Perfil</span>
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem 
-                        onClick={() => router.push('/dashboard')}
-                        className="focus:bg-white/5 focus:text-white rounded-xl cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2 px-2 py-2 w-full font-medium">
-                          <Bell className="w-4 h-4" />
-                          <span>Mis Quedadas</span>
-                        </div>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator className="bg-white/10 my-2" />
-                      <DropdownMenuItem 
-                        onClick={() => signOut({ callbackUrl: '/' })}
-                        className="focus:bg-red-500/20 text-red-400 focus:text-red-400 rounded-xl cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2 px-2 py-2 w-full font-bold">
-                          <LogOut className="w-4 h-4" />
-                          <span>Cerrar Sesión</span>
-                        </div>
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
+                  <div className="relative">
+                    <button 
+                      onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                      className="focus:outline-none h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white/10 transition-all overflow-hidden shrink-0"
+                    >
+                      {displayAvatar ? (
+                        <img src={displayAvatar} alt="Profile" className="w-full h-full object-cover" />
+                      ) : (
+                        <User className="h-5 w-5" />
+                      )}
+                    </button>
+                    
+                    <AnimatePresence>
+                      {isProfileMenuOpen && (
+                        <motion.div 
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="absolute right-0 top-full mt-2 w-56 bg-[#0f0f0f] border border-white/10 text-white rounded-2xl shadow-xl p-2 z-50 flex flex-col gap-1"
+                        >
+                          <div className="font-bold text-xs uppercase tracking-widest text-white/50 px-3 pt-2 pb-1">
+                            Mi Cuenta
+                          </div>
+                          <div className="h-px w-full bg-white/10 my-1" />
+                          <Link 
+                            href="/profile" 
+                            onClick={() => setIsProfileMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-2 w-full font-medium hover:bg-white/5 rounded-xl transition-colors"
+                          >
+                            <User className="w-4 h-4" />
+                            <span>Mi Perfil</span>
+                          </Link>
+                          <Link 
+                            href="/dashboard" 
+                            onClick={() => setIsProfileMenuOpen(false)}
+                            className="flex items-center gap-2 px-3 py-2 w-full font-medium hover:bg-white/5 rounded-xl transition-colors"
+                          >
+                            <Bell className="w-4 h-4" />
+                            <span>Mis Quedadas</span>
+                          </Link>
+                          <div className="h-px w-full bg-white/10 my-1" />
+                          <button 
+                            onClick={() => {
+                              setIsProfileMenuOpen(false)
+                              signOut({ callbackUrl: '/' })
+                            }}
+                            className="flex items-center gap-2 px-3 py-2 w-full font-bold text-red-400 hover:bg-red-500/20 rounded-xl transition-colors text-left"
+                          >
+                            <LogOut className="w-4 h-4" />
+                            <span>Cerrar Sesión</span>
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
                 </>
               ) : (
                 <>
