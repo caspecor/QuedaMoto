@@ -21,6 +21,7 @@ export default function AdminBannersPage() {
   const [title, setTitle] = useState("")
   const [linkUrl, setLinkUrl] = useState("")
   const [position, setPosition] = useState("home_middle")
+  const [slotIndex, setSlotIndex] = useState(1)
   const [imageBase64, setImageBase64] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -63,7 +64,8 @@ export default function AdminBannersPage() {
       title,
       imageUrl: imageBase64,
       linkUrl,
-      position
+      position,
+      slotIndex
     })
     
     if (res.success) {
@@ -141,8 +143,21 @@ export default function AdminBannersPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-[#0f0f0f] border-white/10 text-white rounded-xl">
-                      <SelectItem value="home_middle">Portada (Centro, bajo mapa)</SelectItem>
-                      <SelectItem value="home_footer">Portada (Antes del pie de página)</SelectItem>
+                      <SelectItem value="home_middle">Portada (Arriba - 8 espacios)</SelectItem>
+                      <SelectItem value="home_footer">Portada (Abajo - 4 espacios)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase tracking-widest text-white/40">Posición (Hueco)</Label>
+                  <Select value={slotIndex.toString()} onValueChange={(val) => val && setSlotIndex(parseInt(val))}>
+                    <SelectTrigger className="bg-white/5 border-white/10 rounded-xl text-white">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-[#0f0f0f] border-white/10 text-white rounded-xl">
+                      {Array.from({ length: position === 'home_middle' ? 8 : 4 }).map((_, i) => (
+                        <SelectItem key={i+1} value={(i+1).toString()}>Hueco {i+1}</SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -234,10 +249,10 @@ export default function AdminBannersPage() {
                   <div className="p-6 flex-1 flex flex-col">
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-[10px] font-black uppercase tracking-widest text-primary/60">
-                        {b.position === 'home_middle' ? 'Centro' : 'Footer'}
+                        {b.position === 'home_middle' ? 'Arriba' : 'Abajo'} - Hueco {b.slotIndex}
                       </span>
                       <span className="text-[10px] font-bold text-white/30">
-                        {format(new Date(b.createdAt), 'dd/MM/yyyy')}
+                        {b.clicks} clics • {format(new Date(b.createdAt), 'dd/MM/yyyy')}
                       </span>
                     </div>
                     <h3 className="text-xl font-black text-white leading-tight mb-2">{b.title}</h3>

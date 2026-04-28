@@ -116,6 +116,8 @@ export const banners = pgTable('banners', {
   imageUrl: text('image_url').notNull(),
   linkUrl: text('link_url'),
   position: varchar('position', { length: 50 }).notNull(), // 'home_middle', 'home_footer'
+  slotIndex: integer('slot_index').default(1).notNull(), // 1 to 8
+  clicks: integer('clicks').default(0).notNull(),
   isActive: boolean('is_active').default(true).notNull(),
   order: integer('order').default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),

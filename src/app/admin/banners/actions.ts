@@ -23,7 +23,7 @@ export async function getActiveBanners(position: string) {
   const data = await db.select()
     .from(banners)
     .where(eq(banners.position, position))
-    .orderBy(desc(banners.order), desc(banners.createdAt))
+    .orderBy(banners.slotIndex, desc(banners.createdAt))
   
   return data.filter(b => b.isActive)
 }
@@ -33,6 +33,7 @@ export async function createBanner(data: {
   imageUrl: string;
   linkUrl?: string;
   position: string;
+  slotIndex: number;
 }) {
   try {
     await checkAdmin()
@@ -41,8 +42,10 @@ export async function createBanner(data: {
       imageUrl: data.imageUrl,
       linkUrl: data.linkUrl || '',
       position: data.position,
+      slotIndex: data.slotIndex,
       isActive: true,
       order: 0,
+      clicks: 0,
     })
     revalidatePath('/admin/banners')
     revalidatePath('/')
@@ -76,5 +79,19 @@ export async function toggleBannerStatus(id: string, currentStatus: boolean) {
     return { success: true }
   } catch (error: any) {
     return { error: error.message || "Error al actualizar estado" }
+  }
+}
+
+export async function incrementBannerClick(id: string) {
+  try {
+    const b = await db.select().from(banners).where(eq(banners.id, id)).limit(1)
+    if (b.length > 0) {
+      await db.update(banners)
+        .set({ clicks: (b[0].clicks || 0) + 1 })
+        .where(eq(banners.id, id))
+    }
+    return { success: true }
+  } catch (error) {
+    return { error: "Failed to increment clicks" }
   }
 }
