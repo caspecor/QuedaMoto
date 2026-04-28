@@ -176,6 +176,7 @@ export default function HomeClient({
                 {[
                   { title: "Niveles reales", desc: "Filtra rutas según tu experiencia: Novato, Intermedio o Pro." },
                   { title: "Chat Integrado", desc: "Coordina las paradas y el repostaje antes de salir." },
+                  { title: "Gana XP", desc: "Sube de nivel participando en rutas y desbloquea insignias exclusivas." },
                   { title: "Sin Comisiones", desc: "Plataforma 100% abierta y gratuita para la comunidad." }
                 ].map((item, i) => (
                   <li key={i} className="flex gap-4 group">
