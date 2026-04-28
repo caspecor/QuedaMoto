@@ -118,6 +118,7 @@ export default async function RiderProfilePage({ params }: { params: Promise<{ i
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-8">
         {/* Main Content - Garage */}
         <div className="lg:col-span-2 space-y-8">
+          <LevelProgressBar xp={rider.xp || 0} />
           <Card className="bg-card shadow-2xl border-white/5 rounded-[2.5rem] overflow-hidden">
             <CardHeader className="border-b border-white/5 bg-white/[0.01] p-8">
               <CardTitle className="text-2xl font-black flex items-center gap-3 italic">
@@ -165,8 +166,6 @@ export default async function RiderProfilePage({ params }: { params: Promise<{ i
             </CardContent>
           </Card>
 
-          {/* XP Progress Bar */}
-          <LevelProgressBar xp={rider.xp || 0} />
         </div>
 
         {/* Sidebar - Quick Stats */}
