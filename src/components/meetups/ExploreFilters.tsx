@@ -89,7 +89,7 @@ export function ExploreFilters() {
             </Button>
           }
         />
-        <SheetContent className="w-80 bg-[#0f0f0f] border-l border-white/5 p-6 text-white overflow-y-auto">
+        <SheetContent className="w-80 bg-[#0f0f0f] border-l border-white/5 p-6 pt-28 text-white overflow-y-auto">
           <SheetHeader className="p-0 mb-8">
             <SheetTitle className="text-2xl font-black italic uppercase tracking-tighter">Filtros</SheetTitle>
             <p className="text-sm text-white/40">Personaliza tu búsqueda de rutas.</p>
