@@ -33,7 +33,7 @@ export function BannerZone({
         const linkUrl = banner ? banner.linkUrl : null
 
         const Content = (
-          <div className="relative group overflow-hidden rounded-3xl border border-white/10 hover:border-primary/50 transition-all shadow-xl bg-black/50 aspect-[16/9]">
+          <div className="relative group overflow-hidden rounded-3xl border border-white/10 hover:border-primary/50 transition-all shadow-xl bg-black/50 aspect-[4/3]">
             <img 
               src={imageUrl} 
               alt={title} 
