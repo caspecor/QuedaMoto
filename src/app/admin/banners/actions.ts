@@ -58,6 +58,42 @@ export async function createBanner(data: {
   }
 }
 
+export async function updateBanner(id: string, data: {
+  title: string;
+  badgeText?: string;
+  imageUrl?: string;
+  linkUrl?: string;
+  position: string;
+  slotIndex: number;
+}) {
+  try {
+    await checkAdmin()
+    
+    const updateData: any = {
+      title: data.title,
+      badgeText: data.badgeText || 'Sponsor',
+      linkUrl: data.linkUrl || '',
+      position: data.position,
+      slotIndex: data.slotIndex,
+    }
+    
+    if (data.imageUrl) {
+      updateData.imageUrl = data.imageUrl
+    }
+    
+    await db.update(banners)
+      .set(updateData)
+      .where(eq(banners.id, id))
+      
+    revalidatePath('/admin/banners')
+    revalidatePath('/')
+    return { success: true }
+  } catch (error: any) {
+    console.error(error)
+    return { error: error.message || "Error al actualizar banner" }
+  }
+}
+
 export async function deleteBanner(id: string) {
   try {
     await checkAdmin()

@@ -6,15 +6,16 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getBanners, createBanner, deleteBanner, toggleBannerStatus, getBothBannerModulesStatus, toggleBannerModule } from "./actions"
+import { getBanners, createBanner, updateBanner, deleteBanner, toggleBannerStatus, getBothBannerModulesStatus, toggleBannerModule } from "./actions"
 import { toast } from "sonner"
-import { Image as ImageIcon, Link as LinkIcon, Trash2, Power, Plus, Loader2 } from "lucide-react"
+import { Image as ImageIcon, Link as LinkIcon, Trash2, Power, Plus, Loader2, Pencil } from "lucide-react"
 import { format } from "date-fns"
 
 export default function AdminBannersPage() {
   const [banners, setBanners] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
+  const [editingId, setEditingId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
   const [moduleStatus, setModuleStatus] = useState({ home_middle: true, home_footer: true })
 
@@ -60,33 +61,65 @@ export default function AdminBannersPage() {
 
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!title || !imageBase64) {
-      toast.error("Título e Imagen son requeridos")
+    if (!title) {
+      toast.error("El Título es requerido")
+      return
+    }
+    if (!editingId && !imageBase64) {
+      toast.error("La Imagen es requerida para un nuevo banner")
       return
     }
 
     setSubmitting(true)
-    const res = await createBanner({
-      title,
-      badgeText,
-      imageUrl: imageBase64,
-      linkUrl,
-      position,
-      slotIndex
-    })
+    let res;
+    if (editingId) {
+      res = await updateBanner(editingId, {
+        title,
+        badgeText,
+        imageUrl: imageBase64 || undefined,
+        linkUrl,
+        position,
+        slotIndex
+      })
+    } else {
+      res = await createBanner({
+        title,
+        badgeText,
+        imageUrl: imageBase64 as string,
+        linkUrl,
+        position,
+        slotIndex
+      })
+    }
     
     if (res.success) {
-      toast.success("Banner creado correctamente")
-      setIsCreating(false)
-      setTitle("")
-      setBadgeText("")
-      setLinkUrl("")
-      setImageBase64(null)
+      toast.success(editingId ? "Banner actualizado correctamente" : "Banner creado correctamente")
+      cancelEditing()
       loadBanners()
     } else {
       toast.error(res.error)
     }
     setSubmitting(false)
+  }
+
+  const handleEdit = (b: any) => {
+    setEditingId(b.id)
+    setTitle(b.title)
+    setBadgeText(b.badgeText || "")
+    setLinkUrl(b.linkUrl || "")
+    setPosition(b.position)
+    setSlotIndex(b.slotIndex)
+    setImageBase64(null)
+    setIsCreating(true)
+  }
+
+  const cancelEditing = () => {
+    setIsCreating(false)
+    setEditingId(null)
+    setTitle("")
+    setBadgeText("")
+    setLinkUrl("")
+    setImageBase64(null)
   }
 
   const handleDelete = async (id: string) => {
@@ -335,6 +368,13 @@ export default function AdminBannersPage() {
                       >
                         <Power className="w-3 h-3 mr-2" />
                         {b.isActive ? 'Desactivar' : 'Activar'}
+                      </Button>
+                      <Button 
+                        onClick={() => handleEdit(b)}
+                        variant="outline" 
+                        className="h-10 w-10 p-0 rounded-xl border-white/10 text-white/40 hover:bg-white/10 hover:text-white shrink-0"
+                      >
+                        <Pencil className="w-4 h-4" />
                       </Button>
                       <Button 
                         onClick={() => handleDelete(b.id)}

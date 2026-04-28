@@ -70,7 +70,6 @@ export function Navbar({
 
   const navLinks = [
     { name: 'Explorar', href: '/explore', icon: Search },
-    { name: 'Mis Quedadas', href: '/dashboard', icon: Bell },
     { name: 'Historia', href: '/historia', icon: Users },
     { name: 'FAQ', href: '/faq', icon: Shield },
     { name: 'Contacto', href: '/contacto', icon: Zap },
@@ -142,9 +141,14 @@ export function Navbar({
                       <span className="text-black">Crear</span>
                     </Link>
                   )}
-                  <div className="relative" ref={dropdownRef}>
+                  <div 
+                    className="relative" 
+                    ref={dropdownRef}
+                    onMouseEnter={() => { if (window.innerWidth >= 768) setIsProfileMenuOpen(true) }}
+                    onMouseLeave={() => { if (window.innerWidth >= 768) setIsProfileMenuOpen(false) }}
+                  >
                     <button 
-                      onClick={() => setIsProfileMenuOpen(!isProfileMenuOpen)}
+                      onClick={() => { if (window.innerWidth < 768) setIsProfileMenuOpen(!isProfileMenuOpen) }}
                       className="focus:outline-none h-10 w-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:bg-white/10 transition-all overflow-hidden shrink-0"
                     >
                       {displayAvatar ? (

@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import Link from "next/link"
 
 export const metadata = {
   title: "Perfil - QuedaMoto",
@@ -36,6 +37,11 @@ export default async function ProfilePage() {
       <div className="flex items-center justify-between">
         <h1 className="text-4xl font-black font-sans text-white tracking-tight">Mi Perfil</h1>
         <div className="flex gap-3">
+          <Link href="/dashboard">
+            <Button variant="outline" className="h-10 px-4 rounded-xl font-bold bg-white/5 border-white/10 hover:bg-white/10">
+              Mis Quedadas
+            </Button>
+          </Link>
           <LogoutButton />
         </div>
       </div>
