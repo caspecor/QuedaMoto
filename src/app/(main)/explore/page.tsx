@@ -65,7 +65,7 @@ export default async function ExplorePage({
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] md:flex-row overflow-hidden bg-background pt-24">
       {/* Map Section */}
-      <div className="w-full h-[40vh] md:h-full md:flex-1 relative z-0 border-r border-white/5">
+      <div className="w-full h-[35vh] md:h-full md:flex-1 relative z-0 border-r border-white/5">
          <MapboxView meetups={meetups || []} />
       </div>
       
