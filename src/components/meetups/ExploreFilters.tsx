@@ -30,11 +30,11 @@ export function ExploreFilters() {
     } else {
       params.set(key, value)
     }
-    router.push(`/explore?${params.toString()}`)
+    router.replace(`/explore?${params.toString()}`, { scroll: false })
   }
 
   function clearFilters() {
-    router.push('/explore')
+    router.replace('/explore', { scroll: false })
   }
 
   const hasFilters = currentLevel !== 'all' || currentType !== 'all' || currentDate !== 'all'
@@ -55,9 +55,15 @@ export function ExploreFilters() {
       
       <DropdownMenu>
         <DropdownMenuTrigger
-          className={`rounded-xl h-10 w-10 transition-all flex items-center justify-center border border-white/10 bg-white/5 hover:bg-white/10 ${
-            hasFilters ? 'bg-primary text-white border-primary' : 'text-white/40'
-          }`}
+          render={
+            <Button 
+              variant={hasFilters ? "default" : "outline"} 
+              size="icon" 
+              className={`rounded-xl h-10 w-10 transition-all ${
+                hasFilters ? 'bg-primary text-white' : 'border-white/10 bg-white/5'
+              }`}
+            />
+          }
         >
           <SlidersHorizontal className={`w-4 h-4 ${hasFilters ? 'text-white' : 'text-white/40'}`} />
         </DropdownMenuTrigger>

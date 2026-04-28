@@ -43,19 +43,24 @@ export default async function ExplorePage({
     conditions.push(eq(meetupsTable.date, tomorrowStr))
   }
 
-  const meetupsArr = await db.select({
-    id: meetupsTable.id,
-    title: meetupsTable.title,
-    lat: meetupsTable.lat,
-    lng: meetupsTable.lng,
-    date: meetupsTable.date,
-    time: meetupsTable.time,
-    type: meetupsTable.type,
-    level_required: meetupsTable.level_required,
-    max_attendees: meetupsTable.max_attendees
-  }).from(meetupsTable).where(and(...conditions))
-  
-  const meetups = (meetupsArr || []).filter(m => m.lat !== null && m.lng !== null) as any[]
+  let meetups: any[] = []
+  try {
+    const meetupsArr = await db.select({
+      id: meetupsTable.id,
+      title: meetupsTable.title,
+      lat: meetupsTable.lat,
+      lng: meetupsTable.lng,
+      date: meetupsTable.date,
+      time: meetupsTable.time,
+      type: meetupsTable.type,
+      level_required: meetupsTable.level_required,
+      max_attendees: meetupsTable.max_attendees
+    }).from(meetupsTable).where(and(...conditions))
+    
+    meetups = (meetupsArr || []).filter(m => m.lat !== null && m.lng !== null)
+  } catch (error) {
+    console.error("Error fetching meetups:", error)
+  }
 
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] md:flex-row overflow-hidden bg-background pt-24">
