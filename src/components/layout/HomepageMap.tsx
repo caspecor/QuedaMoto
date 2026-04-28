@@ -31,7 +31,7 @@ export function HomepageMap() {
       <MapboxView meetups={meetups} />
       
       {/* Overlay info */}
-      <div className="absolute top-4 right-4 z-20 bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2 pointer-events-none transition-transform group-hover:scale-105">
+      <div className="absolute top-4 right-4 z-[9999] bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2 pointer-events-none">
         <div className="h-2 w-2 rounded-full bg-primary animate-pulse" />
         <span className="text-[10px] font-bold text-white uppercase tracking-wider">{meetups.length} Rutas en vivo</span>
       </div>
