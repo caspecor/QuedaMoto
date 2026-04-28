@@ -1,7 +1,7 @@
 'use server'
 
 import { db } from "@/db"
-import { banners } from "@/db/schema"
+import { banners, settings } from "@/db/schema"
 import { eq, desc } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 import { auth } from "@/auth"
@@ -93,5 +93,39 @@ export async function incrementBannerClick(id: string) {
     return { success: true }
   } catch (error) {
     return { error: "Failed to increment clicks" }
+  }
+}
+
+export async function getBannerModuleStatus(position: string) {
+  const key = `banner_${position}_enabled`
+  const data = await db.select().from(settings).where(eq(settings.key, key)).limit(1)
+  if (data.length === 0) return true // Default is enabled
+  return data[0].value === 'true'
+}
+
+export async function getBothBannerModulesStatus() {
+  await checkAdmin()
+  const middle = await getBannerModuleStatus('home_middle')
+  const footer = await getBannerModuleStatus('home_footer')
+  return { home_middle: middle, home_footer: footer }
+}
+
+export async function toggleBannerModule(position: string, enabled: boolean) {
+  try {
+    await checkAdmin()
+    const key = `banner_${position}_enabled`
+    const existing = await db.select().from(settings).where(eq(settings.key, key)).limit(1)
+    
+    if (existing.length === 0) {
+      await db.insert(settings).values({ key, value: enabled ? 'true' : 'false' })
+    } else {
+      await db.update(settings).set({ value: enabled ? 'true' : 'false' }).where(eq(settings.key, key))
+    }
+    
+    revalidatePath('/admin/banners')
+    revalidatePath('/')
+    return { success: true }
+  } catch (error: any) {
+    return { error: error.message || "Error al cambiar estado del módulo" }
   }
 }

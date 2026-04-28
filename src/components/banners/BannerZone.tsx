@@ -1,18 +1,23 @@
 'use client'
 
 import { useState, useEffect } from "react"
-import { getActiveBanners } from "@/app/admin/banners/actions"
+import { getActiveBanners, getBannerModuleStatus } from "@/app/admin/banners/actions"
 import Link from "next/link"
 
 export function BannerZone({ position }: { position: string }) {
   const [banners, setBanners] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
+  const [enabled, setEnabled] = useState(true)
 
   useEffect(() => {
     async function load() {
       try {
-        const data = await getActiveBanners(position)
-        setBanners(data)
+        const isEnabled = await getBannerModuleStatus(position)
+        setEnabled(isEnabled)
+        if (isEnabled) {
+          const data = await getActiveBanners(position)
+          setBanners(data)
+        }
       } catch (err) {
         console.error("Error loading banners:", err)
       } finally {
@@ -22,7 +27,7 @@ export function BannerZone({ position }: { position: string }) {
     load()
   }, [position])
 
-  if (loading) return null
+  if (loading || !enabled) return null
 
   const totalSlots = position === 'home_middle' ? 8 : 4
   const slots = Array.from({ length: totalSlots }).map((_, i) => {

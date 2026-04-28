@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getBanners, createBanner, deleteBanner, toggleBannerStatus } from "./actions"
+import { getBanners, createBanner, deleteBanner, toggleBannerStatus, getBothBannerModulesStatus, toggleBannerModule } from "./actions"
 import { toast } from "sonner"
 import { Image as ImageIcon, Link as LinkIcon, Trash2, Power, Plus, Loader2 } from "lucide-react"
 import { format } from "date-fns"
@@ -16,6 +16,7 @@ export default function AdminBannersPage() {
   const [loading, setLoading] = useState(true)
   const [isCreating, setIsCreating] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [moduleStatus, setModuleStatus] = useState({ home_middle: true, home_footer: true })
 
   // Form states
   const [title, setTitle] = useState("")
@@ -31,8 +32,12 @@ export default function AdminBannersPage() {
 
   async function loadBanners() {
     setLoading(true)
-    const data = await getBanners()
+    const [data, status] = await Promise.all([
+      getBanners(),
+      getBothBannerModulesStatus()
+    ])
     setBanners(data)
+    setModuleStatus(status)
     setLoading(false)
   }
 
@@ -102,6 +107,16 @@ export default function AdminBannersPage() {
     }
   }
 
+  const handleToggleModule = async (position: string, currentStatus: boolean) => {
+    const res = await toggleBannerModule(position, !currentStatus)
+    if (res.success) {
+      toast.success(currentStatus ? "Módulo desactivado" : "Módulo activado")
+      setModuleStatus(prev => ({ ...prev, [position]: !currentStatus }))
+    } else {
+      toast.error(res.error)
+    }
+  }
+
   return (
     <div className="max-w-6xl mx-auto py-8">
       <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6">
@@ -118,6 +133,44 @@ export default function AdminBannersPage() {
           </Button>
         )}
       </div>
+
+      {!isCreating && (
+        <div className="grid md:grid-cols-2 gap-6 mb-8">
+          <Card className={`border-white/10 rounded-[2rem] overflow-hidden transition-colors ${moduleStatus.home_middle ? 'bg-white/5 border-primary/30' : 'bg-black/50'}`}>
+            <CardContent className="p-6 flex items-center justify-between">
+              <div>
+                <h3 className="font-black text-white uppercase tracking-widest text-sm">Módulo: Arriba (Centro)</h3>
+                <p className="text-xs text-white/40 mt-1">Habilita o deshabilita los 8 huecos superiores.</p>
+              </div>
+              <Button 
+                variant={moduleStatus.home_middle ? "default" : "outline"}
+                onClick={() => handleToggleModule('home_middle', moduleStatus.home_middle)}
+                className={`h-10 rounded-xl font-bold text-xs border-white/10 ${moduleStatus.home_middle ? 'bg-primary text-white hover:bg-primary/80' : 'text-white/40 hover:text-white'}`}
+              >
+                <Power className="w-3 h-3 mr-2" />
+                {moduleStatus.home_middle ? 'Activado' : 'Desactivado'}
+              </Button>
+            </CardContent>
+          </Card>
+          
+          <Card className={`border-white/10 rounded-[2rem] overflow-hidden transition-colors ${moduleStatus.home_footer ? 'bg-white/5 border-primary/30' : 'bg-black/50'}`}>
+            <CardContent className="p-6 flex items-center justify-between">
+              <div>
+                <h3 className="font-black text-white uppercase tracking-widest text-sm">Módulo: Abajo (Footer)</h3>
+                <p className="text-xs text-white/40 mt-1">Habilita o deshabilita los 4 huecos inferiores.</p>
+              </div>
+              <Button 
+                variant={moduleStatus.home_footer ? "default" : "outline"}
+                onClick={() => handleToggleModule('home_footer', moduleStatus.home_footer)}
+                className={`h-10 rounded-xl font-bold text-xs border-white/10 ${moduleStatus.home_footer ? 'bg-primary text-white hover:bg-primary/80' : 'text-white/40 hover:text-white'}`}
+              >
+                <Power className="w-3 h-3 mr-2" />
+                {moduleStatus.home_footer ? 'Activado' : 'Desactivado'}
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      )}
 
       {isCreating && (
         <Card className="bg-card border-white/10 rounded-[2.5rem] overflow-hidden mb-8 animate-in fade-in slide-in-from-top-4">
