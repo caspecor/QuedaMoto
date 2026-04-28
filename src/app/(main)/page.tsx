@@ -9,6 +9,7 @@ import { MapPin, Users, Shield, Calendar, ChevronRight, Zap, TrendingUp, Trophy 
 import { HomepageMap } from "@/components/layout/HomepageMap"
 import { useSession } from "next-auth/react"
 import { getActiveMeetupsCount } from "@/app/(main)/meetups/actions"
+import { BannerZone } from "@/components/banners/BannerZone"
 
 export default function HomePage() {
   const { status } = useSession()
@@ -184,6 +185,9 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Banner Zone Middle */}
+      <BannerZone position="home_middle" />
+
       {/* Community Section */}
       <section className="relative py-40 overflow-hidden">
         <div className="absolute inset-0 z-0">
@@ -216,6 +220,9 @@ export default function HomePage() {
            </motion.div>
         </div>
       </section>
+
+      {/* Banner Zone Footer */}
+      <BannerZone position="home_footer" />
 
       <footer className="w-full border-t border-white/5 py-12 bg-black/50">
         <div className="container px-4 mx-auto flex flex-col md:flex-row justify-between items-center gap-8">

@@ -109,3 +109,14 @@ export const contactMessages = pgTable('contact_messages', {
   status: varchar('status', { length: 20 }).default('unread'), // unread, read, resolved
   createdAt: timestamp('created_at').defaultNow(),
 });
+
+export const banners = pgTable('banners', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  title: varchar('title', { length: 255 }).notNull(),
+  imageUrl: text('image_url').notNull(),
+  linkUrl: text('link_url'),
+  position: varchar('position', { length: 50 }).notNull(), // 'home_middle', 'home_footer'
+  isActive: boolean('is_active').default(true).notNull(),
+  order: integer('order').default(0),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+});
