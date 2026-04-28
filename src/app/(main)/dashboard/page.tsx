@@ -77,6 +77,8 @@ export default async function DashboardPage() {
           
           {/* Main Content: Upcoming Meetups */}
           <div className="lg:col-span-2 space-y-6 animate-reveal [animation-delay:0.1s]">
+            <LevelProgressBar xp={xp} />
+            
             <div className="flex items-center gap-2 mb-2">
               <Calendar className="h-5 w-5 text-primary" />
               <h2 className="text-xl font-bold text-white uppercase tracking-wider text-sm">Próximas Salidas</h2>
@@ -136,8 +138,6 @@ export default async function DashboardPage() {
 
           {/* Sidebar: Level & Notifications */}
           <div className="space-y-8 animate-reveal [animation-delay:0.2s]">
-            <LevelProgressBar xp={xp} />
-
             <div className="space-y-6">
               <div className="flex items-center gap-2 mb-2">
                 <Bell className="h-5 w-5 text-primary" />
