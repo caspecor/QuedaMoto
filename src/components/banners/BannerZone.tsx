@@ -11,7 +11,7 @@ export function BannerZone({
 }) {
   if (!enabled) return null
 
-  const totalSlots = position === 'home_middle' ? 8 : 4
+  const totalSlots = 4
   const slots = Array.from({ length: totalSlots }).map((_, i) => {
     const slotIndex = i + 1
     const activeBanner = banners.find(b => b.slotIndex === slotIndex)
@@ -21,9 +21,9 @@ export function BannerZone({
     }
   })
 
-  const gridClass = position === 'home_middle' 
-    ? 'grid-cols-2 md:grid-cols-4 lg:grid-cols-4' 
-    : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
+  const gridClass = position === 'home_footer' 
+    ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-4'
+    : 'grid-cols-2 md:grid-cols-4 lg:grid-cols-4'
 
   return (
     <div className={`w-full grid gap-4 md:gap-6 ${gridClass} animate-in fade-in slide-in-from-bottom-4 duration-700 container mx-auto px-4 py-12`}>

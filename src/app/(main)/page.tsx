@@ -3,22 +3,26 @@ import { getActiveBanners, getBannerModuleStatus } from "@/app/admin/banners/act
 
 export default async function HomePage() {
   // Fetch settings in parallel
-  const [middleEnabled, footerEnabled] = await Promise.all([
+  const [middleEnabled, middle2Enabled, footerEnabled] = await Promise.all([
     getBannerModuleStatus('home_middle'),
+    getBannerModuleStatus('home_middle_2'),
     getBannerModuleStatus('home_footer')
   ])
 
   // Fetch banners only if enabled
-  const [middleBanners, footerBanners] = await Promise.all([
+  const [middleBanners, middle2Banners, footerBanners] = await Promise.all([
     middleEnabled ? getActiveBanners('home_middle') : [],
+    middle2Enabled ? getActiveBanners('home_middle_2') : [],
     footerEnabled ? getActiveBanners('home_footer') : []
   ])
 
   return (
     <HomeClient 
       middleEnabled={middleEnabled}
+      middle2Enabled={middle2Enabled}
       footerEnabled={footerEnabled}
       initialMiddleBanners={middleBanners}
+      initialMiddle2Banners={middle2Banners}
       initialFooterBanners={footerBanners}
     />
   )

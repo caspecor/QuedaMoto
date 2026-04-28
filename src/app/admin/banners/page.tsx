@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { getBanners, createBanner, updateBanner, deleteBanner, toggleBannerStatus, getBothBannerModulesStatus, toggleBannerModule } from "./actions"
+import { getBanners, createBanner, updateBanner, deleteBanner, toggleBannerStatus, getAllBannerModulesStatus, toggleBannerModule } from "./actions"
 import { toast } from "sonner"
 import { Image as ImageIcon, Link as LinkIcon, Trash2, Power, Plus, Loader2, Pencil } from "lucide-react"
 import { format } from "date-fns"
@@ -17,7 +17,7 @@ export default function AdminBannersPage() {
   const [isCreating, setIsCreating] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
   const [submitting, setSubmitting] = useState(false)
-  const [moduleStatus, setModuleStatus] = useState({ home_middle: true, home_footer: true })
+  const [moduleStatus, setModuleStatus] = useState({ home_middle: true, home_middle_2: true, home_footer: true })
 
   // Form states
   const [title, setTitle] = useState("")
@@ -36,7 +36,7 @@ export default function AdminBannersPage() {
     setLoading(true)
     const [data, status] = await Promise.all([
       getBanners(),
-      getBothBannerModulesStatus()
+      getAllBannerModulesStatus()
     ])
     setBanners(data)
     setModuleStatus(status)
@@ -171,7 +171,7 @@ export default function AdminBannersPage() {
       </div>
 
       {!isCreating && (
-        <div className="grid md:grid-cols-2 gap-6 mb-8">
+        <div className="grid md:grid-cols-3 gap-6 mb-8">
           <Card className={`border-white/10 rounded-[2rem] overflow-hidden transition-colors ${moduleStatus.home_middle ? 'bg-white/5 border-primary/30' : 'bg-black/50'}`}>
             <CardContent className="p-6 flex items-center justify-between">
               <div>
@@ -185,6 +185,23 @@ export default function AdminBannersPage() {
               >
                 <Power className="w-3 h-3 mr-2" />
                 {moduleStatus.home_middle ? 'Activado' : 'Desactivado'}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className={`border-white/10 rounded-[2rem] overflow-hidden transition-colors ${moduleStatus.home_middle_2 ? 'bg-white/5 border-primary/30' : 'bg-black/50'}`}>
+            <CardContent className="p-6 flex items-center justify-between">
+              <div>
+                <h3 className="font-black text-white uppercase tracking-widest text-sm">Módulo: Arriba (Fila 2)</h3>
+                <p className="text-xs text-white/40 mt-1">Habilita o deshabilita la 2º fila de 4 huecos.</p>
+              </div>
+              <Button 
+                variant={moduleStatus.home_middle_2 ? "default" : "outline"}
+                onClick={() => handleToggleModule('home_middle_2', moduleStatus.home_middle_2)}
+                className={`h-10 rounded-xl font-bold text-xs border-white/10 ${moduleStatus.home_middle_2 ? 'bg-primary text-white hover:bg-primary/80' : 'text-white/40 hover:text-white'}`}
+              >
+                <Power className="w-3 h-3 mr-2" />
+                {moduleStatus.home_middle_2 ? 'Activado' : 'Desactivado'}
               </Button>
             </CardContent>
           </Card>
@@ -241,7 +258,8 @@ export default function AdminBannersPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-[#0f0f0f] border-white/10 text-white rounded-xl">
-                      <SelectItem value="home_middle">Portada (Arriba - 8 espacios)</SelectItem>
+                      <SelectItem value="home_middle">Portada (Arriba Fila 1 - 4 espacios)</SelectItem>
+                      <SelectItem value="home_middle_2">Portada (Arriba Fila 2 - 4 espacios)</SelectItem>
                       <SelectItem value="home_footer">Portada (Abajo - 4 espacios)</SelectItem>
                     </SelectContent>
                   </Select>
@@ -253,7 +271,7 @@ export default function AdminBannersPage() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent className="bg-[#0f0f0f] border-white/10 text-white rounded-xl">
-                      {Array.from({ length: position === 'home_middle' ? 8 : 4 }).map((_, i) => (
+                      {Array.from({ length: 4 }).map((_, i) => (
                         <SelectItem key={i+1} value={(i+1).toString()}>Hueco {i+1}</SelectItem>
                       ))}
                     </SelectContent>

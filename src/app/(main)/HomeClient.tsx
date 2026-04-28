@@ -13,13 +13,17 @@ import { BannerZone } from "@/components/banners/BannerZone"
 
 export default function HomeClient({
   middleEnabled,
+  middle2Enabled,
   footerEnabled,
   initialMiddleBanners,
+  initialMiddle2Banners,
   initialFooterBanners
 }: {
   middleEnabled: boolean;
+  middle2Enabled: boolean;
   footerEnabled: boolean;
   initialMiddleBanners: any[];
+  initialMiddle2Banners: any[];
   initialFooterBanners: any[];
 }) {
   const { status } = useSession()
@@ -197,6 +201,7 @@ export default function HomeClient({
 
       {/* Banner Zone Middle */}
       <BannerZone position="home_middle" enabled={middleEnabled} banners={initialMiddleBanners} />
+      <BannerZone position="home_middle_2" enabled={middle2Enabled} banners={initialMiddle2Banners} />
 
       {/* Community Section */}
       <section className="relative py-40 overflow-hidden">

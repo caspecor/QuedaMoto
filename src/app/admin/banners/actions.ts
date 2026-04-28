@@ -141,11 +141,12 @@ export async function getBannerModuleStatus(position: string) {
   return data[0].value === 'true'
 }
 
-export async function getBothBannerModulesStatus() {
+export async function getAllBannerModulesStatus() {
   await checkAdmin()
   const middle = await getBannerModuleStatus('home_middle')
+  const middle2 = await getBannerModuleStatus('home_middle_2')
   const footer = await getBannerModuleStatus('home_footer')
-  return { home_middle: middle, home_footer: footer }
+  return { home_middle: middle, home_middle_2: middle2, home_footer: footer }
 }
 
 export async function toggleBannerModule(position: string, enabled: boolean) {
