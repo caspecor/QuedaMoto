@@ -65,12 +65,12 @@ export default async function ExplorePage({
   return (
     <div className="flex flex-col h-[calc(100vh-4rem)] md:flex-row overflow-hidden bg-background pt-24">
       {/* Map Section */}
-      <div className="w-full h-1/2 md:h-full md:flex-1 relative z-0 border-r border-white/5">
+      <div className="w-full h-[40vh] md:h-full md:flex-1 relative z-0 border-r border-white/5">
          <MapboxView meetups={meetups || []} />
       </div>
       
       {/* Sidebar (Filters & List) */}
-      <div className="w-full h-1/2 md:h-full md:w-[450px] bg-card flex flex-col z-10 overflow-hidden shadow-2xl relative">
+      <div className="w-full flex-1 md:h-full md:w-[450px] bg-card flex flex-col z-10 overflow-hidden shadow-2xl relative">
         <div className="p-6 border-b border-white/5 bg-black/20 backdrop-blur-md">
           <div className="flex items-center justify-between mb-2">
             <h2 className="text-2xl font-black text-white tracking-tight">Rutas Cercanas</h2>
