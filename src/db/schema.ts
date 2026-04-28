@@ -113,6 +113,7 @@ export const contactMessages = pgTable('contact_messages', {
 export const banners = pgTable('banners', {
   id: uuid('id').primaryKey().defaultRandom(),
   title: varchar('title', { length: 255 }).notNull(),
+  badgeText: varchar('badge_text', { length: 50 }).default('Sponsor'),
   imageUrl: text('image_url').notNull(),
   linkUrl: text('link_url'),
   position: varchar('position', { length: 50 }).notNull(), // 'home_middle', 'home_footer'

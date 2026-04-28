@@ -20,6 +20,7 @@ export default function AdminBannersPage() {
 
   // Form states
   const [title, setTitle] = useState("")
+  const [badgeText, setBadgeText] = useState("")
   const [linkUrl, setLinkUrl] = useState("")
   const [position, setPosition] = useState("home_middle")
   const [slotIndex, setSlotIndex] = useState(1)
@@ -67,6 +68,7 @@ export default function AdminBannersPage() {
     setSubmitting(true)
     const res = await createBanner({
       title,
+      badgeText,
       imageUrl: imageBase64,
       linkUrl,
       position,
@@ -77,6 +79,7 @@ export default function AdminBannersPage() {
       toast.success("Banner creado correctamente")
       setIsCreating(false)
       setTitle("")
+      setBadgeText("")
       setLinkUrl("")
       setImageBase64(null)
       loadBanners()
@@ -185,7 +188,16 @@ export default function AdminBannersPage() {
                   <Input 
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
-                    placeholder="Ej. Sponsor Monster Energy"
+                    placeholder="Ej. Campaña Navidad"
+                    className="bg-white/5 border-white/10 rounded-xl text-white"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs font-bold uppercase tracking-widest text-white/40">Nombre de Empresa (Etiqueta)</Label>
+                  <Input 
+                    value={badgeText}
+                    onChange={(e) => setBadgeText(e.target.value)}
+                    placeholder="Ej. Monster Energy (se verá en el banner)"
                     className="bg-white/5 border-white/10 rounded-xl text-white"
                   />
                 </div>

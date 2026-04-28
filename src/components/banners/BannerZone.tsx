@@ -43,7 +43,7 @@ export function BannerZone({
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-50 group-hover:opacity-20 transition-opacity" />
             <div className="absolute bottom-2 right-3 px-2 py-0.5 rounded bg-black/60 backdrop-blur-md border border-white/10">
               <span className="text-[8px] font-black uppercase tracking-[0.2em] text-white/50">
-                {banner ? 'Sponsor' : 'Disponible'}
+                {banner ? (banner.badgeText || 'Sponsor') : 'Disponible'}
               </span>
             </div>
           </div>

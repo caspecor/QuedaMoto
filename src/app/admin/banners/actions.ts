@@ -30,6 +30,7 @@ export async function getActiveBanners(position: string) {
 
 export async function createBanner(data: {
   title: string;
+  badgeText?: string;
   imageUrl: string;
   linkUrl?: string;
   position: string;
@@ -39,6 +40,7 @@ export async function createBanner(data: {
     await checkAdmin()
     await db.insert(banners).values({
       title: data.title,
+      badgeText: data.badgeText || 'Sponsor',
       imageUrl: data.imageUrl,
       linkUrl: data.linkUrl || '',
       position: data.position,
