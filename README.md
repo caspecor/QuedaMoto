@@ -13,15 +13,13 @@
 
 ## 📸 Galería Visual
 
-````carousel
-![Home Page](file:///C:/Users/Ancor/.gemini/antigravity/brain/a68e058d-9b0f-4ef6-bd9d-4ea48086abc2/home_page_1777496068477.png)
-<!-- slide -->
-![Explorador y Filtros](file:///C:/Users/Ancor/.gemini/antigravity/brain/a68e058d-9b0f-4ef6-bd9d-4ea48086abc2/explore_filters_open_1777496185044.png)
-<!-- slide -->
-![Sistema de Gamificación](file:///C:/Users/Ancor/.gemini/antigravity/brain/a68e058d-9b0f-4ef6-bd9d-4ea48086abc2/rider_profile_view_1777496216288.png)
-<!-- slide -->
-![Panel de Control (Admin)](file:///C:/Users/Ancor/.gemini/antigravity/brain/a68e058d-9b0f-4ef6-bd9d-4ea48086abc2/dashboard_view_1777496194273.png)
-````
+<div align="center">
+  <img src="./public/images/readme/home.png" width="45%" alt="Home Page" />
+  <img src="./public/images/readme/explore.png" width="45%" alt="Explorador y Filtros" />
+  <br />
+  <img src="./public/images/readme/profile.png" width="45%" alt="Sistema de Gamificación" />
+  <img src="./public/images/readme/dashboard.png" width="45%" alt="Panel de Control (Admin)" />
+</div>
 
 ---
 
