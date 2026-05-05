@@ -6,6 +6,8 @@ import { eq } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
 import { z } from 'zod'
+import { authLimiter } from '@/lib/rate-limit'
+import { headers } from 'next/headers'
 
 const signupSchema = z.object({
   email: z.string().email(),
@@ -16,6 +18,15 @@ const signupSchema = z.object({
 
 export async function signupAction(rawData: any) {
   try {
+    // Apply rate limiting
+    const headerList = await headers()
+    const ip = headerList.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1"
+    try {
+      await authLimiter.check(null, 10, `signup_${ip}`)
+    } catch (e) {
+      return { error: 'Demasiados intentos. Por favor, espera 15 minutos.' }
+    }
+
     // Validate input
     const validated = signupSchema.safeParse(rawData)
     if (!validated.success) {

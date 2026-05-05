@@ -7,12 +7,6 @@ export default auth(async (req) => {
   const pathname = req.nextUrl.pathname
 
   try {
-    // Apply auth rate limiting ONLY to API calls and callback routes
-    // This allows the login/register pages to load, but blocks excessive submissions
-    if (pathname.startsWith("/api/auth")) {
-      await authLimiter.check(null, 10, `auth_${ip}`)
-    }
-
     // Apply general rate limiting for analytics/visits
     if (pathname.startsWith("/api/visits")) {
       await generalLimiter.check(null, 15, `visits_${ip}`)

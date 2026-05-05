@@ -4,6 +4,8 @@ import { db } from "@/db"
 import { users } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import bcrypt from "bcryptjs"
+import { authLimiter } from "@/lib/rate-limit"
+import { headers } from "next/headers"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -14,6 +16,15 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       },
       authorize: async (credentials) => {
         if (!credentials?.email || !credentials?.password) return null
+
+        // Apply rate limiting in authorize instead of middleware to avoid redirects
+        const headerList = await headers()
+        const ip = headerList.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1"
+        try {
+          await authLimiter.check(null, 10, `auth_${ip}`)
+        } catch (e) {
+          throw new Error("RATE_LIMIT")
+        }
 
         const userArr = await db.select().from(users).where(eq(users.email, credentials.email as string))
         const user = userArr[0]
