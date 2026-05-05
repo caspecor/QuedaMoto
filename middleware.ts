@@ -7,8 +7,9 @@ export default auth(async (req) => {
   const pathname = req.nextUrl.pathname
 
   try {
-    // Apply auth rate limiting
-    if (pathname.startsWith("/api/auth/callback/credentials") || pathname.startsWith("/auth/login") || pathname.startsWith("/auth/register")) {
+    // Apply auth rate limiting ONLY to API calls and callback routes
+    // This allows the login/register pages to load, but blocks excessive submissions
+    if (pathname.startsWith("/api/auth")) {
       await authLimiter.check(null, 10, `auth_${ip}`)
     }
 
@@ -17,14 +18,11 @@ export default auth(async (req) => {
       await generalLimiter.check(null, 15, `visits_${ip}`)
     }
   } catch (error) {
-    const isApi = pathname.startsWith("/api/")
-    if (isApi) {
-      return NextResponse.json(
-        { error: "Demasiados intentos. Por favor, espera unos minutos.", code: "RATE_LIMIT" },
-        { status: 429 }
-      )
-    }
-    return new NextResponse("Demasiadas peticiones. Por favor, inténtalo más tarde.", { status: 429 })
+    // Always return JSON for API/Auth/Action routes so the client can show a toast
+    return NextResponse.json(
+      { error: "Demasiados intentos. Por favor, espera unos minutos.", code: "RATE_LIMIT" },
+      { status: 429 }
+    )
   }
 
   return NextResponse.next()
