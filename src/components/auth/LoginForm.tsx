@@ -43,15 +43,23 @@ export function LoginForm() {
       })
 
       if (result?.error) {
-        toast.error('Credenciales inválidas')
+        if (result.error.includes('RATE_LIMIT') || result.status === 429) {
+          toast.error('Demasiados intentos. Por favor, espera 15 minutos.')
+        } else {
+          toast.error('Credenciales inválidas')
+        }
       } else if (result?.ok) {
         toast.success('¡Bienvenido de nuevo!')
         setTimeout(() => {
           window.location.href = '/dashboard'
         }, 300)
       }
-    } catch (error) {
-      toast.error('Ocurrió un error al iniciar sesión')
+    } catch (error: any) {
+      if (error?.message?.includes('429')) {
+        toast.error('Demasiados intentos. Por favor, espera 15 minutos.')
+      } else {
+        toast.error('Ocurrió un error al iniciar sesión')
+      }
     } finally {
       setIsLoading(false)
     }

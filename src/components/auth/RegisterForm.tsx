@@ -59,7 +59,11 @@ export function RegisterForm() {
       }
     } catch (error: any) {
       console.error(error)
-      toast.error(error?.message ? `Error NextJS: ${error.message}` : 'Error de comunicación con el servidor')
+      if (error?.message?.includes('429') || error?.status === 429) {
+        toast.error('Demasiados intentos. Por favor, espera unos minutos.')
+      } else {
+        toast.error(error?.message ? `Error NextJS: ${error.message}` : 'Error de comunicación con el servidor')
+      }
     } finally {
       setIsLoading(false)
     }

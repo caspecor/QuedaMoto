@@ -17,6 +17,13 @@ export default auth(async (req) => {
       await generalLimiter.check(null, 15, `visits_${ip}`)
     }
   } catch (error) {
+    const isApi = pathname.startsWith("/api/")
+    if (isApi) {
+      return NextResponse.json(
+        { error: "Demasiados intentos. Por favor, espera unos minutos.", code: "RATE_LIMIT" },
+        { status: 429 }
+      )
+    }
     return new NextResponse("Demasiadas peticiones. Por favor, inténtalo más tarde.", { status: 429 })
   }
 
