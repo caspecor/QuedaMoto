@@ -5,9 +5,24 @@ import { users } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import bcrypt from 'bcryptjs'
 import crypto from 'crypto'
+import { z } from 'zod'
 
-export async function signupAction(data: { email: string; password: string; username: string; phone: string }) {
+const signupSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(6),
+  username: z.string().min(3),
+  phone: z.string().min(9),
+})
+
+export async function signupAction(rawData: any) {
   try {
+    // Validate input
+    const validated = signupSchema.safeParse(rawData)
+    if (!validated.success) {
+      return { error: 'Datos de registro inválidos.' }
+    }
+    const data = validated.data
+
     // Check if user exists
     const existing = await db.select().from(users).where(eq(users.email, data.email))
     if (existing.length > 0) {

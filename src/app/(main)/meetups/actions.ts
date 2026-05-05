@@ -9,6 +9,26 @@ import crypto from 'crypto'
 import { revalidatePath } from 'next/cache'
 import { eq, and, desc, gte, sql } from 'drizzle-orm'
 import { XP_REWARDS } from '@/lib/gamification'
+import { z } from 'zod'
+
+const meetupSchema = z.object({
+  title: z.string().min(5).max(100),
+  description: z.string().min(10).max(2000),
+  date: z.string(),
+  time: z.string(),
+  max_attendees: z.string().or(z.number()).transform(v => parseInt(v.toString())),
+  address: z.string(),
+  address_notes: z.string().optional().nullable(),
+  type: z.enum(['route', 'coffee', 'breakfast', 'night', 'offroad']),
+  level_required: z.enum(['Principiante', 'Intermedio', 'Avanzado']),
+  visibility: z.enum(['public', 'private']),
+  lat: z.number().optional(),
+  lng: z.number().optional(),
+})
+
+const messageSchema = z.object({
+  content: z.string().min(1).max(500).trim(),
+})
 
 
 async function checkSuspension(userId: string) {
@@ -107,17 +127,21 @@ export async function updateMeetupAction(meetupId: string, data: any) {
     if (!meetup) return { error: 'Quedada no encontrada' }
     if (meetup.creator_id !== session.user.id) return { error: 'Sin permiso' }
 
+    const validated = meetupSchema.safeParse(data)
+    if (!validated.success) return { error: 'Datos de actualización inválidos' }
+    const validData = validated.data
+
     await db.update(meetups).set({
-      title: data.title,
-      description: data.description,
-      date: data.date,
-      time: data.time,
-      max_attendees: parseInt(data.max_attendees),
-      address: data.address,
-      address_notes: data.address_notes || null,
-      type: data.type,
-      level_required: data.level_required,
-      visibility: data.visibility,
+      title: validData.title,
+      description: validData.description,
+      date: validData.date,
+      time: validData.time,
+      max_attendees: validData.max_attendees,
+      address: validData.address,
+      address_notes: validData.address_notes,
+      type: validData.type,
+      level_required: validData.level_required,
+      visibility: validData.visibility,
     }).where(eq(meetups.id, meetupId))
 
     revalidatePath(`/meetups/${meetupId}`)
@@ -137,16 +161,19 @@ export async function createMeetupAction(data: any) {
     const isSuspended = await checkSuspension(session.user.id)
     if (isSuspended) return { error: `Tu cuenta está suspendida hasta el ${isSuspended.toLocaleString()}` }
 
+    const validated = meetupSchema.safeParse(data)
+    if (!validated.success) return { error: 'Datos de creación inválidos' }
+    const validData = validated.data
+
     const meetupId = crypto.randomUUID()
     
     // Default config values
     const payload = {
-      ...data,
+      ...validData,
       id: meetupId,
       creator_id: session.user.id,
-      lat: data.lat || 28.12,
-      lng: data.lng || -15.43,
-      address_notes: data.address_notes || null,
+      lat: validData.lat || 28.12,
+      lng: validData.lng || -15.43,
       createdAt: new Date()
     }
 
@@ -180,11 +207,15 @@ export async function sendChatMessage(meetupId: string, content: string) {
     const isSuspended = await checkSuspension(session.user.id)
     if (isSuspended) return { error: `Cuenta suspendida temporalmente.` }
 
+    const validated = messageSchema.safeParse({ content })
+    if (!validated.success) return { error: 'Mensaje inválido' }
+    const { content: validContent } = validated.data
+
     // 1. Insert message (Core operation)
     await db.insert(messagesTable).values({
       meetup_id: meetupId,
       user_id: session.user.id,
-      content,
+      content: validContent,
     })
 
     // 2. Notification logic (Isolated task)
