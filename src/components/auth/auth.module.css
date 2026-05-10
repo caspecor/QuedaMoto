@@ -263,7 +263,34 @@
 /* Mobile responsive fixes */
 @media (max-width: 768px) {
   .container {
-    min-height: 650px;
+    min-height: 680px;
+  }
+  .authWrapper {
+    padding: 10px;
+  }
+  .authForm {
+    padding: 0 20px;
+  }
+  .authWrapper h1 {
+    font-size: 1.5rem;
+  }
+  .authInput {
+    padding: 8px 12px;
+    margin: 4px 0;
+    font-size: 14px;
+  }
+  .authButton {
+    padding: 10px 30px;
+    margin-top: 5px;
+  }
+  .authWrapper p {
+    margin: 10px 0 15px;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+  .errorText {
+    margin-top: -2px;
+    margin-bottom: 2px;
   }
   .signInContainer, .signUpContainer {
     width: 100%;
