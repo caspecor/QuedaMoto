@@ -1,6 +1,7 @@
 import { ReactNode } from "react"
 import { Navbar } from "@/components/layout/Navbar"
 import { BottomNav } from "@/components/layout/BottomNav"
+import { Footer } from "@/components/layout/Footer"
 import { auth } from "@/auth"
 
 import { NotificationListener } from "@/components/layout/NotificationListener"
@@ -48,6 +49,7 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
       <main className="flex-1">
         {children}
       </main>
+      <Footer />
       <BottomNav user={user} isSuspended={!!suspendedUntil || isBlocked} branding={branding} />
     </div>
   )
