@@ -90,14 +90,14 @@ export function Navbar({
           
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group flex-shrink-0">
-            <div className="h-20 w-20 flex items-center justify-center group-hover:scale-105 transition-transform flex-shrink-0">
+            <div className="h-24 w-24 flex items-center justify-center group-hover:scale-105 transition-transform duration-300 flex-shrink-0">
               {branding.logo ? (
                 <img src={branding.logo} alt={branding.title} className="w-full h-full object-contain drop-shadow-md" />
               ) : (
                 <Zap className="h-8 w-8 text-primary fill-primary" />
               )}
             </div>
-            <span className="text-xl md:text-2xl font-black italic tracking-tighter text-white truncate max-w-[150px] md:max-w-[250px]">
+            <span className="text-xl md:text-2xl font-black italic tracking-tighter text-white truncate max-w-0 opacity-0 group-hover:max-w-[250px] group-hover:opacity-100 transition-all duration-500 ease-in-out">
               {branding.title}
             </span>
           </Link>
