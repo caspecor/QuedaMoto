@@ -97,7 +97,7 @@ export function Navbar({
                 <Zap className="h-8 w-8 text-primary fill-primary" />
               )}
             </div>
-            <span className="text-xl md:text-2xl font-black italic tracking-tighter text-white truncate max-w-0 opacity-0 group-hover:max-w-[250px] group-hover:opacity-100 transition-all duration-500 ease-in-out">
+            <span className="text-xl md:text-2xl font-black italic tracking-tighter text-white truncate max-w-0 opacity-0 group-hover:max-w-[300px] group-hover:opacity-100 transition-all duration-500 ease-in-out pr-2">
               {branding.title}
             </span>
           </Link>
