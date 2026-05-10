@@ -90,7 +90,7 @@ export function Navbar({
           
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group flex-shrink-0">
-            <div className="h-14 w-14 flex items-center justify-center group-hover:scale-105 transition-transform flex-shrink-0">
+            <div className="h-20 w-20 flex items-center justify-center group-hover:scale-105 transition-transform flex-shrink-0">
               {branding.logo ? (
                 <img src={branding.logo} alt={branding.title} className="w-full h-full object-contain drop-shadow-md" />
               ) : (

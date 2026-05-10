@@ -242,8 +242,8 @@ export default function HomeClient({
 
       <footer className="w-full border-t border-white/5 py-12 bg-black/50">
         <div className="container px-4 mx-auto flex flex-col md:flex-row justify-between items-center gap-8">
-          <div className="flex items-center gap-2">
-            <Zap className="h-6 w-6 text-primary" />
+          <div className="flex items-center gap-3">
+            <img src="/logo.png" alt="QuedaMoto Logo" className="h-10 w-10 object-contain drop-shadow-md" />
             <span className="text-xl font-black tracking-tighter text-white italic">QUEDAMOTO</span>
           </div>
           
