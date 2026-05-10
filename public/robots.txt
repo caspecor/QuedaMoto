@@ -1,0 +1,11 @@
+User-Agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /api
+Disallow: /auth
+Disallow: /test-role
+Disallow: /test-session
+
+Sitemap: https://quedamoto.vercel.app/sitemap.xml
