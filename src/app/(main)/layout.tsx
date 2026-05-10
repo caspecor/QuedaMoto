@@ -35,7 +35,7 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
   // Fetch Site Settings for Branding
   const settingsRes = await db.select().from(settings)
   const branding = {
-    logo: settingsRes.find(s => s.key === 'site_logo')?.value || '/logo.svg',
+    logo: settingsRes.find(s => s.key === 'site_logo')?.value || '/logo.png',
     title: settingsRes.find(s => s.key === 'site_name')?.value || settingsRes.find(s => s.key === 'site_title')?.value || 'QuedaMoto'
   }
 
