@@ -86,7 +86,7 @@ export default function HomeClient({
             className="inline-flex items-center gap-2 px-3 py-1 bg-white/5 border border-white/10 rounded-full mb-6 backdrop-blur-md"
           >
             <Zap className="h-3 w-3 text-primary fill-primary" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70">Unidos por el asfalto</span>
+            <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/70">QuedaMoto - Unidos por el asfalto</span>
           </motion.div>
 
           <motion.h1 
