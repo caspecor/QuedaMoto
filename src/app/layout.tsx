@@ -38,6 +38,9 @@ export async function generateMetadata(): Promise<Metadata> {
       alternates: {
         canonical: '/',
       },
+      verification: {
+        google: gscCode || '0PFknYWVYkT0rHw1QDQxdcjIYoXq_QAdtnliZ-JZ4mo',
+      },
       openGraph: {
         title: title,
         description: "La plataforma para los amantes de las motos en Canarias y España. Encuentra rutas, conoce a otros moteros y organiza quedadas.",
