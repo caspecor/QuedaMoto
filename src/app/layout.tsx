@@ -25,11 +25,32 @@ export async function generateMetadata(): Promise<Metadata> {
     const gscCode = gscRes[0]?.value
 
     return {
+      metadataBase: new URL('https://quedamoto.vercel.app'),
       title: {
         default: title,
         template: `%s | ${title}`,
       },
-      description: "La plataforma para los amantes de las motos",
+      description: "La plataforma para los amantes de las motos en Canarias y España. Encuentra rutas, conoce a otros moteros y organiza quedadas.",
+      keywords: ["rutas en moto Canarias", "quedadas moteras España", "moteros Canarias", "rutas moto", "comunidad motera", "eventos moteros", "QuedaMoto"],
+      authors: [{ name: 'QuedaMoto Team', url: 'https://quedamoto.vercel.app' }],
+      creator: 'QuedaMoto',
+      publisher: 'QuedaMoto',
+      alternates: {
+        canonical: '/',
+      },
+      openGraph: {
+        title: title,
+        description: "La plataforma para los amantes de las motos en Canarias y España. Encuentra rutas, conoce a otros moteros y organiza quedadas.",
+        url: 'https://quedamoto.vercel.app',
+        siteName: title,
+        locale: 'es_ES',
+        type: 'website',
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title: title,
+        description: "La plataforma para los amantes de las motos en Canarias y España. Encuentra rutas, conoce a otros moteros y organiza quedadas.",
+      },
       icons: favicon ? [{ rel: 'icon', url: favicon }] : undefined,
       verification: {
         google: gscCode?.includes('google-site-verification') 
@@ -39,8 +60,10 @@ export async function generateMetadata(): Promise<Metadata> {
     }
   } catch (e) {
     return {
+      metadataBase: new URL('https://quedamoto.vercel.app'),
       title: "QuedaMoto",
-      description: "La plataforma para los amantes de las motos",
+      description: "La plataforma para los amantes de las motos en Canarias y España.",
+      keywords: ["rutas en moto Canarias", "quedadas moteras España", "moteros Canarias", "rutas moto", "comunidad motera"],
     }
   }
 }
