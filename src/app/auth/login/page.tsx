@@ -1,10 +1,10 @@
-import { LoginForm } from "@/components/auth/LoginForm";
+import { AuthDualPanel } from "@/components/auth/AuthDualPanel";
 
 export const metadata = {
-  title: "Entrar - QuedaMoto",
-  description: "Inicia sesión en QuedaMoto",
+  title: "Acceder - QuedaMoto",
+  description: "Inicia sesión o regístrate en QuedaMoto",
 };
 
 export default function LoginPage() {
-  return <LoginForm />;
+  return <AuthDualPanel />;
 }

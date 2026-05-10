@@ -1,10 +1,6 @@
-import { RegisterForm } from "@/components/auth/RegisterForm";
-
-export const metadata = {
-  title: "Registro - QuedaMoto",
-  description: "Crea tu cuenta en QuedaMoto",
-};
+import { redirect } from 'next/navigation'
 
 export default function RegisterPage() {
-  return <RegisterForm />;
+  // El registro ahora está unificado con el login en el mismo componente dual
+  redirect('/auth/login')
 }
