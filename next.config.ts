@@ -34,8 +34,8 @@ const nextConfig: NextConfig = {
       },
     ]
   },
-  // Ensure proper output for Vercel
-  output: 'standalone',
+  // Note: no 'output: standalone' - Vercel manages the server automatically
 };
+
 
 export default nextConfig;
