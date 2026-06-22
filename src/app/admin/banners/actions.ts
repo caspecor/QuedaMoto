@@ -20,12 +20,16 @@ export async function getBanners() {
 }
 
 export async function getActiveBanners(position: string) {
-  const data = await db.select()
-    .from(banners)
-    .where(eq(banners.position, position))
-    .orderBy(banners.slotIndex, desc(banners.createdAt))
-  
-  return data.filter(b => b.isActive)
+  try {
+    const data = await db.select()
+      .from(banners)
+      .where(eq(banners.position, position))
+      .orderBy(banners.slotIndex, desc(banners.createdAt))
+    return data.filter(b => b.isActive)
+  } catch {
+    // Table may not exist yet in production
+    return []
+  }
 }
 
 export async function createBanner(data: {
@@ -135,10 +139,15 @@ export async function incrementBannerClick(id: string) {
 }
 
 export async function getBannerModuleStatus(position: string) {
-  const key = `banner_${position}_enabled`
-  const data = await db.select().from(settings).where(eq(settings.key, key)).limit(1)
-  if (data.length === 0) return true // Default is enabled
-  return data[0].value === 'true'
+  try {
+    const key = `banner_${position}_enabled`
+    const data = await db.select().from(settings).where(eq(settings.key, key)).limit(1)
+    if (data.length === 0) return true // Default is enabled
+    return data[0].value === 'true'
+  } catch {
+    // Table may not exist yet in production – default to enabled
+    return true
+  }
 }
 
 export async function getAllBannerModulesStatus() {

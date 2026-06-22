@@ -21,17 +21,21 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
   let suspendedUntil = null
   let isBlocked = false
   if (user?.id) {
-    const [dbUser] = await db.select({
-      suspendedUntil: users.suspendedUntil,
-      isBlocked: users.isBlocked
-    }).from(users).where(eq(users.id, user.id)).limit(1)
+    try {
+      const [dbUser] = await db.select({
+        suspendedUntil: users.suspendedUntil,
+        isBlocked: users.isBlocked
+      }).from(users).where(eq(users.id, user.id)).limit(1)
 
-    if (dbUser?.isBlocked) {
-      isBlocked = true
-    }
+      if (dbUser?.isBlocked) {
+        isBlocked = true
+      }
 
-    if (dbUser?.suspendedUntil && new Date(dbUser.suspendedUntil) > new Date()) {
-      suspendedUntil = dbUser.suspendedUntil.toISOString()
+      if (dbUser?.suspendedUntil && new Date(dbUser.suspendedUntil) > new Date()) {
+        suspendedUntil = dbUser.suspendedUntil.toISOString()
+      }
+    } catch {
+      // DB error or missing columns – treat as normal user
     }
   }
 
