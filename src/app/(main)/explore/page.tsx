@@ -1,4 +1,4 @@
-import { MapboxView } from "@/components/map/MapboxView";
+import { MapView } from "@/components/map/MapView";
 import { db } from "@/db"
 import { meetups as meetupsTable } from "@/db/schema"
 import { eq, and, gte } from "drizzle-orm"
@@ -66,7 +66,7 @@ export default async function ExplorePage({
     <div className="flex flex-col h-[calc(100vh-4rem)] md:flex-row overflow-hidden bg-background pt-24">
       {/* Map Section */}
       <div className="w-full h-[20vh] md:h-full md:flex-1 relative z-0 border-r border-white/5">
-         <MapboxView meetups={meetups || []} />
+         <MapView meetups={meetups || []} />
       </div>
       
       {/* Sidebar (Filters & List) */}

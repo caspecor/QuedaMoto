@@ -120,7 +120,7 @@ function LeafletMapView({ meetups }: { meetups: MeetupPin[] }) {
   );
 }
 
-export function MapboxView({ meetups }: { meetups: MeetupPin[] }) {
+export function MapView({ meetups }: { meetups: MeetupPin[] }) {
   const [mounted, setMounted] = useState(false);
   useEffect(() => { setMounted(true); }, []);
   

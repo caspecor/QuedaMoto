@@ -2,7 +2,7 @@ import { db } from "@/db"
 import { meetups as meetupsTable, attendees, users } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { notFound } from "next/navigation"
-import { MapboxView } from "@/components/map/MapboxView"
+import { MapView } from "@/components/map/MapView"
 import { ChatModule } from "@/components/meetups/ChatModule"
 import { JoinButton } from "@/components/meetups/JoinButton"
 import { OrganizerControls } from "@/components/meetups/OrganizerControls"
@@ -60,7 +60,7 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
     <div className="flex flex-col md:flex-row min-h-screen bg-background pt-24">
       {/* Map Section - Mobile Header / Desktop Left */}
       <div className="w-full h-96 md:h-[calc(100vh-6rem)] md:flex-1 relative order-1 md:order-2 z-0 border-l border-white/5 bg-[#030303] sticky top-24">
-        <MapboxView meetups={[{
+        <MapView meetups={[{
           id: meetup.id,
           lat: meetup.lat,
           lng: meetup.lng,

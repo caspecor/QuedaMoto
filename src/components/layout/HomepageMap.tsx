@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getPublicMeetups } from '@/app/(main)/meetups/actions';
-import { MapboxView } from '@/components/map/MapboxView';
+import { MapView } from '@/components/map/MapView';
 
 export function HomepageMap() {
   const [meetups, setMeetups] = useState<any[]>([]);
@@ -28,7 +28,7 @@ export function HomepageMap() {
   return (
     <div className="relative w-full h-full rounded-3xl overflow-hidden border border-white/5 shadow-2xl group">
       <div className="absolute inset-0 z-10 pointer-events-none bg-gradient-to-tr from-background via-transparent to-transparent opacity-60" />
-      <MapboxView meetups={meetups} />
+      <MapView meetups={meetups} />
       
       {/* Overlay info */}
       <div className="absolute top-4 right-4 z-[9999] bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2 pointer-events-none">
