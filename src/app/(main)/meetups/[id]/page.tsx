@@ -2,7 +2,12 @@ import { db } from "@/db"
 import { meetups as meetupsTable, attendees, users } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { notFound } from "next/navigation"
-import { MapboxView } from "@/components/map/MapboxView"
+import dynamic from "next/dynamic";
+
+const MapboxView = dynamic(
+  () => import("@/components/map/MapboxView").then((mod) => mod.MapboxView),
+  { ssr: false }
+);
 import { ChatModule } from "@/components/meetups/ChatModule"
 import { JoinButton } from "@/components/meetups/JoinButton"
 import { OrganizerControls } from "@/components/meetups/OrganizerControls"
