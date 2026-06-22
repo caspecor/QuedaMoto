@@ -10,6 +10,7 @@ import { getBanners, createBanner, updateBanner, deleteBanner, toggleBannerStatu
 import { toast } from "sonner"
 import { Image as ImageIcon, Link as LinkIcon, Trash2, Power, Plus, Loader2, Pencil } from "lucide-react"
 import { format } from "date-fns"
+import { supabase } from "@/lib/supabase"
 
 export default function AdminBannersPage() {
   const [banners, setBanners] = useState<any[]>([])
@@ -43,20 +44,42 @@ export default function AdminBannersPage() {
     setLoading(false)
   }
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (file.size > 500000) {
-      toast.error("La imagen es muy pesada. Máximo 500KB.")
+    if (file.size > 2 * 1024 * 1024) { // Now support up to 2MB since we don't store Base64 in DB
+      toast.error("La imagen es muy pesada. Máximo 2MB.")
       return
     }
 
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setImageBase64(reader.result as string)
+    try {
+      setSubmitting(true)
+      const fileExt = file.name.split('.').pop()
+      const fileName = `banners/${Date.now()}.${fileExt}`
+
+      const { data: uploadData, error } = await supabase.storage
+        .from('data')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        })
+
+      if (error) {
+        throw error
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('data')
+        .getPublicUrl(fileName)
+
+      setImageBase64(publicUrl)
+      toast.success("Imagen de banner subida correctamente")
+    } catch (error: any) {
+      toast.error("Error al subir imagen: " + error.message)
+    } finally {
+      setSubmitting(false)
     }
-    reader.readAsDataURL(file)
   }
 
   const handleCreate = async (e: React.FormEvent) => {

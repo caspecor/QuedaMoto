@@ -18,6 +18,7 @@ import {
   SelectTrigger, 
   SelectValue 
 } from "@/components/ui/select"
+import { supabase } from "@/lib/supabase"
 
 export function ProfileEditForm({ profile }: { profile: any }) {
   const router = useRouter()
@@ -39,7 +40,7 @@ export function ProfileEditForm({ profile }: { profile: any }) {
 
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
@@ -48,11 +49,33 @@ export function ProfileEditForm({ profile }: { profile: any }) {
       return
     }
 
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      setAvatar(reader.result as string)
+    try {
+      setLoading(true)
+      const fileExt = file.name.split('.').pop()
+      const fileName = `avatars/${profile.id}-${Date.now()}.${fileExt}`
+
+      const { data: uploadData, error } = await supabase.storage
+        .from('data')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        })
+
+      if (error) {
+        throw error
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('data')
+        .getPublicUrl(fileName)
+
+      setAvatar(publicUrl)
+      toast.success("Imagen subida correctamente")
+    } catch (error: any) {
+      toast.error("Error al subir imagen: " + error.message)
+    } finally {
+      setLoading(false)
     }
-    reader.readAsDataURL(file)
   }
 
   const handleProfileUpdate = async (e: React.FormEvent) => {

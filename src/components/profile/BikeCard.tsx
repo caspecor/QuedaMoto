@@ -10,6 +10,7 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { updateProfile } from "@/app/(main)/meetups/actions"
 import { Pencil, Bike, Plus, Trash2, Instagram, Youtube, Share2, Image as ImageIcon, Camera } from "lucide-react"
+import { supabase } from "@/lib/supabase"
 
 export function BikeCard({ profile }: { profile: any }) {
   const router = useRouter()
@@ -46,20 +47,42 @@ export function BikeCard({ profile }: { profile: any }) {
     setVehicles(newVehicles)
   }
 
-  const handleImageUpload = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
 
-    if (file.size > 500000) { // 500KB limit for JSONB safety
-      toast.error("La imagen es muy pesada. Máximo 500KB.")
+    if (file.size > 2 * 1024 * 1024) { // Now we can support larger files (2MB) since we don't store Base64
+      toast.error("La imagen es muy pesada. Máximo 2MB.")
       return
     }
 
-    const reader = new FileReader()
-    reader.onloadend = () => {
-      handleVehicleChange(index, 'image', reader.result as string)
+    try {
+      setLoading(true)
+      const fileExt = file.name.split('.').pop()
+      const fileName = `bikes/${profile.id}-${index}-${Date.now()}.${fileExt}`
+
+      const { data: uploadData, error } = await supabase.storage
+        .from('data')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        })
+
+      if (error) {
+        throw error
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('data')
+        .getPublicUrl(fileName)
+
+      handleVehicleChange(index, 'image', publicUrl)
+      toast.success("Imagen de moto subida correctamente")
+    } catch (error: any) {
+      toast.error("Error al subir imagen: " + error.message)
+    } finally {
+      setLoading(false)
     }
-    reader.readAsDataURL(file)
   }
 
   const handleSave = async (e: React.FormEvent) => {
