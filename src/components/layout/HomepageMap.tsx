@@ -2,12 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { getPublicMeetups } from '@/app/(main)/meetups/actions';
-import dynamic from 'next/dynamic';
-
-const MapboxView = dynamic(
-  () => import('@/components/map/MapboxView').then((mod) => mod.MapboxView),
-  { ssr: false }
-);
+import { MapboxView } from '@/components/map/MapboxView';
 
 export function HomepageMap() {
   const [meetups, setMeetups] = useState<any[]>([]);

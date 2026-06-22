@@ -1,9 +1,4 @@
-import dynamic from "next/dynamic";
-
-const MapboxView = dynamic(
-  () => import("@/components/map/MapboxView").then((mod) => mod.MapboxView),
-  { ssr: false }
-);
+import { MapboxView } from "@/components/map/MapboxView";
 import { db } from "@/db"
 import { meetups as meetupsTable } from "@/db/schema"
 import { eq, and, gte } from "drizzle-orm"
