@@ -74,6 +74,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     },
   },
   // session: { strategy: "jwt" }, // Eliminado para compatibilidad con getServerSession()
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.AUTH_SECRET,
 })
 
