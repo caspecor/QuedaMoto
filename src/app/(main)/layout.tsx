@@ -12,6 +12,8 @@ import { users, settings } from "@/db/schema"
 import { eq } from "drizzle-orm"
 import { redirect } from "next/navigation"
 
+export const dynamic = 'force-dynamic'
+
 export default async function MainLayout({ children }: { children: ReactNode }) {
   const session = await auth()
   const user = session?.user
@@ -34,7 +36,12 @@ export default async function MainLayout({ children }: { children: ReactNode }) 
   }
 
   // Fetch Site Settings for Branding
-  const settingsRes = await db.select().from(settings)
+  let settingsRes: { key: string; value: string | null }[] = []
+  try {
+    settingsRes = await db.select().from(settings)
+  } catch {
+    // DB not available during build or cold start – use defaults
+  }
   const branding = {
     logo: settingsRes.find(s => s.key === 'site_logo')?.value || '/logo.png',
     title: settingsRes.find(s => s.key === 'site_name')?.value || settingsRes.find(s => s.key === 'site_title')?.value || 'QuedaMoto'

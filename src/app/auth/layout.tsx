@@ -4,9 +4,16 @@ import Image from "next/image"
 import { db } from "@/db"
 import { settings } from "@/db/schema"
 
+export const dynamic = 'force-dynamic'
+
 export default async function AuthLayout({ children }: { children: ReactNode }) {
   // Fetch Site Settings for Branding
-  const settingsRes = await db.select().from(settings)
+  let settingsRes: { key: string; value: string | null }[] = []
+  try {
+    settingsRes = await db.select().from(settings)
+  } catch {
+    // DB not available during build or cold start – use defaults
+  }
   const branding = {
     logo: settingsRes.find(s => s.key === 'site_logo')?.value || '/logo.png',
     title: settingsRes.find(s => s.key === 'site_name')?.value || settingsRes.find(s => s.key === 'site_title')?.value || 'QuedaMoto'
