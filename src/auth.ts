@@ -6,8 +6,10 @@ import { eq } from "drizzle-orm"
 import bcrypt from "bcryptjs"
 import { authLimiter } from "@/lib/rate-limit"
 import { headers } from "next/headers"
+import { authConfig } from "./auth.config"
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       credentials: {
@@ -17,7 +19,6 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       authorize: async (credentials) => {
         if (!credentials?.email || !credentials?.password) return null
 
-        // Apply rate limiting in authorize instead of middleware to avoid redirects
         const headerList = await headers()
         const ip = headerList.get("x-forwarded-for")?.split(",")[0] || "127.0.0.1"
         try {
@@ -34,46 +35,14 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const passwordsMatch = await bcrypt.compare(credentials.password as string, user.password)
         if (!passwordsMatch) return null
 
-      return { 
-        id: user.id, 
-        name: user.username,
-        email: user.email,
-        role: user.role,
-        suspendedUntil: user.suspendedUntil
-      }
+        return {
+          id: user.id,
+          name: user.username,
+          email: user.email,
+          role: user.role,
+          suspendedUntil: user.suspendedUntil
+        }
       },
     }),
   ],
-  pages: {
-    signIn: '/auth/login',
-  },
-  callbacks: {
-    jwt: ({ token, user }) => {
-      if (user) {
-        token.id = user.id
-        token.name = user.name
-        token.email = user.email
-        // @ts-ignore
-        token.role = user.role
-        // @ts-ignore
-        token.suspendedUntil = user.suspendedUntil
-      }
-      return token
-    },
-    session: ({ session, token }) => {
-      if (session.user) {
-        session.user.id = token.id as string
-        session.user.name = token.name
-        session.user.email = token.email as string
-        // @ts-ignore
-        session.user.role = token.role as string
-        // @ts-ignore
-        session.user.suspendedUntil = token.suspendedUntil as string
-      }
-      return session
-    },
-  },
-  // session: { strategy: "jwt" }, // Eliminado para compatibilidad con getServerSession()
-  secret: process.env.AUTH_SECRET,
 })
-
