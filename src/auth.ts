@@ -6,8 +6,11 @@ import { eq } from "drizzle-orm"
 import bcrypt from "bcryptjs"
 import { authLimiter } from "@/lib/rate-limit"
 import { headers } from "next/headers"
+import { authConfig } from "./auth.config"
 
+// This instance runs in Node.js runtime only — can use pg/db
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  ...authConfig,
   providers: [
     Credentials({
       credentials: {
@@ -25,52 +28,27 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           throw new Error("RATE_LIMIT")
         }
 
-        const userArr = await db.select().from(users).where(eq(users.email, credentials.email as string))
-        const user = userArr[0]
+        try {
+          const userArr = await db.select().from(users).where(eq(users.email, credentials.email as string))
+          const user = userArr[0]
 
-        if (!user || !user.password) return null
+          if (!user || !user.password) return null
 
-        const passwordsMatch = await bcrypt.compare(credentials.password as string, user.password)
-        if (!passwordsMatch) return null
+          const passwordsMatch = await bcrypt.compare(credentials.password as string, user.password)
+          if (!passwordsMatch) return null
 
-        return {
-          id: user.id,
-          name: user.username,
-          email: user.email,
-          role: user.role,
-          suspendedUntil: user.suspendedUntil
+          return {
+            id: user.id,
+            name: user.username,
+            email: user.email,
+            role: user.role,
+            suspendedUntil: user.suspendedUntil
+          }
+        } catch (dbError) {
+          console.error('[auth] DB error during authorize:', dbError)
+          return null
         }
       },
     }),
   ],
-  pages: {
-    signIn: '/auth/login',
-  },
-  callbacks: {
-    jwt({ token, user }) {
-      if (user) {
-        token.id = user.id
-        token.name = user.name
-        token.email = user.email
-        // @ts-ignore
-        token.role = user.role
-        // @ts-ignore
-        token.suspendedUntil = user.suspendedUntil
-      }
-      return token
-    },
-    session({ session, token }) {
-      if (session.user) {
-        session.user.id = token.id as string
-        session.user.name = token.name
-        session.user.email = token.email as string
-        // @ts-ignore
-        session.user.role = token.role as string
-        // @ts-ignore
-        session.user.suspendedUntil = token.suspendedUntil as string
-      }
-      return session
-    },
-  },
-  secret: process.env.AUTH_SECRET,
 })
