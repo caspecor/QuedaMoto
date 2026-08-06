@@ -3,6 +3,8 @@ import { db } from '@/db'
 import { users } from '@/db/schema'
 import { sql } from 'drizzle-orm'
 
+export const dynamic = 'force-dynamic'
+
 export async function GET() {
   try {
     // Test DB connection
@@ -11,7 +13,7 @@ export async function GET() {
       status: 'ok', 
       userCount: result[0]?.count,
       postgres_url_set: !!process.env.POSTGRES_URL,
-      postgres_url_prefix: process.env.POSTGRES_URL?.substring(0, 30) + '...'
+      postgres_url_prefix: process.env.POSTGRES_URL ? process.env.POSTGRES_URL.substring(0, 30) + '...' : 'NOT_SET'
     })
   } catch (error: any) {
     return NextResponse.json({ 

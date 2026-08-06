@@ -4,6 +4,8 @@ import { notifications, users, attendees, meetups } from "@/db/schema"
 import { desc, eq } from "drizzle-orm"
 import { TestNotifButton } from "./TestNotifButton"
 
+export const dynamic = 'force-dynamic'
+
 export default async function DiagnosticsPage() {
   const session = await auth()
   const user = session?.user
