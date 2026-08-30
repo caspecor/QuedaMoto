@@ -157,14 +157,14 @@ export default function GasolinerasClient() {
     : stations
 
   return (
-    <div className="min-h-screen bg-mesh pt-20 pb-16">
+    <div className="min-h-screen bg-mesh pt-28 sm:pt-32 pb-16">
       <div className="container mx-auto px-3.5 sm:px-6 max-w-7xl">
 
-        {/* Top Back Nav & Header */}
+        {/* Top Back Nav (Mobile only) & Header */}
         <div className="mb-6 sm:mb-10">
           <Link 
             href="/" 
-            className="inline-flex items-center gap-2 text-white/50 hover:text-white text-xs sm:text-sm mb-4 sm:mb-6 transition-colors py-1 px-2.5 rounded-lg bg-white/5 border border-white/10"
+            className="md:hidden inline-flex items-center gap-2 text-white/50 hover:text-white text-xs sm:text-sm mb-4 transition-colors py-1.5 px-3 rounded-xl bg-white/5 border border-white/10"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Volver a inicio
