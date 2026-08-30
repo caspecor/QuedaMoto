@@ -9,6 +9,8 @@ CREATE TABLE IF NOT EXISTS gasolineras_canarias (
   direccion   TEXT,
   municipio   TEXT,
   provincia   TEXT,
+  cp          TEXT,                        -- Código Postal
+  isla        TEXT,                        -- Isla de Canarias (Tenerife, Gran Canaria, etc.)
   lat         DOUBLE PRECISION,
   lng         DOUBLE PRECISION,
   precio_95   DOUBLE PRECISION,            -- Gasolina 95 E5
@@ -18,9 +20,14 @@ CREATE TABLE IF NOT EXISTS gasolineras_canarias (
   updated_at  TIMESTAMP DEFAULT NOW()
 );
 
--- Índice para búsquedas rápidas por precio
+-- Si la tabla ya fue creada anteriormente, añadir las columnas nuevas:
+ALTER TABLE gasolineras_canarias ADD COLUMN IF NOT EXISTS cp TEXT;
+ALTER TABLE gasolineras_canarias ADD COLUMN IF NOT EXISTS isla TEXT;
+
+-- Índices para búsquedas y filtros rápidos
 CREATE INDEX IF NOT EXISTS idx_gasolineras_precio_95     ON gasolineras_canarias (precio_95 ASC NULLS LAST);
 CREATE INDEX IF NOT EXISTS idx_gasolineras_precio_diesel ON gasolineras_canarias (precio_diesel ASC NULLS LAST);
+CREATE INDEX IF NOT EXISTS idx_gasolineras_isla          ON gasolineras_canarias (isla);
 
 -- Tabla de control de la última sincronización
 CREATE TABLE IF NOT EXISTS gasolineras_sync_log (

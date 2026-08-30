@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Fuel, MapPin, ExternalLink, RefreshCw, Sparkles, Navigation } from 'lucide-react'
+import { Fuel, MapPin, ExternalLink, RefreshCw, Navigation, ChevronRight } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 interface GasStationData {
   id: string;
@@ -105,6 +106,15 @@ export function GasStationWidget() {
                 Diésel / Gasóleo
               </button>
             </div>
+
+            {/* Link to full page */}
+            <Link
+              href="/gasolineras"
+              className="shrink-0 self-start md:self-auto inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-primary/40 text-sm font-bold text-white/70 hover:text-white transition-all"
+            >
+              Ver todas
+              <ChevronRight className="h-4 w-4 text-primary" />
+            </Link>
           </div>
 
           {/* Loading Skeleton */}
@@ -113,6 +123,7 @@ export function GasStationWidget() {
               {[1, 2, 3, 4].map(i => (
                 <div key={i} className="h-44 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
               ))}
+
             </div>
           )}
 

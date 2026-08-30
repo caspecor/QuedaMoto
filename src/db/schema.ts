@@ -131,6 +131,8 @@ export const gasolinerasCanarias = pgTable('gasolineras_canarias', {
   direccion: text('direccion'),
   municipio: text('municipio'),
   provincia: text('provincia'),
+  cp: text('cp'),                      // Postal code — used to derive isla
+  isla: text('isla'),                  // Canary Island name
   lat: doublePrecision('lat'),
   lng: doublePrecision('lng'),
   precio95: doublePrecision('precio_95'),
