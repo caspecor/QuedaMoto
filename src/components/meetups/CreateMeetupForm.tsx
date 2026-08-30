@@ -72,7 +72,7 @@ export function CreateMeetupForm() {
     return () => document.removeEventListener('mousedown', handleClickOutside)
   }, [])
 
-  // Geocode search (Autocomplete + Live map move)
+  // Geocode search via backend API route
   async function searchLocation(query: string, isManualSearch = false) {
     if (!query || query.trim().length < 3) {
       setSuggestions([])
@@ -84,10 +84,7 @@ export function CreateMeetupForm() {
     }
     setIsGeocoding(true)
     try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1`,
-        { headers: { 'Accept-Language': 'es' } }
-      )
+      const res = await fetch(`/api/geocode?q=${encodeURIComponent(query)}`)
       const data = await res.json()
       if (Array.isArray(data) && data.length > 0) {
         const formattedSuggestions: Suggestion[] = data.map((item: any) => ({
@@ -123,13 +120,10 @@ export function CreateMeetupForm() {
     }
   }
 
-  // Reverse geocode when map pin is clicked or dragged
+  // Reverse geocode via backend API route when map pin is clicked or dragged
   async function reverseGeocode(lat: number, lng: number) {
     try {
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
-        { headers: { 'Accept-Language': 'es' } }
-      )
+      const res = await fetch(`/api/reverse-geocode?lat=${lat}&lon=${lng}`)
       const data = await res.json()
       if (data && data.display_name) {
         setValue('address', data.display_name, { shouldValidate: true })
