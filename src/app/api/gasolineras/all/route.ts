@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/db'
 import { gasolinerasCanarias, gasolinerasSyncLog } from '@/db/schema'
-import { asc, desc, isNotNull, and, gte, lte, eq, or } from 'drizzle-orm'
+import { asc, desc, isNotNull, and, gte, lte, eq, or, ilike } from 'drizzle-orm'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,8 +13,9 @@ export async function GET(req: NextRequest) {
   const fuelType = searchParams.get('fuel') || '95'  // '95' | 'diesel' | '98'
   const maxPrice = parseFloat(searchParams.get('max') || '9999')
   const minPrice = parseFloat(searchParams.get('min') || '0')
+  const q = (searchParams.get('q') || searchParams.get('search') || '').trim()
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10))
-  const limit = Math.min(50, parseInt(searchParams.get('limit') || '20', 10))
+  const limit = Math.min(100, parseInt(searchParams.get('limit') || '30', 10))
   const offset = (page - 1) * limit
   const mode = searchParams.get('mode') || 'list'  // 'top4' | 'list'
 
@@ -29,6 +30,17 @@ export async function GET(req: NextRequest) {
     const conditions: any[] = [isNotNull(priceCol), gte(priceCol, minPrice)]
     if (maxPrice < 9999) conditions.push(lte(priceCol, maxPrice))
     if (isla) conditions.push(eq(gasolinerasCanarias.isla, isla))
+    if (q) {
+      conditions.push(
+        or(
+          ilike(gasolinerasCanarias.rotulo, `%${q}%`),
+          ilike(gasolinerasCanarias.municipio, `%${q}%`),
+          ilike(gasolinerasCanarias.direccion, `%${q}%`),
+          ilike(gasolinerasCanarias.cp, `%${q}%`),
+          ilike(gasolinerasCanarias.isla, `%${q}%`)
+        )
+      )
+    }
 
     const where = and(...conditions)
 

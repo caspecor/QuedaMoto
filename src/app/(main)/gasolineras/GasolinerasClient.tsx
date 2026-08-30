@@ -4,7 +4,7 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Fuel, MapPin, Navigation, ExternalLink, SlidersHorizontal, ChevronDown, ChevronUp,
-  ArrowLeft, Trophy, RefreshCw, Search, X, Sparkles
+  ArrowLeft, Trophy, RefreshCw, Search, X
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -54,6 +54,7 @@ export default function GasolinerasClient() {
   const [fuelType, setFuelType] = useState<'95' | 'diesel' | '98'>('95')
   const [maxPrice, setMaxPrice] = useState('')
   const [search, setSearch] = useState('')
+  const [debouncedSearch, setDebouncedSearch] = useState('')
   const [showFilters, setShowFilters] = useState(false)
 
   // Pagination
@@ -61,7 +62,15 @@ export default function GasolinerasClient() {
   const [hasMore, setHasMore] = useState(false)
   const [loadingMore, setLoadingMore] = useState(false)
 
-  const LIMIT = 20
+  const LIMIT = 30
+
+  // Debounce search input so database is queried smoothly
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(search)
+    }, 250)
+    return () => clearTimeout(timer)
+  }, [search])
 
   const buildQuery = useCallback((pg = 1) => {
     const params = new URLSearchParams()
@@ -70,16 +79,18 @@ export default function GasolinerasClient() {
     params.set('limit', String(LIMIT))
     if (isla) params.set('isla', isla)
     if (maxPrice) params.set('max', maxPrice)
+    if (debouncedSearch.trim()) params.set('q', debouncedSearch.trim())
     return `/api/gasolineras/all?${params.toString()}`
-  }, [isla, fuelType, maxPrice])
+  }, [isla, fuelType, maxPrice, debouncedSearch])
 
   const buildTop4Query = useCallback(() => {
     const params = new URLSearchParams()
     params.set('fuel', fuelType)
     params.set('mode', 'top4')
     if (isla) params.set('isla', isla)
+    if (debouncedSearch.trim()) params.set('q', debouncedSearch.trim())
     return `/api/gasolineras/all?${params.toString()}`
-  }, [isla, fuelType])
+  }, [isla, fuelType, debouncedSearch])
 
   // Load data when filters change
   useEffect(() => {
@@ -146,15 +157,6 @@ export default function GasolinerasClient() {
       `${s.rotulo} ${s.direccion || ''} ${s.municipio || ''}`
     )}`
   }
-
-  // Client-side text search filter
-  const filtered = search.trim()
-    ? stations.filter(s =>
-        s.rotulo.toLowerCase().includes(search.toLowerCase()) ||
-        (s.municipio || '').toLowerCase().includes(search.toLowerCase()) ||
-        (s.direccion || '').toLowerCase().includes(search.toLowerCase())
-      )
-    : stations
 
   return (
     <div className="min-h-screen bg-mesh pt-28 sm:pt-32 pb-16">
@@ -251,7 +253,7 @@ export default function GasolinerasClient() {
                   <Trophy className="h-3.5 w-3.5" />
                 </div>
                 <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white">
-                  Top 4 más económicas {isla ? `en ${isla}` : 'en Canarias'}
+                  Top 4 más económicas {isla ? `en ${isla}` : debouncedSearch ? `para "${debouncedSearch}"` : 'en Canarias'}
                 </h2>
               </div>
               <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
@@ -321,7 +323,7 @@ export default function GasolinerasClient() {
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
               <Input
                 type="text"
-                placeholder="Buscar por gasolinera o municipio (ej. Telde, Disa...)"
+                placeholder="Buscar por municipio, gasolinera o calle (ej. Valsequillo, Telde, Repsol...)"
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 className="pl-9 pr-8 bg-black/40 border-white/10 text-white text-xs sm:text-sm h-10 rounded-xl"
@@ -378,7 +380,7 @@ export default function GasolinerasClient() {
                       min="0"
                       max="3"
                       step="0.01"
-                      placeholder="Ej: 1.35"
+                      placeholder="Ej: 1.45"
                       value={maxPrice}
                       onChange={e => setMaxPrice(e.target.value)}
                       className="bg-black/40 border-white/10 text-white h-10 rounded-xl"
@@ -440,19 +442,20 @@ export default function GasolinerasClient() {
           <>
             <div className="flex items-center justify-between mb-3 px-1">
               <p className="text-xs text-white/50">
-                Mostrando <span className="text-white font-bold">{filtered.length}</span> gasolineras
-                {isla ? ` en ${isla}` : ' en Canarias'}
+                Mostrando <span className="text-white font-bold">{stations.length}</span> gasolineras
+                {isla ? ` en ${isla}` : ''}
+                {debouncedSearch ? ` para "${debouncedSearch}"` : ''}
               </p>
             </div>
 
-            {filtered.length === 0 && (
+            {stations.length === 0 && (
               <div className="py-16 text-center text-white/40 text-xs sm:text-sm bg-white/[0.02] border border-white/5 rounded-2xl p-6">
-                No se encontraron gasolineras con esos filtros. Prueba a cambiar la isla o el precio máximo.
+                No se encontraron gasolineras con esos filtros o búsqueda. Prueba con otro término.
               </div>
             )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
-              {filtered.map((s, i) => {
+              {stations.map((s, i) => {
                 const price = getPrice(s)
                 const isTop4 = top4.some(t => t.id === s.id)
                 return (
@@ -531,7 +534,7 @@ export default function GasolinerasClient() {
             </div>
 
             {/* Load more button */}
-            {hasMore && !search && (
+            {hasMore && (
               <div className="flex justify-center mt-8">
                 <Button
                   variant="outline"
