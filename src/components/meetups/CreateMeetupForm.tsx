@@ -73,10 +73,13 @@ export function CreateMeetupForm() {
   }, [])
 
   // Geocode search (Autocomplete + Live map move)
-  async function searchLocation(query: string) {
+  async function searchLocation(query: string, isManualSearch = false) {
     if (!query || query.trim().length < 3) {
       setSuggestions([])
       setShowSuggestions(false)
+      if (isManualSearch) {
+        toast.error('Escribe una dirección válida antes de buscar')
+      }
       return
     }
     setIsGeocoding(true)
@@ -100,11 +103,21 @@ export function CreateMeetupForm() {
         setMapPosition([top.lat, top.lon])
         setValue('lat', top.lat)
         setValue('lng', top.lon)
+
+        if (isManualSearch) {
+          toast.success('Ubicación localizada en el mapa')
+        }
       } else {
         setSuggestions([])
+        if (isManualSearch) {
+          toast.error('No se encontró esa ubicación. Intenta hacer clic directamente en el mapa.')
+        }
       }
     } catch (e) {
       console.error('Geocoding error:', e)
+      if (isManualSearch) {
+        toast.error('Error al consultar la dirección.')
+      }
     } finally {
       setIsGeocoding(false)
     }
@@ -134,12 +147,21 @@ export function CreateMeetupForm() {
     geocodeTimer.current = setTimeout(() => searchLocation(value), 600)
   }
 
+  // Prevent form submit on Enter key inside address input
+  function handleAddressKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === 'Enter') {
+      e.preventDefault()
+      searchLocation(addressValue || '', true)
+    }
+  }
+
   function handleSelectSuggestion(s: Suggestion) {
     setValue('address', s.display_name, { shouldValidate: true })
     setMapPosition([s.lat, s.lon])
     setValue('lat', s.lat)
     setValue('lng', s.lon)
     setShowSuggestions(false)
+    toast.success('Punto marcado en el mapa')
   }
 
   // Use browser GPS
@@ -254,26 +276,31 @@ export function CreateMeetupForm() {
           <div className="space-y-4">
             <div className="space-y-2 relative" ref={dropdownRef}>
               <Label htmlFor="address">Punto de Encuentro (Dirección)</Label>
-              <div className="relative">
-                <Input
-                  id="address"
-                  placeholder="Ej: Alcampo Telde, Gasolinera X..."
-                  value={addressValue || ''}
-                  onChange={handleAddressInputChange}
-                  onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-                  className="pr-10"
-                />
-                <button
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <Input
+                    id="address"
+                    placeholder="Ej: Alcampo Telde, Gasolinera X..."
+                    value={addressValue || ''}
+                    onChange={handleAddressInputChange}
+                    onKeyDown={handleAddressKeyDown}
+                    onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                  />
+                </div>
+                <Button
                   type="button"
-                  onClick={() => searchLocation(addressValue || '')}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                  variant="secondary"
+                  onClick={() => searchLocation(addressValue || '', true)}
+                  disabled={isGeocoding}
+                  className="shrink-0 flex items-center gap-1.5"
                 >
                   {isGeocoding ? (
                     <Loader2 className="h-4 w-4 animate-spin text-primary" />
                   ) : (
-                    <Search className="h-4 w-4" />
+                    <Search className="h-4 w-4 text-primary" />
                   )}
-                </button>
+                  Buscar en mapa
+                </Button>
               </div>
 
               {/* Suggestions Dropdown */}
@@ -295,7 +322,7 @@ export function CreateMeetupForm() {
 
               {errors.address && <p className="text-xs text-destructive">{errors.address.message}</p>}
               <p className="text-xs text-muted-foreground">
-                Escribe una dirección para buscar sugerencias o haz clic en el mapa para marcar el punto.
+                Escribe una dirección y pulsa <strong>Buscar en mapa</strong> o presiona <strong>Enter</strong>.
               </p>
             </div>
 
