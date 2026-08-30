@@ -177,8 +177,16 @@ export default function GasolinerasClient() {
               <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/15 border border-primary/30 rounded-full mb-2.5 shadow-[0_0_15px_rgba(255,77,0,0.2)] animate-pulse">
                 <span className="text-xs">⛽</span>
                 <span className="text-[10px] font-black uppercase tracking-wider text-primary">
-                  Precios Oficiales de Hoy · MITECO
+                  Precios Oficiales · MITECO
                 </span>
+                {updatedAt && (
+                  <>
+                    <span className="text-primary/40 text-[10px]">·</span>
+                    <span className="text-[10px] font-semibold text-primary/70">
+                      {updatedAt.split(' ')[0]}
+                    </span>
+                  </>
+                )}
               </div>
               <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-tight">
                 Gasolineras <span className="text-primary italic">Canarias</span>
@@ -187,11 +195,6 @@ export default function GasolinerasClient() {
                 Encuentra el combustible más barato en las 7 islas antes de tu próxima ruta.
               </p>
             </div>
-            {updatedAt && (
-              <p className="text-[11px] text-white/30 shrink-0 self-start md:self-auto bg-black/30 px-2.5 py-1 rounded-lg border border-white/5">
-                📅 Actualizado: {updatedAt}
-              </p>
-            )}
           </div>
         </div>
 
