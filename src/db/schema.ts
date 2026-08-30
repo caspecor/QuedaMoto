@@ -123,3 +123,26 @@ export const banners = pgTable('banners', {
   order: integer('order').default(0),
   createdAt: timestamp('created_at').defaultNow().notNull(),
 });
+
+// ---- Gasolineras Canarias (daily cache of cheapest stations) ----
+export const gasolinerasCanarias = pgTable('gasolineras_canarias', {
+  id: text('id').primaryKey(),         // IDEESS from MITECO
+  rotulo: text('rotulo').notNull(),
+  direccion: text('direccion'),
+  municipio: text('municipio'),
+  provincia: text('provincia'),
+  lat: doublePrecision('lat'),
+  lng: doublePrecision('lng'),
+  precio95: doublePrecision('precio_95'),
+  precioDiesel: doublePrecision('precio_diesel'),
+  precio98: doublePrecision('precio_98'),
+  horario: text('horario'),
+  updatedAt: timestamp('updated_at').defaultNow(),
+});
+
+export const gasolinerasSyncLog = pgTable('gasolineras_sync_log', {
+  id: integer('id').primaryKey().generatedAlwaysAsIdentity(),
+  syncedAt: timestamp('synced_at').defaultNow(),
+  totalRows: integer('total_rows'),
+  sourceDate: text('source_date'),
+});

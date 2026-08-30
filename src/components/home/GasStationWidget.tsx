@@ -32,10 +32,14 @@ export function GasStationWidget() {
         const res = await fetch('/api/gasolineras')
         const data = await res.json()
 
-        if (data.topGasolina95 && data.topDiesel) {
+        if (data.status === 'ok' && data.topGasolina95 && data.topDiesel) {
           setTop95(data.topGasolina95)
           setTopDiesel(data.topDiesel)
           setUpdatedAt(data.updatedAt || '')
+        } else if (data.status === 'empty') {
+          // DB not yet seeded – show empty state but no error
+          setTop95([])
+          setTopDiesel([])
         } else {
           setError(true)
         }
