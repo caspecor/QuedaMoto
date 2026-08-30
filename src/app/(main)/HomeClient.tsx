@@ -10,6 +10,7 @@ import { HomepageMap } from "@/components/layout/HomepageMap"
 import { useSession } from "next-auth/react"
 import { getActiveMeetupsCount } from "@/app/(main)/meetups/actions"
 import { BannerZone } from "@/components/banners/BannerZone"
+import { GasStationWidget } from "@/components/home/GasStationWidget"
 
 export default function HomeClient({
   middleEnabled,
@@ -160,7 +161,7 @@ export default function HomeClient({
         </div>
       </section>
 
-      {/* Value Propositions */}
+      {/* Value Propositions & Map */}
       <section className="py-32 px-4">
         <div className="container mx-auto space-y-24">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -199,6 +200,9 @@ export default function HomeClient({
           </div>
         </div>
       </section>
+
+      {/* Top 4 Cheapest Gas Stations Widget */}
+      <GasStationWidget />
 
       {/* Banner Zone Middle */}
       <BannerZone position="home_middle" enabled={middleEnabled} banners={initialMiddleBanners} />
