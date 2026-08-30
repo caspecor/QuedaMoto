@@ -10,6 +10,7 @@ import { Button, buttonVariants } from "@/components/ui/button"
 import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Calendar, Clock, MapPin, Users, Shield, MessagesSquare, ChevronLeft, Zap, Info, MessageCircle, Share2, Flag } from "lucide-react"
 import { ReportUserModal } from "@/components/moderation/ReportUserModal"
+import { MeetupGasStations } from "@/components/meetups/MeetupGasStations"
 import Link from "next/link"
 
 import { auth } from "@/auth"
@@ -173,6 +174,9 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
                )}
             </div>
           </div>
+
+          {/* Recommended & Closest Gas Stations for Route */}
+          <MeetupGasStations lat={meetup.lat} lng={meetup.lng} />
 
           {/* Description */}
           <div className="space-y-4 animate-reveal [animation-delay:0.3s]">
