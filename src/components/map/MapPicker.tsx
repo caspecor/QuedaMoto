@@ -71,15 +71,15 @@ function LeafletMapPicker({ onLocationSelect, externalPosition, defaultLat, defa
   }
 
   return (
-    <div className="h-72 w-full rounded-xl overflow-hidden border border-border shadow-inner relative">
+    <div className="h-72 w-full rounded-xl overflow-hidden border border-border shadow-inner relative [&_.leaflet-tile-pane]:[filter:brightness(0.6)_invert(1)_contrast(3)_hue-rotate(200deg)_saturate(0.3)]">
       <MapContainer
         center={position ?? [defaultLat ?? 28.272336, defaultLng ?? -16.642513]}
         zoom={position ? 15 : 10}
         style={{ height: '100%', width: '100%' }}
       >
         <TileLayer
-          attribution="&copy; OpenStreetMap contributors &copy; CARTO"
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapController />
         {position && <Marker position={position} icon={customIcon} />}

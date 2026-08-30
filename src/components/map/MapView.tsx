@@ -83,7 +83,7 @@ function LeafletMapView({ meetups }: { meetups: MeetupPin[] }) {
   }
 
   return (
-    <div className="w-full h-full relative border-r border-border/10">
+    <div className="w-full h-full relative border-r border-border/10 [&_.leaflet-tile-pane]:[filter:brightness(0.6)_invert(1)_contrast(3)_hue-rotate(200deg)_saturate(0.3)]">
       <MapContainer
         center={center}
         zoom={zoom}
@@ -92,8 +92,8 @@ function LeafletMapView({ meetups }: { meetups: MeetupPin[] }) {
         style={{ height: '100%', width: '100%', background: '#0a0a0a' }}
       >
         <TileLayer
-          attribution='&copy; CARTO'
-          url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         <MapResizer />
         {validMeetups.map(m => (
