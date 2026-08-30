@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useState, useEffect, useCallback, useRef } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Fuel, MapPin, Navigation, ExternalLink, SlidersHorizontal, ChevronDown, ChevronUp,
-  ArrowLeft, Trophy, RefreshCw, Search, X
+  ArrowLeft, Trophy, RefreshCw, Search, X, Sparkles
 } from 'lucide-react'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -54,7 +54,7 @@ export default function GasolinerasClient() {
   const [fuelType, setFuelType] = useState<'95' | 'diesel' | '98'>('95')
   const [maxPrice, setMaxPrice] = useState('')
   const [search, setSearch] = useState('')
-  const [showFilters, setShowFilters] = useState(true)
+  const [showFilters, setShowFilters] = useState(false)
 
   // Pagination
   const [page, setPage] = useState(1)
@@ -157,80 +157,154 @@ export default function GasolinerasClient() {
     : stations
 
   return (
-    <div className="min-h-screen bg-mesh pt-20">
-      <div className="container mx-auto px-4 py-10 max-w-7xl">
+    <div className="min-h-screen bg-mesh pt-20 pb-16">
+      <div className="container mx-auto px-3.5 sm:px-6 max-w-7xl">
 
-        {/* Header */}
-        <div className="mb-10">
-          <Link href="/" className="inline-flex items-center gap-2 text-white/40 hover:text-white text-sm mb-6 transition-colors">
-            <ArrowLeft className="h-4 w-4" />
+        {/* Top Back Nav & Header */}
+        <div className="mb-6 sm:mb-10">
+          <Link 
+            href="/" 
+            className="inline-flex items-center gap-2 text-white/50 hover:text-white text-xs sm:text-sm mb-4 sm:mb-6 transition-colors py-1 px-2.5 rounded-lg bg-white/5 border border-white/10"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
             Volver a inicio
           </Link>
-          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-3 sm:gap-4">
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-primary/10 border border-primary/20 rounded-full mb-3">
-                <Fuel className="h-3.5 w-3.5 text-primary" />
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/15 border border-primary/30 rounded-full mb-2.5 shadow-[0_0_15px_rgba(255,77,0,0.2)] animate-pulse">
+                <span className="text-xs">⛽</span>
                 <span className="text-[10px] font-black uppercase tracking-wider text-primary">
-                  Precios Oficiales · MITECO
+                  Precios Oficiales de Hoy · MITECO
                 </span>
               </div>
-              <h1 className="text-4xl md:text-6xl font-black tracking-tight text-white">
+              <h1 className="text-3xl sm:text-5xl md:text-6xl font-black tracking-tight text-white leading-tight">
                 Gasolineras <span className="text-primary italic">Canarias</span>
               </h1>
-              <p className="mt-2 text-white/40 text-sm md:text-base">
-                Todas las gasolineras de las 7 islas, actualizadas diariamente
+              <p className="mt-1.5 text-white/50 text-xs sm:text-base max-w-2xl">
+                Encuentra el combustible más barato en las 7 islas antes de tu próxima ruta.
               </p>
             </div>
             {updatedAt && (
-              <p className="text-[11px] text-white/30 shrink-0">
-                Actualizado: {updatedAt}
+              <p className="text-[11px] text-white/30 shrink-0 self-start md:self-auto bg-black/30 px-2.5 py-1 rounded-lg border border-white/5">
+                📅 Actualizado: {updatedAt}
               </p>
             )}
           </div>
         </div>
 
-        {/* Top 4 pinned */}
+        {/* Quick Island Selector (Horizontal Scroll on Mobile) */}
+        <div className="mb-6">
+          <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none no-scrollbar -mx-3.5 px-3.5 sm:mx-0 sm:px-0">
+            <button
+              type="button"
+              onClick={() => setIsla('')}
+              className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
+                isla === ''
+                  ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20 scale-[1.02]'
+                  : 'bg-white/5 text-white/70 border-white/10 hover:text-white hover:bg-white/10'
+              }`}
+            >
+              🇮🇨 Todas las Islas
+            </button>
+            {ISLANDS.map((islandName) => (
+              <button
+                key={islandName}
+                type="button"
+                onClick={() => setIsla(islandName)}
+                className={`shrink-0 px-3.5 py-2 rounded-xl text-xs font-bold transition-all border ${
+                  isla === islandName
+                    ? 'bg-primary text-black border-primary shadow-lg shadow-primary/20 scale-[1.02]'
+                    : 'bg-white/5 text-white/70 border-white/10 hover:text-white hover:bg-white/10'
+                }`}
+              >
+                {islandName}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Fuel Quick Switcher */}
+        <div className="flex items-center justify-between gap-3 mb-6 bg-black/40 p-1.5 rounded-2xl border border-white/10 max-w-md">
+          {FUEL_TYPES.map(ft => (
+            <button
+              key={ft.value}
+              type="button"
+              onClick={() => setFuelType(ft.value as any)}
+              className={`flex-1 py-2 rounded-xl text-xs font-black transition-all ${
+                fuelType === ft.value
+                  ? 'bg-primary text-black shadow-md scale-[1.01]'
+                  : 'text-white/60 hover:text-white'
+              }`}
+            >
+              {ft.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Top 4 Pinned Section */}
         {!loading && top4.length > 0 && (
-          <section className="mb-10">
-            <div className="flex items-center gap-2 mb-4">
-              <Trophy className="h-4 w-4 text-primary" />
-              <h2 className="text-sm font-black uppercase tracking-widest text-white/70">
-                Top 4 más baratas
-                {isla ? ` en ${isla}` : ' en Canarias'}
-                {' — '}{FUEL_TYPES.find(f => f.value === fuelType)?.label}
-              </h2>
+          <section className="mb-8">
+            <div className="flex items-center justify-between gap-2 mb-3.5">
+              <div className="flex items-center gap-2">
+                <div className="h-6 w-6 rounded-lg bg-primary/20 flex items-center justify-center text-primary">
+                  <Trophy className="h-3.5 w-3.5" />
+                </div>
+                <h2 className="text-xs sm:text-sm font-black uppercase tracking-wider text-white">
+                  Top 4 más económicas {isla ? `en ${isla}` : 'en Canarias'}
+                </h2>
+              </div>
+              <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">
+                {FUEL_TYPES.find(f => f.value === fuelType)?.label}
+              </span>
             </div>
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {top4.map((s, i) => {
                 const price = getPrice(s)
                 return (
                   <motion.div
-                    key={s.id}
+                    key={s.id + i}
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: i * 0.05 }}
-                    className="p-4 bg-primary/5 border border-primary/30 rounded-2xl flex flex-col justify-between gap-3"
+                    className="p-4 bg-gradient-to-b from-primary/10 to-primary/5 border border-primary/30 rounded-2xl flex flex-col justify-between gap-3 shadow-lg relative overflow-hidden group"
                   >
                     <div className="flex items-start justify-between gap-2">
-                      <span className="text-[10px] font-black px-2 py-0.5 bg-primary text-black rounded-md shrink-0">
-                        #{i + 1}
+                      <span className="text-[10px] font-black px-2 py-0.5 bg-primary text-black rounded-md shrink-0 shadow-sm">
+                        #{i + 1} Más Barata
                       </span>
-                      <span className="text-xl font-black text-primary">{formatPrice(price)}</span>
+                      <div className="text-right">
+                        <span className="text-2xl font-black text-white group-hover:text-primary transition-colors">
+                          {price ? price.toFixed(3) : '—'}
+                        </span>
+                        <span className="text-[10px] font-bold text-white/50 ml-1">€/L</span>
+                      </div>
                     </div>
+
                     <div>
-                      <p className="font-extrabold text-white text-sm line-clamp-1">{s.rotulo}</p>
-                      <p className="text-[11px] text-white/50 flex items-center gap-1 mt-0.5">
-                        <MapPin className="h-3 w-3 shrink-0 text-primary/60" />
-                        {s.isla || s.municipio}
+                      <h3 className="font-extrabold text-white text-sm line-clamp-1 group-hover:text-primary transition-colors">
+                        {s.rotulo}
+                      </h3>
+                      <p className="text-xs text-white/60 flex items-center gap-1 mt-0.5 line-clamp-1">
+                        <MapPin className="h-3 w-3 shrink-0 text-primary" />
+                        {s.isla ? `${s.isla} · ` : ''}{s.municipio}
                       </p>
+                      {s.direccion && (
+                        <p className="text-[11px] text-white/35 line-clamp-1 mt-0.5">
+                          {s.direccion}
+                        </p>
+                      )}
                     </div>
+
                     <a
                       href={mapLink(s)}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs font-bold text-primary/80 hover:text-primary flex items-center gap-1"
+                      className="w-full py-2 px-3 rounded-xl bg-primary/20 hover:bg-primary text-primary hover:text-black font-bold text-xs flex items-center justify-center gap-1.5 transition-all mt-1"
                     >
-                      <Navigation className="h-3 w-3" /> Cómo llegar
+                      <Navigation className="h-3.5 w-3.5" />
+                      Cómo llegar (Google Maps)
                     </a>
                   </motion.div>
                 )
@@ -239,24 +313,50 @@ export default function GasolinerasClient() {
           </section>
         )}
 
-        {/* Filter bar */}
+        {/* Filters and Search Bar */}
         <div className="glass-card rounded-2xl border border-white/10 mb-6 overflow-hidden">
-          <button
-            type="button"
-            onClick={() => setShowFilters(v => !v)}
-            className="flex items-center justify-between w-full px-5 py-4 text-sm font-bold text-white/70 hover:text-white transition-colors"
-          >
-            <span className="flex items-center gap-2">
-              <SlidersHorizontal className="h-4 w-4 text-primary" />
-              Filtros
-              {(isla || maxPrice) && (
-                <span className="ml-1 px-2 py-0.5 bg-primary/20 text-primary text-[10px] font-black rounded-full border border-primary/30">
-                  activos
+          <div className="p-3.5 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+            {/* Search Input */}
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/40" />
+              <Input
+                type="text"
+                placeholder="Buscar por gasolinera o municipio (ej. Telde, Disa...)"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                className="pl-9 pr-8 bg-black/40 border-white/10 text-white text-xs sm:text-sm h-10 rounded-xl"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white p-1"
+                >
+                  <X className="h-3.5 w-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Toggle Advanced Filters Button */}
+            <button
+              type="button"
+              onClick={() => setShowFilters(v => !v)}
+              className={`flex items-center justify-center gap-2 px-4 h-10 text-xs font-bold rounded-xl border transition-all shrink-0 ${
+                showFilters || maxPrice
+                  ? 'bg-primary/20 border-primary/40 text-primary'
+                  : 'bg-white/5 border-white/10 text-white/70 hover:text-white'
+              }`}
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              <span>{showFilters ? 'Ocultar Filtros' : 'Más Filtros'}</span>
+              {maxPrice && (
+                <span className="px-1.5 py-0.2 text-[9px] font-black bg-primary text-black rounded-full">
+                  1
                 </span>
               )}
-            </span>
-            {showFilters ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-          </button>
+              {showFilters ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+            </button>
+          </div>
 
           <AnimatePresence>
             {showFilters && (
@@ -267,35 +367,33 @@ export default function GasolinerasClient() {
                 transition={{ duration: 0.2 }}
                 className="border-t border-white/10 overflow-hidden"
               >
-                <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Fuel type */}
+                <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Max Price Filter */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-wider text-white/50">Combustible</label>
-                    <div className="flex gap-1.5 bg-black/40 p-1 rounded-xl border border-white/10">
-                      {FUEL_TYPES.map(ft => (
-                        <button
-                          key={ft.value}
-                          type="button"
-                          onClick={() => setFuelType(ft.value as any)}
-                          className={`flex-1 py-1.5 rounded-lg text-[11px] font-bold transition-all ${
-                            fuelType === ft.value
-                              ? 'bg-primary text-black shadow-sm'
-                              : 'text-white/60 hover:text-white'
-                          }`}
-                        >
-                          {ft.label}
-                        </button>
-                      ))}
-                    </div>
+                    <label className="text-[10px] font-black uppercase tracking-wider text-white/50">
+                      Precio máximo por litro (€/L)
+                    </label>
+                    <Input
+                      type="number"
+                      min="0"
+                      max="3"
+                      step="0.01"
+                      placeholder="Ej: 1.35"
+                      value={maxPrice}
+                      onChange={e => setMaxPrice(e.target.value)}
+                      className="bg-black/40 border-white/10 text-white h-10 rounded-xl"
+                    />
                   </div>
 
-                  {/* Island */}
+                  {/* Island Select fallback */}
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-wider text-white/50">Isla</label>
+                    <label className="text-[10px] font-black uppercase tracking-wider text-white/50">
+                      Seleccionar Isla
+                    </label>
                     <select
                       value={isla}
                       onChange={e => setIsla(e.target.value)}
-                      className="w-full bg-black/40 border border-white/10 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-primary/50"
+                      className="w-full bg-black/40 border border-white/10 rounded-xl px-3 h-10 text-xs sm:text-sm text-white focus:outline-none focus:border-primary/50"
                     >
                       <option value="">Todas las islas</option>
                       {ISLANDS.map(i => (
@@ -303,58 +401,16 @@ export default function GasolinerasClient() {
                       ))}
                     </select>
                   </div>
-
-                  {/* Max price */}
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-wider text-white/50">
-                      Precio máximo (€/L)
-                    </label>
-                    <Input
-                      type="number"
-                      min="0"
-                      max="3"
-                      step="0.01"
-                      placeholder="Ej: 1.50"
-                      value={maxPrice}
-                      onChange={e => setMaxPrice(e.target.value)}
-                      className="bg-black/40 border-white/10 text-white"
-                    />
-                  </div>
-
-                  {/* Text search */}
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-black uppercase tracking-wider text-white/50">Buscar nombre / municipio</label>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/40" />
-                      <Input
-                        type="text"
-                        placeholder="Repsol, Telde…"
-                        value={search}
-                        onChange={e => setSearch(e.target.value)}
-                        className="pl-8 bg-black/40 border-white/10 text-white"
-                      />
-                      {search && (
-                        <button
-                          type="button"
-                          onClick={() => setSearch('')}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white"
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </button>
-                      )}
-                    </div>
-                  </div>
                 </div>
 
-                {/* Clear filters */}
                 {(isla || maxPrice || search) && (
-                  <div className="px-5 pb-4">
+                  <div className="px-4 pb-3.5 flex justify-end">
                     <button
                       type="button"
                       onClick={() => { setIsla(''); setMaxPrice(''); setSearch('') }}
-                      className="text-xs text-white/40 hover:text-white flex items-center gap-1 transition-colors"
+                      className="text-xs text-primary hover:underline flex items-center gap-1 font-semibold"
                     >
-                      <X className="h-3 w-3" /> Limpiar filtros
+                      <X className="h-3 w-3" /> Limpiar todos los filtros
                     </button>
                   </div>
                 )}
@@ -363,93 +419,97 @@ export default function GasolinerasClient() {
           </AnimatePresence>
         </div>
 
-        {/* Station list */}
+        {/* Error Notification */}
         {error && (
-          <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-center text-sm text-red-300">
+          <div className="p-6 bg-red-500/10 border border-red-500/20 rounded-2xl text-center text-xs sm:text-sm text-red-300 mb-6">
             {error}
           </div>
         )}
 
+        {/* Loading Skeleton */}
         {loading && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from({ length: 9 }).map((_, i) => (
-              <div key={i} className="h-44 bg-white/5 animate-pulse rounded-2xl" />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="h-40 bg-white/5 animate-pulse rounded-2xl border border-white/5" />
             ))}
           </div>
         )}
 
+        {/* Stations List */}
         {!loading && !error && (
           <>
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-xs text-white/40">
+            <div className="flex items-center justify-between mb-3 px-1">
+              <p className="text-xs text-white/50">
                 Mostrando <span className="text-white font-bold">{filtered.length}</span> gasolineras
                 {isla ? ` en ${isla}` : ' en Canarias'}
               </p>
             </div>
 
             {filtered.length === 0 && (
-              <div className="py-20 text-center text-white/30 text-sm">
-                No se encontraron gasolineras con esos filtros.
+              <div className="py-16 text-center text-white/40 text-xs sm:text-sm bg-white/[0.02] border border-white/5 rounded-2xl p-6">
+                No se encontraron gasolineras con esos filtros. Prueba a cambiar la isla o el precio máximo.
               </div>
             )}
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
               {filtered.map((s, i) => {
                 const price = getPrice(s)
                 const isTop4 = top4.some(t => t.id === s.id)
                 return (
                   <motion.div
-                    key={s.id}
-                    initial={{ opacity: 0, y: 12 }}
+                    key={s.id + i}
+                    initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: Math.min(i * 0.03, 0.5) }}
-                    className={`p-5 rounded-2xl border flex flex-col justify-between gap-3 transition-all hover:border-primary/40 hover:bg-white/[0.05] ${
+                    transition={{ delay: Math.min(i * 0.02, 0.3) }}
+                    className={`p-4 sm:p-5 rounded-2xl border flex flex-col justify-between gap-3 transition-all hover:border-primary/40 hover:bg-white/[0.05] ${
                       isTop4
-                        ? 'bg-primary/5 border-primary/20'
+                        ? 'bg-primary/[0.04] border-primary/25'
                         : 'bg-white/[0.02] border-white/8'
                     }`}
                   >
-                    <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start justify-between gap-2.5">
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <div className="flex items-center gap-1.5 flex-wrap mb-1">
                           {isTop4 && (
                             <span className="text-[9px] font-black px-1.5 py-0.5 bg-primary text-black rounded">
                               TOP
                             </span>
                           )}
-                          <span className="text-[10px] font-semibold text-white/40 bg-white/5 px-2 py-0.5 rounded-full border border-white/10">
+                          <span className="text-[10px] font-semibold text-white/50 bg-white/5 px-2 py-0.5 rounded-md border border-white/10">
                             {s.isla || 'Canarias'}
                           </span>
                         </div>
-                        <h3 className="font-extrabold text-white text-sm leading-tight line-clamp-1">
+                        <h3 className="font-extrabold text-white text-sm sm:text-base leading-tight line-clamp-1">
                           {s.rotulo}
                         </h3>
-                        <p className="text-[11px] text-white/50 flex items-center gap-1 mt-0.5">
-                          <MapPin className="h-3 w-3 text-primary/60 shrink-0" />
+                        <p className="text-xs text-white/50 flex items-center gap-1 mt-0.5">
+                          <MapPin className="h-3 w-3 text-primary/70 shrink-0" />
                           <span className="line-clamp-1">{s.municipio}{s.municipio && s.direccion ? ' · ' : ''}{s.direccion}</span>
                         </p>
                       </div>
+
                       <div className="text-right shrink-0">
                         <p className={`text-2xl font-black ${isTop4 ? 'text-primary' : 'text-white'}`}>
                           {price ? price.toFixed(3) : '—'}
                         </p>
-                        {price && <p className="text-[10px] text-white/40">€/L</p>}
+                        {price && <p className="text-[10px] text-white/40 font-bold">€/L</p>}
                       </div>
                     </div>
 
-                    {/* Other prices */}
-                    <div className="flex items-center gap-3 text-[11px] text-white/40">
+                    {/* Secondary prices row */}
+                    <div className="flex items-center gap-2.5 text-[11px] text-white/40 bg-black/20 p-2 rounded-xl border border-white/5 overflow-x-auto scrollbar-none">
                       {fuelType !== '95' && s.precio95 && (
-                        <span>G95: <span className="text-white/60 font-semibold">{s.precio95.toFixed(3)}€</span></span>
+                        <span className="shrink-0">G95: <strong className="text-white/70">{s.precio95.toFixed(3)}€</strong></span>
                       )}
                       {fuelType !== 'diesel' && s.precioDiesel && (
-                        <span>Diésel: <span className="text-white/60 font-semibold">{s.precioDiesel.toFixed(3)}€</span></span>
+                        <span className="shrink-0">Diésel: <strong className="text-white/70">{s.precioDiesel.toFixed(3)}€</strong></span>
                       )}
                       {fuelType !== '98' && s.precio98 && (
-                        <span>98: <span className="text-white/60 font-semibold">{s.precio98.toFixed(3)}€</span></span>
+                        <span className="shrink-0">98: <strong className="text-white/70">{s.precio98.toFixed(3)}€</strong></span>
                       )}
                     </div>
 
+                    {/* Action button */}
                     <div className="flex items-center justify-between border-t border-white/5 pt-3">
                       {s.horario ? (
                         <p className="text-[10px] text-white/30 line-clamp-1 flex-1">{s.horario}</p>
@@ -458,7 +518,7 @@ export default function GasolinerasClient() {
                         href={mapLink(s)}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center gap-1 text-xs font-bold text-primary hover:underline ml-2 shrink-0"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary/10 hover:bg-primary text-primary hover:text-black font-bold text-xs transition-all shrink-0 ml-2"
                       >
                         <Navigation className="h-3 w-3" />
                         Cómo llegar
@@ -470,18 +530,18 @@ export default function GasolinerasClient() {
               })}
             </div>
 
-            {/* Load more */}
+            {/* Load more button */}
             {hasMore && !search && (
               <div className="flex justify-center mt-8">
                 <Button
                   variant="outline"
                   onClick={loadMore}
                   disabled={loadingMore}
-                  className="border-white/20 text-white hover:bg-white/10"
+                  className="w-full sm:w-auto h-12 px-8 rounded-xl border-white/20 text-white hover:bg-white/10 font-bold text-xs sm:text-sm"
                 >
                   {loadingMore ? (
                     <span className="flex items-center gap-2">
-                      <RefreshCw className="h-4 w-4 animate-spin" /> Cargando…
+                      <RefreshCw className="h-4 w-4 animate-spin" /> Cargando más gasolineras…
                     </span>
                   ) : 'Ver más gasolineras'}
                 </Button>

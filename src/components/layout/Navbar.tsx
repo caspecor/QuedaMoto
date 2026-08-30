@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { buttonVariants } from '@/components/ui/button'
-import { Zap, Menu, X, User, Users, Bell, Search, Plus, Shield, LogOut } from 'lucide-react'
+import { Zap, Menu, X, User, Users, Bell, Search, Plus, Shield, LogOut, Fuel } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { getUserAvatar } from '@/app/(main)/meetups/actions'
 import {
@@ -72,6 +72,7 @@ export function Navbar({
     { name: 'Explorar', href: '/explore', icon: Search },
     { name: 'Historia', href: '/historia', icon: Users },
     { name: 'FAQ', href: '/faq', icon: Shield },
+    { name: 'Gasolineras', href: '/gasolineras', icon: Fuel, isSpecial: true, emoji: '⛽' },
     { name: 'Contacto', href: '/contacto', icon: Zap },
   ]
 
@@ -104,18 +105,34 @@ export function Navbar({
 
           {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-8">
-            <div className="flex items-center gap-1">
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`px-4 py-2 text-xs font-black uppercase tracking-[0.2em] transition-colors rounded-full ${
-                    pathname === link.href ? 'text-primary bg-primary/10' : 'text-white/40 hover:text-white'
-                  }`}
-                >
-                  {link.name}
-                </Link>
-              ))}
+            <div className="flex items-center gap-1.5">
+              {navLinks.map((link) => {
+                if ((link as any).isSpecial) {
+                  return (
+                    <Link
+                      key={link.href}
+                      href={link.href}
+                      className={`relative inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-black uppercase tracking-wider transition-all rounded-full border border-primary/40 bg-primary/20 text-primary shadow-[0_0_15px_rgba(255,77,0,0.3)] hover:bg-primary/30 animate-pulse ${
+                        pathname === link.href ? 'ring-2 ring-primary ring-offset-2 ring-offset-background' : ''
+                      }`}
+                    >
+                      <span className="text-sm leading-none">{(link as any).emoji || '⛽'}</span>
+                      <span>{link.name}</span>
+                    </Link>
+                  )
+                }
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`px-4 py-2 text-xs font-black uppercase tracking-[0.2em] transition-colors rounded-full ${
+                      pathname === link.href ? 'text-primary bg-primary/10' : 'text-white/40 hover:text-white'
+                    }`}
+                  >
+                    {link.name}
+                  </Link>
+                )
+              })}
             </div>
 
             <div className="h-4 w-px bg-white/10" />
@@ -234,17 +251,35 @@ export function Navbar({
             exit={{ opacity: 0, y: -20 }}
             className="absolute top-full left-4 right-4 mt-4 glass rounded-3xl p-6 md:hidden z-[5001] flex flex-col gap-6"
           >
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-4 text-lg font-bold text-white/80"
-              >
-                <link.icon className="h-5 w-5 text-primary" />
-                {link.name}
-              </Link>
-            ))}
+            {navLinks.map((link) => {
+              const isSpecial = (link as any).isSpecial
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center justify-between text-lg font-bold transition-colors ${
+                    isSpecial
+                      ? 'text-primary bg-primary/10 border border-primary/30 px-4 py-3 rounded-2xl animate-pulse'
+                      : 'text-white/80 hover:text-white'
+                  }`}
+                >
+                  <div className="flex items-center gap-3">
+                    {(link as any).emoji ? (
+                      <span className="text-xl">{(link as any).emoji}</span>
+                    ) : (
+                      <link.icon className="h-5 w-5 text-primary" />
+                    )}
+                    <span>{link.name}</span>
+                  </div>
+                  {isSpecial && (
+                    <span className="text-[10px] uppercase font-black px-2 py-0.5 rounded-full bg-primary text-black">
+                      Canarias 🇮🇨
+                    </span>
+                  )}
+                </Link>
+              )
+            })}
             <hr className="border-white/5" />
             <div className="flex flex-col gap-3">
               {user ? (
