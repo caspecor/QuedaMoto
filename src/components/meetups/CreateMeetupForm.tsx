@@ -7,7 +7,7 @@ import * as z from 'zod'
 import { useRouter } from 'next/navigation'
 import { createMeetupAction } from '@/app/(main)/meetups/actions'
 import { toast } from 'sonner'
-import { Loader2, MapPin, Navigation, Search } from 'lucide-react'
+import { Loader2, MapPin, Navigation, Search, Check } from 'lucide-react'
 import { MapPicker } from '@/components/map/MapPicker'
 
 import { Button } from '@/components/ui/button'
@@ -33,13 +33,23 @@ const createSchema = z.object({
 
 type CreateFormValues = z.infer<typeof createSchema>
 
+interface Suggestion {
+  display_name: string;
+  lat: number;
+  lon: number;
+}
+
 export function CreateMeetupForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isGeolocating, setIsGeolocating] = useState(false)
   const [isGeocoding, setIsGeocoding] = useState(false)
+  const [suggestions, setSuggestions] = useState<Suggestion[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
   const [mapPosition, setMapPosition] = useState<[number, number] | null>(null)
   const geocodeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
+  const dropdownRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+
   const { register, handleSubmit, setValue, watch, formState: { errors } } = useForm<CreateFormValues>({
     resolver: zodResolver(createSchema) as any,
     defaultValues: {
@@ -49,22 +59,49 @@ export function CreateMeetupForm() {
     }
   })
 
-  // Geocode address using free Nominatim API (no key required)
-  async function geocodeAddress(address: string) {
-    if (address.length < 5) return
+  const addressValue = watch('address')
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
+
+  // Geocode search (Autocomplete + Live map move)
+  async function searchLocation(query: string) {
+    if (!query || query.trim().length < 3) {
+      setSuggestions([])
+      setShowSuggestions(false)
+      return
+    }
     setIsGeocoding(true)
     try {
       const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&limit=1`,
+        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1`,
         { headers: { 'Accept-Language': 'es' } }
       )
       const data = await res.json()
-      if (data.length > 0) {
-        const lat = parseFloat(data[0].lat)
-        const lng = parseFloat(data[0].lon)
-        setMapPosition([lat, lng])
-        setValue('lat', lat)
-        setValue('lng', lng)
+      if (Array.isArray(data) && data.length > 0) {
+        const formattedSuggestions: Suggestion[] = data.map((item: any) => ({
+          display_name: item.display_name,
+          lat: parseFloat(item.lat),
+          lon: parseFloat(item.lon),
+        }))
+        setSuggestions(formattedSuggestions)
+        setShowSuggestions(true)
+
+        // Automatically position map on first result
+        const top = formattedSuggestions[0]
+        setMapPosition([top.lat, top.lon])
+        setValue('lat', top.lat)
+        setValue('lng', top.lon)
+      } else {
+        setSuggestions([])
       }
     } catch (e) {
       console.error('Geocoding error:', e)
@@ -73,11 +110,36 @@ export function CreateMeetupForm() {
     }
   }
 
-  // Debounced handler for address input
-  function handleAddressChange(e: React.ChangeEvent<HTMLInputElement>) {
+  // Reverse geocode when map pin is clicked or dragged
+  async function reverseGeocode(lat: number, lng: number) {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+        { headers: { 'Accept-Language': 'es' } }
+      )
+      const data = await res.json()
+      if (data && data.display_name) {
+        setValue('address', data.display_name, { shouldValidate: true })
+      }
+    } catch (e) {
+      console.error('Reverse geocoding error:', e)
+    }
+  }
+
+  // Debounced input handler
+  function handleAddressInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     const value = e.target.value
+    setValue('address', value, { shouldValidate: true })
     if (geocodeTimer.current) clearTimeout(geocodeTimer.current)
-    geocodeTimer.current = setTimeout(() => geocodeAddress(value), 800)
+    geocodeTimer.current = setTimeout(() => searchLocation(value), 600)
+  }
+
+  function handleSelectSuggestion(s: Suggestion) {
+    setValue('address', s.display_name, { shouldValidate: true })
+    setMapPosition([s.lat, s.lon])
+    setValue('lat', s.lat)
+    setValue('lng', s.lon)
+    setShowSuggestions(false)
   }
 
   // Use browser GPS
@@ -94,6 +156,7 @@ export function CreateMeetupForm() {
         setMapPosition([lat, lng])
         setValue('lat', lat)
         setValue('lng', lng)
+        reverseGeocode(lat, lng)
         toast.success('Ubicación actual marcada en el mapa')
         setIsGeolocating(false)
       },
@@ -116,7 +179,6 @@ export function CreateMeetupForm() {
 
       toast.success('Ruta creada con éxito')
       
-      // Delay to ensure the toast is seen and server actions have fully settled
       setTimeout(() => {
         window.location.href = `/meetups/${response.meetupId}`
       }, 500)
@@ -190,24 +252,50 @@ export function CreateMeetupForm() {
           </div>
 
           <div className="space-y-4">
-            <div className="space-y-2">
+            <div className="space-y-2 relative" ref={dropdownRef}>
               <Label htmlFor="address">Punto de Encuentro (Dirección)</Label>
               <div className="relative">
                 <Input
                   id="address"
                   placeholder="Ej: Alcampo Telde, Gasolinera X..."
-                  {...register('address', {
-                    onChange: handleAddressChange,
-                  })}
+                  value={addressValue || ''}
+                  onChange={handleAddressInputChange}
+                  onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
                   className="pr-10"
                 />
-                {isGeocoding && (
-                  <Search className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground animate-pulse" />
-                )}
+                <button
+                  type="button"
+                  onClick={() => searchLocation(addressValue || '')}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                >
+                  {isGeocoding ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                  ) : (
+                    <Search className="h-4 w-4" />
+                  )}
+                </button>
               </div>
+
+              {/* Suggestions Dropdown */}
+              {showSuggestions && suggestions.length > 0 && (
+                <div className="absolute left-0 right-0 top-full mt-1 bg-popover border border-border rounded-xl shadow-xl z-[2000] overflow-hidden max-h-60 overflow-y-auto divide-y divide-border/50">
+                  {suggestions.map((s, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => handleSelectSuggestion(s)}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-accent hover:text-accent-foreground transition-colors flex items-start gap-2"
+                    >
+                      <MapPin className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
+                      <span className="line-clamp-2 leading-relaxed">{s.display_name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+
               {errors.address && <p className="text-xs text-destructive">{errors.address.message}</p>}
               <p className="text-xs text-muted-foreground">
-                Escribe una dirección y el mapa se actualizará automáticamente.
+                Escribe una dirección para buscar sugerencias o haz clic en el mapa para marcar el punto.
               </p>
             </div>
 
@@ -227,12 +315,14 @@ export function CreateMeetupForm() {
                   {isGeolocating ? 'Obteniendo ubicación...' : 'Usar mi ubicación actual'}
                 </button>
               </div>
+
               <MapPicker
                 externalPosition={mapPosition}
                 onLocationSelect={(lat, lng) => {
                   setMapPosition([lat, lng])
                   setValue('lat', lat)
                   setValue('lng', lng)
+                  reverseGeocode(lat, lng)
                 }}
               />
               {mapPosition && (
