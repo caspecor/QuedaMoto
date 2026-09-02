@@ -9,9 +9,10 @@ import { Loader2 } from 'lucide-react'
 interface JoinButtonProps {
   meetupId: string
   isAttending: boolean
+  inviteToken?: string
 }
 
-export function JoinButton({ meetupId, isAttending }: JoinButtonProps) {
+export function JoinButton({ meetupId, isAttending, inviteToken }: JoinButtonProps) {
   const [isLoading, setIsLoading] = useState(false)
 
   async function handleAction() {
@@ -22,7 +23,7 @@ export function JoinButton({ meetupId, isAttending }: JoinButtonProps) {
         if (res.error) toast.error(res.error)
         else toast.success('Has abandonado la quedada')
       } else {
-        const res = await joinMeetupAction(meetupId)
+        const res = await joinMeetupAction(meetupId, inviteToken)
         if (res.error) toast.error(res.error)
         else toast.success('¡Te has unido a la quedada!')
       }

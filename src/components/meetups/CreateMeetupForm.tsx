@@ -60,6 +60,7 @@ export function CreateMeetupForm() {
   })
 
   const addressValue = watch('address')
+  const visibilityValue = watch('visibility') || 'public'
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -265,6 +266,75 @@ export function CreateMeetupForm() {
             <Label htmlFor="max_attendees">Límite Mínimo/Máximo Plazas</Label>
             <Input id="max_attendees" type="number" placeholder="10" {...register('max_attendees')} />
             {errors.max_attendees && <p className="text-xs text-destructive">{errors.max_attendees.message}</p>}
+          </div>
+
+          {/* Visibilidad de la Quedada */}
+          <div className="space-y-3">
+            <Label className="text-sm font-bold flex items-center gap-1.5">
+              <span>Visibilidad de la Quedada</span>
+              <span className="text-xs font-normal text-muted-foreground">(Elige quién puede unirse)</span>
+            </Label>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Opción Pública */}
+              <button
+                type="button"
+                onClick={() => setValue('visibility', 'public', { shouldValidate: true })}
+                className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between gap-2.5 relative cursor-pointer ${
+                  visibilityValue === 'public'
+                    ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10 ring-1 ring-primary'
+                    : 'bg-white/[0.02] border-white/10 hover:border-white/20 hover:bg-white/[0.04]'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🌐</span>
+                    <span className="font-extrabold text-sm text-white">Quedada Pública</span>
+                  </div>
+                  {visibilityValue === 'public' && (
+                    <span className="h-5 w-5 rounded-full bg-primary text-black flex items-center justify-center text-xs font-black">
+                      ✓
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-white/60 leading-relaxed">
+                  Visible en la web. <strong>Cualquier usuario</strong> puede ver la ruta y unirse libremente.
+                </p>
+              </button>
+
+              {/* Opción Privada */}
+              <button
+                type="button"
+                onClick={() => setValue('visibility', 'private', { shouldValidate: true })}
+                className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between gap-2.5 relative cursor-pointer ${
+                  visibilityValue === 'private'
+                    ? 'bg-amber-500/15 border-amber-500 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500'
+                    : 'bg-white/[0.02] border-white/10 hover:border-white/20 hover:bg-white/[0.04]'
+                }`}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">🔒</span>
+                    <span className="font-extrabold text-sm text-white">Quedada Privada</span>
+                  </div>
+                  {visibilityValue === 'private' && (
+                    <span className="h-5 w-5 rounded-full bg-amber-500 text-black flex items-center justify-center text-xs font-black">
+                      ✓
+                    </span>
+                  )}
+                </div>
+                <p className="text-xs text-white/60 leading-relaxed">
+                  Visible en la web, pero <strong>solo con enlace de WhatsApp</strong> podrán apuntarse y acceder al chat.
+                </p>
+              </button>
+            </div>
+            {visibilityValue === 'private' && (
+              <div className="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-300 flex items-start gap-2.5 animate-reveal">
+                <span className="text-base leading-none">💡</span>
+                <span>
+                  Al publicar, se generará tu <strong>enlace de invitación único</strong> para que lo compartas directamente por WhatsApp con tu grupo.
+                </span>
+              </div>
+            )}
           </div>
 
           <div className="space-y-4">

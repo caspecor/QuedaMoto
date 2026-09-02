@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Pencil, Trash2, Loader2, AlertTriangle, Check, X } from 'lucide-react'
+import { Pencil, Trash2, Loader2, AlertTriangle, Check, X, Copy, CheckCheck, MessageCircle, Lock, Globe } from 'lucide-react'
 import { toast } from 'sonner'
 
 interface OrganizerControlsProps {
@@ -23,6 +23,7 @@ interface OrganizerControlsProps {
     type: string
     level_required: string
     visibility: string
+    invite_token?: string | null
   }
 }
 
@@ -30,6 +31,7 @@ export function OrganizerControls({ meetup }: OrganizerControlsProps) {
   const router = useRouter()
   const [mode, setMode] = useState<'idle' | 'edit' | 'confirmDelete'>('idle')
   const [isLoading, setIsLoading] = useState(false)
+  const [copied, setCopied] = useState(false)
   const [form, setForm] = useState({
     title: meetup.title,
     description: meetup.description,
@@ -152,9 +154,21 @@ export function OrganizerControls({ meetup }: OrganizerControlsProps) {
               </Select>
             </div>
           </div>
-          <div>
-            <Label className="text-xs">Dirección</Label>
-            <Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} className="mt-1 h-9" />
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <Label className="text-xs">Visibilidad</Label>
+              <Select value={form.visibility} onValueChange={v => setForm({ ...form, visibility: v || 'public' })}>
+                <SelectTrigger className="mt-1 h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="public">🌐 Pública</SelectItem>
+                  <SelectItem value="private">🔒 Privada (Invitación)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="text-xs">Dirección</Label>
+              <Input value={form.address} onChange={e => setForm({ ...form, address: e.target.value })} className="mt-1 h-9" />
+            </div>
           </div>
           <div>
             <Label className="text-xs">Anotaciones del punto de encuentro</Label>
@@ -175,25 +189,83 @@ export function OrganizerControls({ meetup }: OrganizerControlsProps) {
     )
   }
 
+  const isPrivate = meetup.visibility === 'private'
+  const inviteUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/meetups/${meetup.id}${meetup.invite_token ? `?invite=${meetup.invite_token}` : ''}`
+    : `/meetups/${meetup.id}${meetup.invite_token ? `?invite=${meetup.invite_token}` : ''}`
+
+  function handleCopyInvite() {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(inviteUrl)
+      setCopied(true)
+      toast.success('Enlace de invitación copiado al portapapeles')
+      setTimeout(() => setCopied(false), 2500)
+    }
+  }
+
   // --- DEFAULT (idle) ---
   return (
-    <div className="mt-2 flex gap-2">
-      <Button
-        variant="outline"
-        className="flex-1 h-11 rounded-full gap-2 font-semibold border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground transition-colors"
-        onClick={() => setMode('edit')}
-      >
-        <Pencil className="h-4 w-4" /> Editar ruta
-      </Button>
-      {new Date().toISOString().split('T')[0] <= meetup.date && (
+    <div className="mt-2 space-y-3">
+      {isPrivate && (
+        <div className="p-4 rounded-2xl bg-amber-500/10 border border-amber-500/25 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-black text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+              <Lock className="h-3.5 w-3.5" /> Enlace de Invitación WhatsApp
+            </span>
+            <span className="text-[10px] bg-amber-500/20 text-amber-300 font-bold px-2 py-0.5 rounded-full">
+              Privada
+            </span>
+          </div>
+          <p className="text-xs text-white/70 leading-relaxed">
+            Solo quienes tengan este enlace especial podrán apuntarse a tu ruta privada:
+          </p>
+          <div className="flex items-center gap-2">
+            <Input
+              readOnly
+              value={inviteUrl}
+              className="h-9 bg-black/40 border-amber-500/30 text-white text-xs font-mono select-all truncate"
+            />
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleCopyInvite}
+              className="shrink-0 h-9 rounded-xl bg-amber-500 text-black hover:bg-amber-400 font-bold text-xs flex items-center gap-1.5 cursor-pointer"
+            >
+              {copied ? <CheckCheck className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
+              {copied ? 'Copiado' : 'Copiar'}
+            </Button>
+          </div>
+          <div className="pt-1">
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(`¡Hola! Te invito a unirte a mi ruta privada en QuedaMoto 🏍️💨:\n\n*${meetup.title}*\n📅 ${meetup.date} a las ${meetup.time}\n📍 ${meetup.address}\n\nÚnete aquí con este enlace especial:\n${inviteUrl}`)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full h-9 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-black font-extrabold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-[#25D366]/20"
+            >
+              <MessageCircle className="h-4 w-4" /> Compartir en grupo de WhatsApp
+            </a>
+          </div>
+        </div>
+      )}
+
+      <div className="flex gap-2">
         <Button
           variant="outline"
-          className="h-11 w-11 rounded-full border-destructive/40 text-destructive hover:bg-destructive hover:text-white transition-colors"
-          onClick={() => setMode('confirmDelete')}
+          className="flex-1 h-11 rounded-full gap-2 font-semibold border-primary/40 text-primary hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer"
+          onClick={() => setMode('edit')}
         >
-          <Trash2 className="h-4 w-4" />
+          <Pencil className="h-4 w-4" /> Editar ruta
         </Button>
-      )}
+        {new Date().toISOString().split('T')[0] <= meetup.date && (
+          <Button
+            variant="outline"
+            className="h-11 w-11 rounded-full border-destructive/40 text-destructive hover:bg-destructive hover:text-white transition-colors cursor-pointer"
+            onClick={() => setMode('confirmDelete')}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        )}
+      </div>
     </div>
   )
 }

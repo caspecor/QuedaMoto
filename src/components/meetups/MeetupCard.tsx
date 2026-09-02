@@ -16,6 +16,7 @@ export interface MeetupCardProps {
     max_attendees: number
     attendees_count?: number
     image?: string
+    visibility?: string
   }
 }
 
@@ -41,13 +42,18 @@ export function MeetupCard({ meetup }: MeetupCardProps) {
             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
             
             {/* Badges */}
-            <div className="absolute top-4 left-4 flex gap-2">
+            <div className="absolute top-4 left-4 flex gap-1.5 flex-wrap">
               <span className="px-3 py-1 rounded-full bg-primary text-[10px] font-black uppercase tracking-widest text-white shadow-xl shadow-primary/20">
                 {meetup.type}
               </span>
               <span className="px-3 py-1 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-[10px] font-bold uppercase tracking-widest text-white/90">
                 {meetup.level_required}
               </span>
+              {meetup.visibility === 'private' && (
+                <span className="px-2.5 py-1 rounded-full bg-amber-500/90 text-black text-[10px] font-black uppercase tracking-widest shadow-lg flex items-center gap-1">
+                  🔒 Privada
+                </span>
+              )}
             </div>
           </div>
 

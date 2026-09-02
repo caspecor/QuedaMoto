@@ -22,7 +22,6 @@ export default async function ExplorePage({
   const today = new Date().toISOString().split('T')[0]
   
   let conditions = [
-    eq(meetupsTable.visibility, 'public'),
     gte(meetupsTable.date, today)
   ]
 
@@ -54,7 +53,8 @@ export default async function ExplorePage({
       time: meetupsTable.time,
       type: meetupsTable.type,
       level_required: meetupsTable.level_required,
-      max_attendees: meetupsTable.max_attendees
+      max_attendees: meetupsTable.max_attendees,
+      visibility: meetupsTable.visibility,
     }).from(meetupsTable).where(and(...conditions))
     
     meetups = (meetupsArr || []).filter(m => m.lat !== null && m.lng !== null)

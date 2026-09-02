@@ -15,8 +15,15 @@ import Link from "next/link"
 
 import { auth } from "@/auth"
 
-export default async function MeetupDetailPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function MeetupDetailPage({ 
+  params,
+  searchParams,
+}: { 
+  params: Promise<{ id: string }>
+  searchParams?: Promise<{ invite?: string }>
+}) {
   const { id } = await params
+  const { invite } = (await searchParams) || {}
   
   let meetupObj;
   try {
@@ -56,6 +63,10 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
   const user = session?.user
   const isAttending = user ? meetup.attendees.some((a: any) => a.user_id === user.id) : false
   const isCreator = user?.id === meetup.creator_id
+  const isPrivate = meetup.visibility === 'private'
+  const hasValidInvite = Boolean(
+    isPrivate && invite && meetup.invite_token && invite.trim() === meetup.invite_token.trim()
+  )
 
   return (
     <div className="flex flex-col md:flex-row min-h-screen bg-background pt-24">
@@ -84,10 +95,19 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
           {/* Header Info */}
           <div className="space-y-6 animate-reveal">
             <div>
-              <div className="flex items-center gap-2 mb-3">
+              <div className="flex items-center gap-2 mb-3 flex-wrap">
                 <div className="px-2.5 py-0.5 rounded-full bg-primary/20 border border-primary/30 text-primary text-[10px] font-black uppercase tracking-widest">
                   {meetup.type}
                 </div>
+                {isPrivate ? (
+                  <div className="px-2.5 py-0.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
+                    🔒 Ruta Privada
+                  </div>
+                ) : (
+                  <div className="px-2.5 py-0.5 rounded-full bg-green-500/20 border border-green-500/30 text-green-400 text-[10px] font-black uppercase tracking-widest flex items-center gap-1">
+                    🌐 Pública
+                  </div>
+                )}
                 {isCreator && (
                   <div className="px-2.5 py-0.5 rounded-full bg-white/5 border border-white/10 text-white/40 text-[10px] font-black uppercase tracking-widest">
                     Tu Ruta
@@ -99,7 +119,7 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
               </h1>
               <div className="flex gap-3 mt-4">
                 <a 
-                  href={`https://wa.me/?text=${encodeURIComponent(`¡Vente a esta ruta en QuedaMoto! 🏍️💨\n\n*${meetup.title}*\n📅 ${meetup.date}\n📍 ${meetup.address}\n\nApúntate aquí: ${process.env.NEXT_PUBLIC_APP_URL || 'https://quedamoto.vercel.app'}/meetups/${meetup.id}`)}`}
+                  href={`https://wa.me/?text=${encodeURIComponent(`¡Vente a esta ruta en QuedaMoto! 🏍️💨\n\n*${meetup.title}*\n📅 ${meetup.date}\n📍 ${meetup.address}\n\nApúntate aquí: ${process.env.NEXT_PUBLIC_APP_URL || 'https://quedamoto.vercel.app'}/meetups/${meetup.id}${isPrivate && (isCreator || isAttending) && meetup.invite_token ? `?invite=${meetup.invite_token}` : ''}`)}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#25D366] text-black font-black text-[10px] uppercase tracking-widest hover:scale-105 transition-all shadow-lg shadow-[#25D366]/20"
@@ -192,20 +212,52 @@ export default async function MeetupDetailPage({ params }: { params: Promise<{ i
           {/* Action Bar - Now part of the flow to prevent any overlap */}
           <div className="pt-12 pb-20 animate-reveal [animation-delay:0.5s]">
             <div className="glass shadow-2xl rounded-[40px] p-8 flex flex-col gap-8 border border-white/10 ring-1 ring-white/5 bg-white/[0.02]">
-               {!user ? (
-                <Link href="/auth/login" className={buttonVariants({ className: "w-full text-lg h-16 rounded-[28px] font-black bg-primary shadow-xl shadow-primary/20 transition-all hover:scale-[1.02]" })}>
-                  ÚNETE A LA RUTA
-                </Link>
+              {!user ? (
+                <div className="space-y-3">
+                  {isPrivate && (
+                    <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-2xl text-xs text-amber-300 flex items-center gap-2">
+                      <span>🔒</span>
+                      <span>Esta ruta es privada. Inicia sesión con tu cuenta para unirte mediante la invitación.</span>
+                    </div>
+                  )}
+                  <Link 
+                    href={`/auth/login?callbackUrl=/meetups/${id}${invite ? `?invite=${invite}` : ''}`} 
+                    className={buttonVariants({ className: "w-full text-lg h-16 rounded-[28px] font-black bg-primary shadow-xl shadow-primary/20 transition-all hover:scale-[1.02]" })}
+                  >
+                    INICIA SESIÓN PARA UNIRTE
+                  </Link>
+                </div>
               ) : isCreator ? (
-                 <OrganizerControls meetup={meetup as any} />
+                <OrganizerControls meetup={meetup as any} />
+              ) : isAttending ? (
+                <>
+                  <JoinButton meetupId={id} isAttending={true} />
+                  <div className="w-full">
+                    <ChatModule meetupId={id} userId={user.id!} inline={true} />
+                  </div>
+                </>
+              ) : isPrivate && !hasValidInvite ? (
+                <div className="p-6 rounded-3xl bg-amber-500/10 border border-amber-500/25 text-center space-y-3">
+                  <div className="h-12 w-12 rounded-2xl bg-amber-500/20 text-amber-400 mx-auto flex items-center justify-center text-xl">
+                    🔒
+                  </div>
+                  <h4 className="text-lg font-black text-white">Ruta Privada por Invitación</h4>
+                  <p className="text-sm text-white/65 max-w-md mx-auto leading-relaxed">
+                    Esta quedada es privada. Para poder apuntarte y acceder al chat de ruta, necesitas acceder a través del enlace de invitación compartido en WhatsApp por el organizador (<strong>{meetup.creator?.username || 'el organizador'}</strong>).
+                  </p>
+                </div>
               ) : (
-                 <JoinButton meetupId={id} isAttending={isAttending} />
-              )}
-              
-              {user && isAttending && (
-                 <div className="w-full">
-                   <ChatModule meetupId={id} userId={user.id!} inline={true} />
-                 </div>
+                <>
+                  {isPrivate && hasValidInvite && (
+                    <div className="p-3.5 bg-green-500/10 border border-green-500/25 rounded-2xl text-xs text-green-300 flex items-center gap-2.5">
+                      <span className="text-lg">✨</span>
+                      <span>
+                        <strong>¡Invitación verificada!</strong> Tienes acceso a esta ruta privada. Pulsa abajo para apuntarte.
+                      </span>
+                    </div>
+                  )}
+                  <JoinButton meetupId={id} isAttending={false} inviteToken={invite} />
+                </>
               )}
             </div>
           </div>

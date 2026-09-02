@@ -131,6 +131,11 @@ export async function updateMeetupAction(meetupId: string, data: any) {
     if (!validated.success) return { error: 'Datos de actualización inválidos' }
     const validData = validated.data
 
+    let inviteToken = meetup.invite_token
+    if (validData.visibility === 'private' && !inviteToken) {
+      inviteToken = crypto.randomBytes(8).toString('hex')
+    }
+
     await db.update(meetups).set({
       title: validData.title,
       description: validData.description,
@@ -142,6 +147,7 @@ export async function updateMeetupAction(meetupId: string, data: any) {
       type: validData.type,
       level_required: validData.level_required,
       visibility: validData.visibility,
+      invite_token: inviteToken,
     }).where(eq(meetups.id, meetupId))
 
     revalidatePath(`/meetups/${meetupId}`)
@@ -166,12 +172,14 @@ export async function createMeetupAction(data: any) {
     const validData = validated.data
 
     const meetupId = crypto.randomUUID()
+    const inviteToken = validData.visibility === 'private' ? crypto.randomBytes(8).toString('hex') : null
     
     // Default config values
     const payload = {
       ...validData,
       id: meetupId,
       creator_id: session.user.id,
+      invite_token: inviteToken,
       lat: validData.lat || 28.12,
       lng: validData.lng || -15.43,
       createdAt: new Date()
@@ -289,17 +297,54 @@ export async function getChatMessages(meetupId: string) {
   }
 }
 
-export async function joinMeetupAction(meetupId: string) {
+export async function joinMeetupAction(meetupId: string, inviteToken?: string) {
   try {
     const session = await auth()
     if (!session?.user?.id) return { error: 'Inicia sesión primero' }
     const isSuspended = await checkSuspension(session.user.id)
     if (isSuspended) return { error: `Tu cuenta está suspendida hasta el ${isSuspended.toLocaleString()}` }
 
+    const meetup = await db.select().from(meetups).where(eq(meetups.id, meetupId)).limit(1).then(r => r[0])
+    if (!meetup) return { error: 'Quedada no encontrada' }
+
+    // If meetup is private, verify invite token or if user is creator
+    if (meetup.visibility === 'private') {
+      const isCreator = meetup.creator_id === session.user.id
+      const tokenMatches = Boolean(
+        inviteToken && meetup.invite_token && inviteToken.trim() === meetup.invite_token.trim()
+      )
+
+      if (!isCreator && !tokenMatches) {
+        return { error: 'Esta ruta es privada. Solo puedes unirte usando el enlace de invitación de WhatsApp.' }
+      }
+    }
+
+    // Check capacity
+    const [attendeeCount] = await db.select({ count: sql<number>`count(*)` })
+      .from(attendees)
+      .where(eq(attendees.meetup_id, meetupId))
+
+    if (attendeeCount && attendeeCount.count >= meetup.max_attendees) {
+      return { error: 'No quedan plazas disponibles en esta quedada.' }
+    }
+
+    // Check if already attending
+    const existing = await db.select().from(attendees).where(
+      and(
+        eq(attendees.meetup_id, meetupId),
+        eq(attendees.user_id, session.user.id)
+      )
+    ).limit(1).then(r => r[0])
+
+    if (existing) {
+      return { success: true }
+    }
+
     await db.insert(attendees).values({
       meetup_id: meetupId,
       user_id: session.user.id,
       status: 'attending',
+      joinedAt: new Date()
     })
 
     revalidatePath(`/meetups/${meetupId}`)
@@ -342,10 +387,7 @@ export async function getActiveMeetupsCount() {
     const res = await db.select()
       .from(meetups)
       .where(
-        and(
-          eq(meetups.visibility, 'public'),
-          gte(meetups.date, today)
-        )
+        gte(meetups.date, today)
       )
     return res.length
   } catch (error) {
@@ -363,10 +405,7 @@ export async function getPublicMeetups() {
       lng: meetups.lng,
     }).from(meetups)
       .where(
-        and(
-          eq(meetups.visibility, 'public'),
-          gte(meetups.date, today)
-        )
+        gte(meetups.date, today)
       )
     
     return { meetups: res.filter(m => m.lat !== null && m.lng !== null) }

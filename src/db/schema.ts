@@ -38,6 +38,7 @@ export const meetups = pgTable('meetups', {
   lat: doublePrecision('lat'),
   lng: doublePrecision('lng'),
   visibility: varchar('visibility', { length: 50 }).default('public'),
+  invite_token: text('invite_token'),
   level_required: varchar('level_required', { length: 50 }).default('Principiante'),
   creator_id: text('creator_id').references(() => users.id, { onDelete: 'cascade' }).notNull(),
   createdAt: timestamp('created_at').defaultNow(),
