@@ -407,6 +407,32 @@ export async function suspendUser(userId: string, hours: number) {
   }
 }
 
+export async function grantXP(userId: string, amount: number) {
+  try {
+    const session = await auth()
+    if (!session?.user?.role || session?.user?.role !== 'admin') {
+      throw new Error('Unauthorized')
+    }
+
+    // Fetch current XP
+    const [user] = await db.select({ xp: users.xp }).from(users).where(eq(users.id, userId)).limit(1)
+    if (!user) return { success: false, error: 'Usuario no encontrado' }
+
+    const currentXP = user.xp ?? 0
+    const newXP = Math.max(0, currentXP + amount) // can't go below 0
+
+    await db.update(users)
+      .set({ xp: newXP })
+      .where(eq(users.id, userId))
+
+    revalidatePath('/admin/users')
+    return { success: true, newXP }
+  } catch (error) {
+    console.error('Error granting XP:', error)
+    return { success: false, error: 'Error al modificar XP' }
+  }
+}
+
 export async function getSiteSettings() {
   try {
     const session = await auth()

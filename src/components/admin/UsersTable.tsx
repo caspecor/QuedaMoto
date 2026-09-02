@@ -11,11 +11,23 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Shield, ShieldAlert, Trash2, Ban, CheckCircle, UserCog, Clock, XCircle } from "lucide-react"
-import { toggleUserBlock, deleteUser, changeUserRole, suspendUser } from "@/app/admin/actions"
+import { Shield, ShieldAlert, Trash2, Ban, CheckCircle, UserCog, Clock, XCircle, Zap, Minus, Plus } from "lucide-react"
+import { toggleUserBlock, deleteUser, changeUserRole, suspendUser, grantXP } from "@/app/admin/actions"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { getLevelInfo } from "@/lib/gamification"
+
+// Preset XP grant amounts (positive = add, negative = subtract)
+const XP_PRESETS = [
+  { label: '+10', value: 10 },
+  { label: '+25', value: 25 },
+  { label: '+50', value: 50 },
+  { label: '+100', value: 100 },
+  { label: '+250', value: 250 },
+  { label: '-25', value: -25 },
+  { label: '-50', value: -50 },
+  { label: '-100', value: -100 },
+]
 
 export function UsersTable({ users, totalPages, currentPage }: { 
   users: any[], 
@@ -24,6 +36,8 @@ export function UsersTable({ users, totalPages, currentPage }: {
 }) {
   const router = useRouter()
   const [loading, setLoading] = useState<string | null>(null)
+  const [suspendingUser, setSuspendingUser] = useState<string | null>(null)
+  const [xpUser, setXpUser] = useState<string | null>(null)
 
   const handleToggleBlock = async (userId: string) => {
     setLoading(userId)
@@ -59,11 +73,8 @@ export function UsersTable({ users, totalPages, currentPage }: {
     } else {
       toast.error(res.error || "Error")
     }
-    setLoading(userId + "_suspend") // special key to close selector
     setLoading(null)
   }
-
-  const [suspendingUser, setSuspendingUser] = useState<string | null>(null)
 
   const handleChangeRole = async (userId: string, role: string) => {
     setLoading(userId)
@@ -75,6 +86,20 @@ export function UsersTable({ users, totalPages, currentPage }: {
       toast.error(res.error || "Error al cambiar rol")
     }
     setLoading(null)
+  }
+
+  const handleGrantXP = async (userId: string, amount: number) => {
+    setLoading(userId + '_xp')
+    const res = await grantXP(userId, amount)
+    if (res.success) {
+      const sign = amount > 0 ? '+' : ''
+      toast.success(`${sign}${amount} XP concedidos. Total: ${res.newXP} XP`)
+      router.refresh()
+    } else {
+      toast.error(res.error || "Error al modificar XP")
+    }
+    setLoading(null)
+    setXpUser(null)
   }
 
   return (
@@ -140,95 +165,154 @@ export function UsersTable({ users, totalPages, currentPage }: {
               </TableCell>
               <TableCell className="pr-8 text-right">
                 <div className="flex justify-end gap-2 relative">
-                   {/* Botón de Suspensión */}
-                   {suspendingUser === user.id ? (
-                     <div className="absolute right-0 bottom-full mb-2 bg-card border border-white/10 rounded-2xl p-2 shadow-2xl flex gap-1 z-50 animate-in slide-in-from-bottom-2">
-                       {[1, 24, 72, 168].map(h => (
-                         <Button 
-                          key={h} 
-                          variant="ghost" 
-                          size="sm" 
-                          className="h-8 px-2 text-[10px] font-bold hover:bg-primary hover:text-black rounded-lg"
-                          onClick={() => {
-                            handleSuspend(user.id, h)
-                            setSuspendingUser(null)
-                          }}
-                         >
-                           {h < 24 ? `${h}h` : `${Math.floor(h/24)}d`}
-                         </Button>
-                       ))}
-                       <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8 px-2 text-[10px] font-bold text-red-500 hover:bg-red-500/10 rounded-lg"
-                        onClick={() => {
-                          handleSuspend(user.id, 0)
-                          setSuspendingUser(null)
-                        }}
-                       >
-                         Quitar
-                       </Button>
-                       <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="h-8 w-8 p-0 text-white/20 hover:text-white rounded-lg"
-                        onClick={() => setSuspendingUser(null)}
-                       >
-                         <XCircle className="h-4 w-4" />
-                       </Button>
-                     </div>
-                   ) : (
-                     <Button 
-                      variant="ghost" 
+
+                  {/* ── XP POPUP ── */}
+                  {xpUser === user.id ? (
+                    <div className="absolute right-0 bottom-full mb-2 bg-card border border-primary/20 rounded-2xl p-3 shadow-2xl z-50 animate-in slide-in-from-bottom-2 min-w-[260px]">
+                      <div className="flex items-center justify-between mb-2.5">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-primary flex items-center gap-1.5">
+                          <Zap className="h-3 w-3" /> Conceder / Quitar XP
+                        </span>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-6 w-6 p-0 text-white/20 hover:text-white rounded-lg"
+                          onClick={() => setXpUser(null)}
+                        >
+                          <XCircle className="h-4 w-4" />
+                        </Button>
+                      </div>
+                      <div className="text-[10px] text-white/40 mb-2">
+                        XP actual: <span className="text-primary font-black">{user.xp || 0} XP</span>
+                      </div>
+                      <div className="grid grid-cols-4 gap-1.5">
+                        {XP_PRESETS.map(preset => (
+                          <Button
+                            key={preset.value}
+                            variant="ghost"
+                            size="sm"
+                            disabled={loading === user.id + '_xp'}
+                            className={`h-9 px-2 text-[10px] font-black rounded-xl transition-all border ${
+                              preset.value > 0
+                                ? 'border-primary/20 text-primary hover:bg-primary hover:text-black hover:border-primary'
+                                : 'border-red-500/20 text-red-400 hover:bg-red-500/20 hover:text-red-300 hover:border-red-500/40'
+                            }`}
+                            onClick={() => handleGrantXP(user.id, preset.value)}
+                          >
+                            {preset.value > 0 ? <Plus className="h-2.5 w-2.5 mr-0.5 inline" /> : <Minus className="h-2.5 w-2.5 mr-0.5 inline" />}
+                            {Math.abs(preset.value)}
+                          </Button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <Button
+                      variant="ghost"
                       size="icon"
                       disabled={loading === user.id}
-                      onClick={() => setSuspendingUser(user.id)}
-                      title="Suspender temporalmente"
-                      className={`h-9 w-9 rounded-xl transition-all ${
-                        user.suspendedUntil && new Date(user.suspendedUntil) > new Date() ? 'text-orange-500 bg-orange-500/10' : 'text-white/20 hover:text-orange-500 hover:bg-orange-500/10'
-                      }`}
-                     >
-                       <Clock className="h-4 w-4" />
-                     </Button>
-                   )}
+                      onClick={() => {
+                        setSuspendingUser(null)
+                        setXpUser(user.id)
+                      }}
+                      title="Gestionar XP"
+                      className="h-9 w-9 rounded-xl text-white/20 hover:text-primary hover:bg-primary/10 transition-all"
+                    >
+                      <Zap className="h-4 w-4" />
+                    </Button>
+                  )}
 
-                   {/* Botón de Rol */}
-                   <Button 
-                    variant="ghost" 
-                    size="icon"
-                    disabled={loading === user.id}
-                    onClick={() => handleChangeRole(user.id, user.role === 'admin' ? 'user' : 'admin')}
-                    title={user.role === 'admin' ? "Degradar a Usuario" : "Hacer Admin"}
-                    className="h-9 w-9 rounded-xl text-white/20 hover:text-blue-400 hover:bg-blue-400/10 transition-all"
-                   >
-                     <UserCog className="h-4 w-4" />
-                   </Button>
+                  {/* ── SUSPENSION POPUP ── */}
+                  {suspendingUser === user.id ? (
+                    <div className="absolute right-0 bottom-full mb-2 bg-card border border-white/10 rounded-2xl p-2 shadow-2xl flex gap-1 z-50 animate-in slide-in-from-bottom-2">
+                      {[1, 24, 72, 168].map(h => (
+                        <Button 
+                         key={h} 
+                         variant="ghost" 
+                         size="sm" 
+                         className="h-8 px-2 text-[10px] font-bold hover:bg-primary hover:text-black rounded-lg"
+                         onClick={() => {
+                           handleSuspend(user.id, h)
+                           setSuspendingUser(null)
+                         }}
+                        >
+                          {h < 24 ? `${h}h` : `${Math.floor(h/24)}d`}
+                        </Button>
+                      ))}
+                      <Button 
+                       variant="ghost" 
+                       size="sm" 
+                       className="h-8 px-2 text-[10px] font-bold text-red-500 hover:bg-red-500/10 rounded-lg"
+                       onClick={() => {
+                         handleSuspend(user.id, 0)
+                         setSuspendingUser(null)
+                       }}
+                      >
+                        Quitar
+                      </Button>
+                      <Button 
+                       variant="ghost" 
+                       size="sm" 
+                       className="h-8 w-8 p-0 text-white/20 hover:text-white rounded-lg"
+                       onClick={() => setSuspendingUser(null)}
+                      >
+                        <XCircle className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button 
+                     variant="ghost" 
+                     size="icon"
+                     disabled={loading === user.id}
+                     onClick={() => {
+                       setXpUser(null)
+                       setSuspendingUser(user.id)
+                     }}
+                     title="Suspender temporalmente"
+                     className={`h-9 w-9 rounded-xl transition-all ${
+                       user.suspendedUntil && new Date(user.suspendedUntil) > new Date() ? 'text-orange-500 bg-orange-500/10' : 'text-white/20 hover:text-orange-500 hover:bg-orange-500/10'
+                     }`}
+                    >
+                      <Clock className="h-4 w-4" />
+                    </Button>
+                  )}
 
-                   {/* Botón de Bloqueo */}
-                   <Button 
-                    variant="ghost" 
-                    size="icon"
-                    disabled={loading === user.id}
-                    onClick={() => handleToggleBlock(user.id)}
-                    title={user.isBlocked ? "Desbloquear" : "Bloquear"}
-                    className={`h-9 w-9 rounded-xl transition-all ${
-                      user.isBlocked ? 'text-red-500 bg-red-500/10' : 'text-white/20 hover:text-red-500 hover:bg-red-500/10'
-                    }`}
-                   >
-                     <Ban className="h-4 w-4" />
-                   </Button>
+                  {/* Botón de Rol */}
+                  <Button 
+                   variant="ghost" 
+                   size="icon"
+                   disabled={loading === user.id}
+                   onClick={() => handleChangeRole(user.id, user.role === 'admin' ? 'user' : 'admin')}
+                   title={user.role === 'admin' ? "Degradar a Usuario" : "Hacer Admin"}
+                   className="h-9 w-9 rounded-xl text-white/20 hover:text-blue-400 hover:bg-blue-400/10 transition-all"
+                  >
+                    <UserCog className="h-4 w-4" />
+                  </Button>
 
-                   {/* Botón de Borrado */}
-                   <Button 
-                    variant="ghost" 
-                    size="icon"
-                    disabled={loading === user.id || user.role === 'admin'}
-                    onClick={() => handleDelete(user.id)}
-                    title="Eliminar permanentemente"
-                    className="h-9 w-9 rounded-xl text-white/20 hover:text-destructive hover:bg-destructive/10 transition-all"
-                   >
-                     <Trash2 className="h-4 w-4" />
-                   </Button>
+                  {/* Botón de Bloqueo */}
+                  <Button 
+                   variant="ghost" 
+                   size="icon"
+                   disabled={loading === user.id}
+                   onClick={() => handleToggleBlock(user.id)}
+                   title={user.isBlocked ? "Desbloquear" : "Bloquear"}
+                   className={`h-9 w-9 rounded-xl transition-all ${
+                     user.isBlocked ? 'text-red-500 bg-red-500/10' : 'text-white/20 hover:text-red-500 hover:bg-red-500/10'
+                   }`}
+                  >
+                    <Ban className="h-4 w-4" />
+                  </Button>
+
+                  {/* Botón de Borrado */}
+                  <Button 
+                   variant="ghost" 
+                   size="icon"
+                   disabled={loading === user.id || user.role === 'admin'}
+                   onClick={() => handleDelete(user.id)}
+                   title="Eliminar permanentemente"
+                   className="h-9 w-9 rounded-xl text-white/20 hover:text-destructive hover:bg-destructive/10 transition-all"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
                 </div>
               </TableCell>
             </TableRow>
