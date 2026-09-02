@@ -10,6 +10,7 @@ import { LogoutButton } from "@/components/auth/LogoutButton"
 import { LevelProgressBar } from "@/components/profile/LevelProgressBar"
 import { ProfileEditForm } from "@/components/profile/ProfileEditForm"
 import { BikeCard } from "@/components/profile/BikeCard"
+import { ShareProfileButton } from "@/components/profile/ShareProfileButton"
 import { ExternalLink, Calendar, MapPin, Trophy, Sparkles } from "lucide-react"
 
 export const metadata = {
@@ -49,6 +50,14 @@ export default async function ProfilePage() {
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
+            <ShareProfileButton 
+              userId={profile?.id}
+              username={profile?.username}
+              vehicles={profile?.vehicles}
+              city={profile?.city}
+              variant="compact"
+            />
+
             <Link href={`/riders/${profile?.id}`}>
               <Button 
                 variant="outline" 
@@ -115,10 +124,17 @@ export default async function ProfilePage() {
                 </p>
               )}
 
-              <div className="pt-2 border-t border-white/5">
+              <div className="pt-2 border-t border-white/5 space-y-3">
+                <ShareProfileButton 
+                  userId={profile?.id}
+                  username={profile?.username}
+                  vehicles={profile?.vehicles}
+                  city={profile?.city}
+                />
+
                 <Link
                   href={`/riders/${profile?.id}`}
-                  className="text-xs text-primary hover:text-primary/80 font-bold flex items-center justify-center gap-1.5 transition-colors"
+                  className="text-xs text-white/50 hover:text-primary font-bold flex items-center justify-center gap-1.5 transition-colors pt-1"
                 >
                   <span>Ver cómo ven otros usuarios tu ficha</span>
                   <ExternalLink className="h-3 w-3" />
