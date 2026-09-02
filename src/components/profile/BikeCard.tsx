@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { updateProfile } from "@/app/(main)/meetups/actions"
+import { RIDING_STYLES } from "@/lib/gamification"
 import { Pencil, Bike, Plus, Trash2, Instagram, Youtube, Share2, Image as ImageIcon, Camera } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 
@@ -191,7 +192,18 @@ export function BikeCard({ profile }: { profile: any }) {
 
               <div className="space-y-2 md:col-span-2">
                 <Label htmlFor="style" className="text-xs font-bold uppercase tracking-widest text-white/40">Estilo favorito</Label>
-                <Input id="style" value={style} onChange={e => setStyle(e.target.value)} placeholder="Ej: Turismo, Enduro, Circuito..." className="bg-white/5 border-white/10 rounded-xl" />
+                <Select value={style} onValueChange={setStyle}>
+                  <SelectTrigger className="bg-white/5 border-white/10 rounded-xl w-full">
+                    <SelectValue placeholder="Selecciona tu estilo de rodada" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#121212] border-white/10 text-white rounded-xl">
+                    {RIDING_STYLES.map((s) => (
+                      <SelectItem key={s.value} value={s.value} className="focus:bg-primary/20 focus:text-white rounded-lg">
+                        {s.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
 
