@@ -1,19 +1,22 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import * as z from 'zod'
 import { useRouter } from 'next/navigation'
 import { createMeetupAction } from '@/app/(main)/meetups/actions'
 import { toast } from 'sonner'
-import { Loader2, MapPin, Navigation, Search, Check, Lock, RefreshCw, X, AlertCircle } from 'lucide-react'
+import { 
+  Loader2, MapPin, Navigation, Search, Check, Lock, RefreshCw, X, AlertCircle, 
+  Calendar, Clock, Users, Shield, Compass, FileText, Sparkles
+} from 'lucide-react'
 import { MapPicker } from '@/components/map/MapPicker'
 
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
-import { Card, CardContent } from '@/components/ui/card'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 const createSchema = z.object({
@@ -62,6 +65,12 @@ export function CreateMeetupForm() {
 
   const addressValue = watch('address')
   const visibilityValue = watch('visibility') || 'public'
+  const watchedTitle = watch('title')
+  const watchedDate = watch('date')
+  const watchedTime = watch('time')
+  const watchedType = watch('type') || 'route'
+  const watchedLevel = watch('level_required') || 'Principiante'
+  const watchedMaxAttendees = watch('max_attendees')
 
   // Close suggestions when clicking outside
   useEffect(() => {
@@ -212,7 +221,7 @@ export function CreateMeetupForm() {
         return
       }
 
-      toast.success('Ruta creada con éxito')
+      toast.success('¡Quedada creada con éxito! 🏍️💨')
       
       setTimeout(() => {
         window.location.href = `/meetups/${response.meetupId}`
@@ -225,97 +234,161 @@ export function CreateMeetupForm() {
   }
 
   return (
-    <Card className="border-border/50 bg-card shadow-sm p-4">
-      <CardContent className="p-0">
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="space-y-2">
-            <Label htmlFor="title">Título</Label>
-            <Input id="title" placeholder="Ej: Ruta por la cumbre..." {...register('title')} />
-            {errors.title && <p className="text-xs text-destructive">{errors.title.message}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="description">Descripción</Label>
-            <Input id="description" placeholder="Detalles, ritmo, paradas..." {...register('description')} />
-            {errors.description && <p className="text-xs text-destructive">{errors.description.message}</p>}
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="date">Fecha</Label>
-              <Input id="date" type="date" {...register('date')} />
-              {errors.date && <p className="text-xs text-destructive">{errors.date.message}</p>}
+    <>
+      <form onSubmit={handleSubmit(onSubmit)} className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        {/* LEFT COLUMN: Main Form Sections (col-span-7) */}
+        <div className="lg:col-span-7 space-y-6">
+          
+          {/* Section 1: Route Basics */}
+          <div className="bg-card border border-white/8 rounded-3xl p-5 sm:p-7 space-y-5 shadow-xl">
+            <div className="flex items-center gap-2.5 border-b border-white/5 pb-3.5">
+              <div className="h-8 w-8 rounded-xl bg-primary/15 text-primary flex items-center justify-center font-bold text-xs">
+                1
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-extrabold text-white">Detalles Principales</h3>
+                <p className="text-xs text-white/40">Ponle un título atractivo y define la categoría de la ruta.</p>
+              </div>
             </div>
+
             <div className="space-y-2">
-              <Label htmlFor="time">Hora</Label>
-              <Input id="time" type="time" {...register('time')} />
-              {errors.time && <p className="text-xs text-destructive">{errors.time.message}</p>}
+              <Label htmlFor="title" className="text-xs font-bold text-white/80">Título de la Quedada</Label>
+              <Input 
+                id="title" 
+                placeholder="Ej: Ruta por la Cumbre de Gran Canaria · Curvas y Café" 
+                className="h-11 bg-white/[0.03] border-white/10 text-white rounded-xl text-sm"
+                {...register('title')} 
+              />
+              {errors.title && <p className="text-xs text-destructive font-medium">{errors.title.message}</p>}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-white/80">Tipo de Quedada</Label>
+                <Select onValueChange={(val) => setValue('type', val as any)} defaultValue="route">
+                  <SelectTrigger className="h-11 bg-white/[0.03] border-white/10 text-white rounded-xl text-xs sm:text-sm">
+                    <SelectValue placeholder="Seleccionar..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="route">🏍️ Ruta</SelectItem>
+                    <SelectItem value="coffee">☕ Café en ruta</SelectItem>
+                    <SelectItem value="breakfast">🥐 Desayuno</SelectItem>
+                    <SelectItem value="night">🌙 Nocturna</SelectItem>
+                    <SelectItem value="offroad">🏜️ Off-Road / Trail</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs font-bold text-white/80">Nivel Requerido</Label>
+                <Select onValueChange={(val) => setValue('level_required', val as any)} defaultValue="Principiante">
+                  <SelectTrigger className="h-11 bg-white/[0.03] border-white/10 text-white rounded-xl text-xs sm:text-sm">
+                    <SelectValue placeholder="Seleccionar..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="Principiante">🟢 Principiante</SelectItem>
+                    <SelectItem value="Intermedio">🟡 Intermedio</SelectItem>
+                    <SelectItem value="Avanzado">🔴 Avanzado</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="max_attendees" className="text-xs font-bold text-white/80">Límite de Plazas</Label>
+                <Input 
+                  id="max_attendees" 
+                  type="number" 
+                  min="1" 
+                  max="100" 
+                  placeholder="10" 
+                  className="h-11 bg-white/[0.03] border-white/10 text-white rounded-xl text-xs sm:text-sm"
+                  {...register('max_attendees')} 
+                />
+                {errors.max_attendees && <p className="text-xs text-destructive font-medium">{errors.max_attendees.message}</p>}
+              </div>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Tipo de Quedada</Label>
-              <Select onValueChange={(val) => setValue('type', val as any)} defaultValue="route">
-                <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="route">Ruta</SelectItem>
-                  <SelectItem value="coffee">Café en ruta</SelectItem>
-                  <SelectItem value="breakfast">Desayuno</SelectItem>
-                  <SelectItem value="night">Ruta Nocturna</SelectItem>
-                  <SelectItem value="offroad">Off-Road / Trail</SelectItem>
-                </SelectContent>
-              </Select>
+          {/* Section 2: Date & Time */}
+          <div className="bg-card border border-white/8 rounded-3xl p-5 sm:p-7 space-y-5 shadow-xl">
+            <div className="flex items-center gap-2.5 border-b border-white/5 pb-3.5">
+              <div className="h-8 w-8 rounded-xl bg-primary/15 text-primary flex items-center justify-center font-bold text-xs">
+                2
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-extrabold text-white">Fecha y Horario de Salida</h3>
+                <p className="text-xs text-white/40">¿Cuándo y a qué hora arranca el motor?</p>
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label>Nivel Requerido</Label>
-              <Select onValueChange={(val) => setValue('level_required', val as any)} defaultValue="Principiante">
-                <SelectTrigger><SelectValue placeholder="Seleccionar..." /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="Principiante">Principiante</SelectItem>
-                  <SelectItem value="Intermedio">Intermedio</SelectItem>
-                  <SelectItem value="Avanzado">Avanzado</SelectItem>
-                </SelectContent>
-              </Select>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="date" className="text-xs font-bold text-white/80 flex items-center gap-1.5">
+                  <Calendar className="h-3.5 w-3.5 text-primary" /> Fecha de la Quedada
+                </Label>
+                <Input 
+                  id="date" 
+                  type="date" 
+                  className="h-11 bg-white/[0.03] border-white/10 text-white rounded-xl text-xs sm:text-sm"
+                  {...register('date')} 
+                />
+                {errors.date && <p className="text-xs text-destructive font-medium">{errors.date.message}</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="time" className="text-xs font-bold text-white/80 flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 text-primary" /> Hora de Encuentro
+                </Label>
+                <Input 
+                  id="time" 
+                  type="time" 
+                  className="h-11 bg-white/[0.03] border-white/10 text-white rounded-xl text-xs sm:text-sm"
+                  {...register('time')} 
+                />
+                {errors.time && <p className="text-xs text-destructive font-medium">{errors.time.message}</p>}
+              </div>
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="max_attendees">Límite Mínimo/Máximo Plazas</Label>
-            <Input id="max_attendees" type="number" placeholder="10" {...register('max_attendees')} />
-            {errors.max_attendees && <p className="text-xs text-destructive">{errors.max_attendees.message}</p>}
-          </div>
+          {/* Section 3: Visibility & WhatsApp Invite */}
+          <div className="bg-card border border-white/8 rounded-3xl p-5 sm:p-7 space-y-5 shadow-xl">
+            <div className="flex items-center gap-2.5 border-b border-white/5 pb-3.5">
+              <div className="h-8 w-8 rounded-xl bg-primary/15 text-primary flex items-center justify-center font-bold text-xs">
+                3
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-extrabold text-white">Privacidad y Acceso</h3>
+                <p className="text-xs text-white/40">Elige si cualquiera puede apuntarse o si es exclusiva por invitación.</p>
+              </div>
+            </div>
 
-          {/* Visibilidad de la Quedada */}
-          <div className="space-y-3">
-            <Label className="text-sm font-bold flex items-center gap-1.5">
-              <span>Visibilidad de la Quedada</span>
-              <span className="text-xs font-normal text-muted-foreground">(Elige quién puede unirse)</span>
-            </Label>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Opción Pública */}
               <button
                 type="button"
                 onClick={() => setValue('visibility', 'public', { shouldValidate: true })}
-                className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between gap-2.5 relative cursor-pointer ${
+                className={`p-4 sm:p-5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-3 relative cursor-pointer ${
                   visibilityValue === 'public'
                     ? 'bg-primary/10 border-primary shadow-lg shadow-primary/10 ring-1 ring-primary'
                     : 'bg-white/[0.02] border-white/10 hover:border-white/20 hover:bg-white/[0.04]'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">🌐</span>
-                    <span className="font-extrabold text-sm text-white">Quedada Pública</span>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-2xl">🌐</span>
+                    <div>
+                      <span className="font-extrabold text-sm text-white block">Quedada Pública</span>
+                      <span className="text-[10px] text-primary font-bold uppercase tracking-wider">Abierta</span>
+                    </div>
                   </div>
                   {visibilityValue === 'public' && (
-                    <span className="h-5 w-5 rounded-full bg-primary text-black flex items-center justify-center text-xs font-black">
+                    <span className="h-6 w-6 rounded-full bg-primary text-black flex items-center justify-center text-xs font-black shadow-md">
                       ✓
                     </span>
                   )}
                 </div>
                 <p className="text-xs text-white/60 leading-relaxed">
-                  Visible en la web. <strong>Cualquier usuario</strong> puede ver la ruta y unirse libremente.
+                  Visible en la web. <strong>Cualquier rider de la comunidad</strong> puede ver los detalles y unirse libremente.
                 </p>
               </button>
 
@@ -323,50 +396,111 @@ export function CreateMeetupForm() {
               <button
                 type="button"
                 onClick={() => setValue('visibility', 'private', { shouldValidate: true })}
-                className={`p-4 rounded-2xl border text-left transition-all flex flex-col justify-between gap-2.5 relative cursor-pointer ${
+                className={`p-4 sm:p-5 rounded-2xl border text-left transition-all flex flex-col justify-between gap-3 relative cursor-pointer ${
                   visibilityValue === 'private'
                     ? 'bg-amber-500/15 border-amber-500 shadow-lg shadow-amber-500/10 ring-1 ring-amber-500'
                     : 'bg-white/[0.02] border-white/10 hover:border-white/20 hover:bg-white/[0.04]'
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-xl">🔒</span>
-                    <span className="font-extrabold text-sm text-white">Quedada Privada</span>
+                  <div className="flex items-center gap-2.5">
+                    <span className="text-2xl">🔒</span>
+                    <div>
+                      <span className="font-extrabold text-sm text-white block">Quedada Privada</span>
+                      <span className="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Exclusiva</span>
+                    </div>
                   </div>
                   {visibilityValue === 'private' && (
-                    <span className="h-5 w-5 rounded-full bg-amber-500 text-black flex items-center justify-center text-xs font-black">
+                    <span className="h-6 w-6 rounded-full bg-amber-500 text-black flex items-center justify-center text-xs font-black shadow-md">
                       ✓
                     </span>
                   )}
                 </div>
                 <p className="text-xs text-white/60 leading-relaxed">
-                  Visible en la web, pero <strong>solo con enlace de WhatsApp</strong> podrán apuntarse y acceder al chat.
+                  Visible en la web, pero <strong>solo con tu enlace de WhatsApp</strong> podrán unirse y acceder al chat.
                 </p>
               </button>
             </div>
+
             {visibilityValue === 'private' && (
-              <div className="p-3.5 bg-amber-500/10 border border-amber-500/20 rounded-xl text-xs text-amber-300 flex items-start gap-2.5 animate-reveal">
-                <span className="text-base leading-none">💡</span>
-                <span>
-                  Al publicar, se generará tu <strong>enlace de invitación único</strong> para que lo compartas directamente por WhatsApp con tu grupo.
+              <div className="p-4 bg-amber-500/10 border border-amber-500/25 rounded-2xl text-xs text-amber-300 flex items-start gap-3 animate-reveal">
+                <span className="text-lg leading-none mt-0.5">💡</span>
+                <span className="leading-relaxed">
+                  Al publicar, se generará tu <strong>enlace de invitación único</strong> para que lo envíes directamente al grupo de WhatsApp de tu motoclub o amigos.
                 </span>
               </div>
             )}
           </div>
 
-          <div className="space-y-4">
+          {/* Section 4: Route Description */}
+          <div className="bg-card border border-white/8 rounded-3xl p-5 sm:p-7 space-y-4 shadow-xl">
+            <div className="flex items-center gap-2.5 border-b border-white/5 pb-3.5">
+              <div className="h-8 w-8 rounded-xl bg-primary/15 text-primary flex items-center justify-center font-bold text-xs">
+                4
+              </div>
+              <div>
+                <h3 className="text-sm sm:text-base font-extrabold text-white">Detalles y Recomendaciones</h3>
+                <p className="text-xs text-white/40">Explica el itinerario, tipo de curvas, paradas y equipo necesario.</p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description" className="text-xs font-bold text-white/80">Descripción de la Ruta</Label>
+              <Textarea 
+                id="description" 
+                rows={4}
+                placeholder="Ejemplo: Salimos desde Alcampo Telde dirección Cazadores hacia la Cumbre. Ritmo tranquilo, apto para motos de todas las cilindradas. Pararemos a desayunar en el Parador de Tejeda. Depósito lleno en la salida."
+                className="bg-white/[0.03] border-white/10 text-white rounded-xl text-sm leading-relaxed p-3.5 resize-y min-h-[110px]"
+                {...register('description')} 
+              />
+              {errors.description && <p className="text-xs text-destructive font-medium">{errors.description.message}</p>}
+            </div>
+          </div>
+        </div>
+
+        {/* RIGHT COLUMN: Map & Interactive Meeting Point (col-span-5) */}
+        <div className="lg:col-span-5 space-y-6 lg:sticky lg:top-28">
+          
+          <div className="bg-card border border-white/8 rounded-3xl p-5 sm:p-6 space-y-5 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-white/5 pb-3.5">
+              <div className="flex items-center gap-2.5">
+                <div className="h-8 w-8 rounded-xl bg-primary/20 text-primary flex items-center justify-center font-bold">
+                  <MapPin className="h-4 w-4" />
+                </div>
+                <div>
+                  <h3 className="text-sm sm:text-base font-extrabold text-white">Punto de Encuentro</h3>
+                  <p className="text-xs text-white/40">Marca la salida exacta en el mapa</p>
+                </div>
+              </div>
+
+              <button
+                type="button"
+                onClick={handleUseMyLocation}
+                disabled={isGeolocating}
+                className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 font-bold bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-xl border border-primary/20 transition-all disabled:opacity-50 cursor-pointer shrink-0"
+              >
+                {isGeolocating ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Navigation className="h-3.5 w-3.5" />
+                )}
+                <span>{isGeolocating ? 'Localizando...' : 'Mi GPS'}</span>
+              </button>
+            </div>
+
+            {/* Address Search Field with Dropdown */}
             <div className="space-y-2 relative" ref={dropdownRef}>
-              <Label htmlFor="address">Punto de Encuentro (Dirección)</Label>
+              <Label htmlFor="address" className="text-xs font-bold text-white/80">Dirección o Lugar de Salida</Label>
               <div className="flex gap-2">
                 <div className="relative flex-1">
                   <Input
                     id="address"
-                    placeholder="Ej: Alcampo Telde, Gasolinera X..."
+                    placeholder="Ej: Gasolinera Repsol El Taro, Telde..."
                     value={addressValue || ''}
                     onChange={handleAddressInputChange}
                     onKeyDown={handleAddressKeyDown}
                     onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+                    className="h-11 bg-white/[0.03] border-white/10 text-white rounded-xl text-xs sm:text-sm pr-3"
                   />
                 </div>
                 <Button
@@ -374,26 +508,26 @@ export function CreateMeetupForm() {
                   variant="secondary"
                   onClick={() => searchLocation(addressValue || '', true)}
                   disabled={isGeocoding}
-                  className="shrink-0 flex items-center gap-1.5"
+                  className="shrink-0 h-11 px-3.5 rounded-xl flex items-center gap-1.5 font-bold text-xs bg-white/10 hover:bg-white/15 text-white border border-white/10 cursor-pointer"
                 >
                   {isGeocoding ? (
-                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
                   ) : (
-                    <Search className="h-4 w-4 text-primary" />
+                    <Search className="h-3.5 w-3.5 text-primary" />
                   )}
-                  Buscar en mapa
+                  <span>Buscar</span>
                 </Button>
               </div>
 
               {/* Suggestions Dropdown */}
               {showSuggestions && suggestions.length > 0 && (
-                <div className="absolute left-0 right-0 top-full mt-1 bg-popover border border-border rounded-xl shadow-xl z-[2000] overflow-hidden max-h-60 overflow-y-auto divide-y divide-border/50">
+                <div className="absolute left-0 right-0 top-full mt-1 bg-[#121212] border border-white/10 rounded-2xl shadow-2xl z-[2000] overflow-hidden max-h-56 overflow-y-auto divide-y divide-white/5">
                   {suggestions.map((s, idx) => (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => handleSelectSuggestion(s)}
-                      className="w-full text-left px-3 py-2 text-xs hover:bg-accent hover:text-accent-foreground transition-colors flex items-start gap-2"
+                      className="w-full text-left px-3.5 py-2.5 text-xs text-white/80 hover:bg-primary/10 hover:text-white transition-colors flex items-start gap-2.5 cursor-pointer"
                     >
                       <MapPin className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
                       <span className="line-clamp-2 leading-relaxed">{s.display_name}</span>
@@ -402,57 +536,88 @@ export function CreateMeetupForm() {
                 </div>
               )}
 
-              {errors.address && <p className="text-xs text-destructive">{errors.address.message}</p>}
-              <p className="text-xs text-muted-foreground">
-                Escribe una dirección y pulsa <strong>Buscar en mapa</strong> o presiona <strong>Enter</strong>.
-              </p>
+              {errors.address && <p className="text-xs text-destructive font-medium">{errors.address.message}</p>}
             </div>
 
+            {/* Interactive Leaflet Map */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label>Ubicación en mapa</Label>
-                <button
-                  type="button"
-                  onClick={handleUseMyLocation}
-                  disabled={isGeolocating}
-                  className="flex items-center gap-1.5 text-xs text-primary hover:text-primary/80 font-semibold transition-colors disabled:opacity-50"
-                >
-                  {isGeolocating
-                    ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                    : <Navigation className="h-3.5 w-3.5" />
-                  }
-                  {isGeolocating ? 'Obteniendo ubicación...' : 'Usar mi ubicación actual'}
-                </button>
+              <div className="h-72 sm:h-80 w-full rounded-2xl overflow-hidden border border-white/10 shadow-inner relative">
+                <MapPicker
+                  externalPosition={mapPosition}
+                  onLocationSelect={(lat, lng) => {
+                    setMapPosition([lat, lng])
+                    setValue('lat', lat)
+                    setValue('lng', lng)
+                    reverseGeocode(lat, lng)
+                  }}
+                />
               </div>
 
-              <MapPicker
-                externalPosition={mapPosition}
-                onLocationSelect={(lat, lng) => {
-                  setMapPosition([lat, lng])
-                  setValue('lat', lat)
-                  setValue('lng', lng)
-                  reverseGeocode(lat, lng)
-                }}
-              />
-              {mapPosition && (
-                <p className="text-xs text-primary font-medium">
-                  📍 Marcado: {mapPosition[0].toFixed(5)}, {mapPosition[1].toFixed(5)}
-                </p>
-              )}
+              <div className="flex items-center justify-between text-xs text-white/40 px-1">
+                <span>Haz clic en el mapa para ajustar el punto</span>
+                {mapPosition && (
+                  <span className="text-primary font-mono font-bold text-[11px]">
+                    📍 {mapPosition[0].toFixed(4)}, {mapPosition[1].toFixed(4)}
+                  </span>
+                )}
+              </div>
             </div>
 
+            {/* Address Notes */}
             <div className="space-y-2">
-              <Label htmlFor="address_notes">Anotaciones del punto de encuentro</Label>
-              <Input id="address_notes" placeholder="Ej: Quedamos al lado del surtidor 4..." {...register('address_notes')} />
+              <Label htmlFor="address_notes" className="text-xs font-bold text-white/80">
+                Indicaciones adicionales <span className="text-white/30 font-normal">(Opcional)</span>
+              </Label>
+              <Input 
+                id="address_notes" 
+                placeholder="Ej: Nos vemos en la cafetería, junto a los surtidores..." 
+                className="h-10 bg-white/[0.03] border-white/10 text-white rounded-xl text-xs"
+                {...register('address_notes')} 
+              />
             </div>
           </div>
 
-          <Button type="submit" className="w-full mt-4" disabled={isLoading}>
-            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Publicar Quedada
-          </Button>
-        </form>
-      </CardContent>
+          {/* Route Summary & Submit Card */}
+          <div className="bg-gradient-to-b from-primary/10 via-primary/5 to-transparent border border-primary/25 rounded-3xl p-5 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black uppercase tracking-wider text-primary flex items-center gap-1.5">
+                <Sparkles className="h-3.5 w-3.5" /> Resumen de Publicación
+              </span>
+              <span className={`text-[10px] font-extrabold uppercase px-2.5 py-0.5 rounded-full border ${
+                visibilityValue === 'private'
+                  ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
+                  : 'bg-green-500/20 text-green-300 border-green-500/30'
+              }`}>
+                {visibilityValue === 'private' ? '🔒 Privada' : '🌐 Pública'}
+              </span>
+            </div>
+
+            <div className="text-xs space-y-1.5 text-white/70 bg-black/40 p-3.5 rounded-2xl border border-white/5">
+              <p className="font-extrabold text-white text-sm line-clamp-1">
+                {watchedTitle || 'Título de tu quedada...'}
+              </p>
+              <div className="flex flex-wrap gap-2 text-[11px] text-white/50 pt-1">
+                <span>📅 {watchedDate || 'Fecha pendiente'}</span>
+                <span>⏰ {watchedTime || 'Hora'}</span>
+                <span>👥 {watchedMaxAttendees || '10'} riders máx.</span>
+                <span>⚡ {watchedLevel}</span>
+              </div>
+            </div>
+
+            <Button 
+              type="submit" 
+              className="w-full h-14 rounded-2xl font-black text-sm uppercase tracking-wider bg-primary hover:bg-primary/90 text-black shadow-xl shadow-primary/25 hover:scale-[1.01] transition-all cursor-pointer flex items-center justify-center gap-2" 
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <span>🏍️ Publicar Quedada</span>
+              )}
+            </Button>
+          </div>
+        </div>
+      </form>
 
       {/* Modal de Ayuda para Activar Ubicación */}
       {showLocationHelp && (
@@ -461,7 +626,7 @@ export function CreateMeetupForm() {
             <button
               type="button"
               onClick={() => setShowLocationHelp(false)}
-              className="absolute top-4 right-4 text-white/40 hover:text-white p-1 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+              className="absolute top-4 right-4 text-white/40 hover:text-white p-1 rounded-full bg-white/5 hover:bg-white/10 transition-colors cursor-pointer"
             >
               <X className="h-4 w-4" />
             </button>
@@ -533,6 +698,6 @@ export function CreateMeetupForm() {
           </div>
         </div>
       )}
-    </Card>
+    </>
   )
 }
