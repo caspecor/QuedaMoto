@@ -7,7 +7,7 @@ import * as z from 'zod'
 import { useRouter } from 'next/navigation'
 import { createMeetupAction } from '@/app/(main)/meetups/actions'
 import { toast } from 'sonner'
-import { Loader2, MapPin, Navigation, Search, Check } from 'lucide-react'
+import { Loader2, MapPin, Navigation, Search, Check, Lock, RefreshCw, X, AlertCircle } from 'lucide-react'
 import { MapPicker } from '@/components/map/MapPicker'
 
 import { Button } from '@/components/ui/button'
@@ -43,6 +43,7 @@ export function CreateMeetupForm() {
   const [isLoading, setIsLoading] = useState(false)
   const [isGeolocating, setIsGeolocating] = useState(false)
   const [isGeocoding, setIsGeocoding] = useState(false)
+  const [showLocationHelp, setShowLocationHelp] = useState(false)
   const [suggestions, setSuggestions] = useState<Suggestion[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [mapPosition, setMapPosition] = useState<[number, number] | null>(null)
@@ -176,10 +177,27 @@ export function CreateMeetupForm() {
         reverseGeocode(lat, lng)
         toast.success('Ubicación actual marcada en el mapa')
         setIsGeolocating(false)
+        setShowLocationHelp(false)
       },
       (err) => {
-        toast.error('No se pudo obtener tu ubicación. Comprueba los permisos del navegador.')
         setIsGeolocating(false)
+        if (err.code === 1) {
+          // PERMISSION_DENIED
+          setShowLocationHelp(true)
+        } else if (err.code === 2) {
+          // POSITION_UNAVAILABLE
+          toast.error('Ubicación no disponible en este dispositivo. Comprueba si el GPS o la ubicación de tu sistema están activados.')
+        } else if (err.code === 3) {
+          // TIMEOUT
+          toast.error('Tiempo de espera agotado buscando tu señal GPS. Inténtalo de nuevo.')
+        } else {
+          toast.error('No se pudo obtener tu ubicación. Comprueba los permisos del navegador.')
+        }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000,
       }
     )
   }
@@ -435,6 +453,86 @@ export function CreateMeetupForm() {
           </Button>
         </form>
       </CardContent>
+
+      {/* Modal de Ayuda para Activar Ubicación */}
+      {showLocationHelp && (
+        <div className="fixed inset-0 z-[9999] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-reveal">
+          <div className="bg-[#121212] border border-white/10 rounded-3xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative text-left">
+            <button
+              type="button"
+              onClick={() => setShowLocationHelp(false)}
+              className="absolute top-4 right-4 text-white/40 hover:text-white p-1 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
+            >
+              <X className="h-4 w-4" />
+            </button>
+
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-2xl bg-amber-500/15 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+                <Lock className="h-6 w-6" />
+              </div>
+              <div>
+                <h3 className="text-base sm:text-lg font-black text-white leading-tight">
+                  Permiso de Ubicación Bloqueado
+                </h3>
+                <p className="text-xs text-white/50">
+                  Tu navegador tiene bloqueado el acceso al GPS para esta web
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-white/70 leading-relaxed bg-white/[0.02] p-3.5 rounded-2xl border border-white/5">
+              Por seguridad, <strong>ninguna web puede forzar el diálogo de permisos</strong> si se rechazó anteriormente. Debes cambiarlo en la barra superior con estos pasos:
+            </p>
+
+            <div className="space-y-3">
+              {/* Opción PC / Chrome / Edge */}
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1.5">
+                <div className="flex items-center gap-2 text-xs font-bold text-white">
+                  <span>💻</span>
+                  <span>En PC (Chrome, Edge, Firefox, Brave):</span>
+                </div>
+                <ol className="text-xs text-white/60 space-y-1 list-decimal list-inside pl-1 leading-relaxed">
+                  <li>Haz clic en el <strong>icono del Candado 🔒 o Ajustes ⚙️</strong> a la izquierda de la dirección web (arriba donde pone <code className="text-primary text-[11px]">quedamoto.com</code>).</li>
+                  <li>En el apartado <strong>"Ubicación"</strong>, cambia la opción a <strong>"Permitir"</strong>.</li>
+                  <li>Pulsa abajo en <em>"Reintentar ahora"</em>.</li>
+                </ol>
+              </div>
+
+              {/* Opción Móvil / Safari / Android */}
+              <div className="p-3.5 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1.5">
+                <div className="flex items-center gap-2 text-xs font-bold text-white">
+                  <span>📱</span>
+                  <span>En Móvil (iPhone Safari o Android Chrome):</span>
+                </div>
+                <ul className="text-xs text-white/60 space-y-1 list-disc list-inside pl-1 leading-relaxed">
+                  <li><strong>iPhone (Safari):</strong> Toca las letras <strong>aA</strong> o el candado en la barra de URL ➡️ <em>Ajustes del sitio web</em> ➡️ <em>Ubicación: Permitir</em>.</li>
+                  <li><strong>Android (Chrome):</strong> Pulsa en el candado junto a la URL ➡️ <em>Permisos</em> ➡️ activa <em>Ubicación</em>.</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2 pt-2">
+              <Button
+                type="button"
+                className="flex-1 bg-primary text-black font-extrabold text-xs h-11 rounded-xl shadow-lg shadow-primary/20 hover:scale-[1.01] transition-all cursor-pointer flex items-center justify-center gap-2"
+                onClick={() => {
+                  handleUseMyLocation()
+                }}
+              >
+                <RefreshCw className="h-4 w-4" /> Ya lo he permitido, reintentar
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="border-white/10 text-white/70 hover:text-white text-xs h-11 rounded-xl cursor-pointer"
+                onClick={() => setShowLocationHelp(false)}
+              >
+                Cerrar y marcar a mano
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </Card>
   )
 }
