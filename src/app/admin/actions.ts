@@ -251,6 +251,7 @@ export async function getAllMeetups(page = 1, limit = 20) {
       max_attendees: meetups.max_attendees,
       visibility: meetups.visibility,
       address: meetups.address,
+      createdAt: meetups.createdAt,
       creator: {
         id: users.id,
         username: users.username
