@@ -11,7 +11,6 @@ import {
   Bike, MapPin, Trophy, Shield, Info, Instagram, Youtube, 
   Share2, MessageCircle, ExternalLink, Settings, Sparkles, Mail
 } from "lucide-react"
-import { BackButton } from "@/components/ui/BackButton"
 import { LevelProgressBar } from "@/components/profile/LevelProgressBar"
 import { ShareProfileButton } from "@/components/profile/ShareProfileButton"
 
@@ -60,32 +59,29 @@ export default async function RiderProfilePage({ params }: { params: Promise<{ i
     <div className="min-h-screen bg-mesh pt-24 sm:pt-28 pb-20">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-7xl space-y-8 animate-reveal">
         
-        {/* Navigation & Header Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/5 pb-4">
-          <BackButton />
-          
-          <div className="flex items-center gap-3">
-            {isOwner ? (
-              <Link href="/profile">
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  className="h-10 px-4 rounded-xl border-primary/30 text-primary hover:bg-primary hover:text-black font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
-                >
-                  <Settings className="h-3.5 w-3.5" />
-                  <span>Editar mi perfil</span>
-                </Button>
-              </Link>
-            ) : null}
+        {/* Actions Bar */}
+        <div className="flex items-center justify-end gap-3 border-b border-white/5 pb-4">
+          {isOwner ? (
+            <Link href="/profile">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="h-10 px-4 rounded-xl border-primary/30 text-primary hover:bg-primary hover:text-black font-bold text-xs flex items-center gap-1.5 transition-all cursor-pointer"
+              >
+                <Settings className="h-3.5 w-3.5" />
+                <span>Editar mi perfil</span>
+              </Button>
+            </Link>
+          ) : null}
 
-            <ShareProfileButton 
-              userId={rider.id}
-              username={rider.username}
-              vehicles={displayVehicles}
-              city={rider.city}
-              variant="compact"
-            />
-          </div>
+          <ShareProfileButton 
+            userId={rider.id}
+            username={rider.username}
+            vehicles={displayVehicles}
+            city={rider.city}
+            variant="compact"
+            isOwner={isOwner}
+          />
         </div>
 
         {/* Hero Rider Banner Card */}
@@ -191,6 +187,7 @@ export default async function RiderProfilePage({ params }: { params: Promise<{ i
                 username={rider.username}
                 vehicles={displayVehicles}
                 city={rider.city}
+                isOwner={isOwner}
               />
             </div>
           </div>
@@ -330,9 +327,13 @@ export default async function RiderProfilePage({ params }: { params: Promise<{ i
                 <MessageCircle className="h-5 w-5" />
               </div>
               <div>
-                <h4 className="font-black text-white text-sm">¿Te gusta este garaje?</h4>
+                <h4 className="font-black text-white text-sm">
+                  {isOwner ? "¿Quieres compartir tu garaje?" : "¿Te gusta este garaje?"}
+                </h4>
                 <p className="text-xs text-white/50 mt-0.5">
-                  Compártelo con tus amigos o grupo motero en WhatsApp
+                  {isOwner 
+                    ? "Compártelo con tus amigos o grupo motero en WhatsApp" 
+                    : `Comparte el perfil de ${rider.username} en WhatsApp`}
                 </p>
               </div>
               <ShareProfileButton 
@@ -340,6 +341,7 @@ export default async function RiderProfilePage({ params }: { params: Promise<{ i
                 username={rider.username}
                 vehicles={displayVehicles}
                 city={rider.city}
+                isOwner={isOwner}
               />
             </div>
           </div>

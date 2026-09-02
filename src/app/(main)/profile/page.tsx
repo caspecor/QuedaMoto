@@ -56,6 +56,7 @@ export default async function ProfilePage() {
               vehicles={profile?.vehicles}
               city={profile?.city}
               variant="compact"
+              isOwner={true}
             />
 
             <Link href={`/riders/${profile?.id}`}>
@@ -130,6 +131,7 @@ export default async function ProfilePage() {
                   username={profile?.username}
                   vehicles={profile?.vehicles}
                   city={profile?.city}
+                  isOwner={true}
                 />
 
                 <Link
